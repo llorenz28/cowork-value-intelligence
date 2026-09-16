@@ -1,0 +1,195 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/bookmark/2.1.0/schema.json",
+  "displayName": "BU Showback — overview",
+  "name": "a1b2c3d4e5f6000094j1",
+  "options": {
+    "targetVisualNames": [
+      "88d4683faca82150e971",
+      "bs_card_attrib",
+      "bs_card_cost",
+      "bs_card_roi",
+      "bs_card_value",
+      "bs_narrative",
+      "bs_subtitle",
+      "bs_table_org",
+      "bs_title",
+      "mv_attr_9f696a8d694b60e8d004",
+      "mv_attr_aa_card_active",
+      "mv_attr_aa_card_asof",
+      "mv_attr_aa_card_costactive",
+      "mv_attr_aa_card_reclaimlic",
+      "mv_attr_aa_card_reclaimseats",
+      "mv_attr_aa_card_valueactive",
+      "mv_attr_aa_donut_sku",
+      "mv_attr_aa_narrative",
+      "mv_attr_aa_table_org",
+      "mv_attr_aa_title"
+    ],
+    "suppressActiveSection": true,
+    "suppressData": true,
+    "applyOnlyToTargetVisuals": true
+  },
+  "explorationState": {
+    "version": "1.0",
+    "activeSection": "94_bu_showback",
+    "sections": {
+      "94_bu_showback": {
+        "visualContainers": {
+          "88d4683faca82150e971": {
+            "singleVisual": {
+              "visualType": "lineStackedColumnComboChart",
+              "objects": {}
+            }
+          },
+          "bs_card_attrib": {
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {}
+            }
+          },
+          "bs_card_cost": {
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {}
+            }
+          },
+          "bs_card_roi": {
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {}
+            }
+          },
+          "bs_card_value": {
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {}
+            }
+          },
+          "bs_narrative": {
+            "singleVisual": {
+              "visualType": "textbox",
+              "objects": {}
+            }
+          },
+          "bs_subtitle": {
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {}
+            }
+          },
+          "bs_table_org": {
+            "singleVisual": {
+              "visualType": "tableEx",
+              "objects": {}
+            }
+          },
+          "bs_title": {
+            "singleVisual": {
+              "visualType": "textbox",
+              "objects": {}
+            }
+          },
+          "mv_attr_9f696a8d694b60e8d004": {
+            "singleVisual": {
+              "visualType": "lineStackedColumnComboChart",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "mv_attr_aa_card_active": {
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "mv_attr_aa_card_asof": {
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "mv_attr_aa_card_costactive": {
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "mv_attr_aa_card_reclaimlic": {
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "mv_attr_aa_card_reclaimseats": {
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "mv_attr_aa_card_valueactive": {
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "mv_attr_aa_donut_sku": {
+            "singleVisual": {
+              "visualType": "donutChart",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "mv_attr_aa_narrative": {
+            "singleVisual": {
+              "visualType": "textbox",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "mv_attr_aa_table_org": {
+            "singleVisual": {
+              "visualType": "tableEx",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "mv_attr_aa_title": {
+            "singleVisual": {
+              "visualType": "textbox",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,140 @@
+1
+00:00:00,100 --> 00:00:11,969
+Meet Cowork Value Intelligence: one Power BI report that turns Cowork activity into a clear story about adoption, the work people delegate, how deeply they delegate it, and the value those workflows may create.
+
+2
+00:00:11,970 --> 00:00:17,120
+The template is data-free by design and comes to life with your approved organization exports.
+
+3
+00:00:17,121 --> 00:00:20,223
+Here is a quick tour of the decisions it supports.
+
+4
+00:00:20,980 --> 00:00:23,262
+Start Here is home base.
+
+5
+00:00:23,263 --> 00:00:27,130
+It routes leaders to the questions that matter: Is adoption growing?
+
+6
+00:00:27,131 --> 00:00:29,071
+Who is using Cowork?
+
+7
+00:00:29,072 --> 00:00:31,248
+What work is being delegated?
+
+8
+00:00:31,249 --> 00:00:33,413
+Where is value concentrating?
+
+9
+00:00:33,414 --> 00:00:35,723
+Which workflows need enablement?
+
+10
+00:00:35,724 --> 00:00:37,598
+What should happen next?
+
+11
+00:00:37,599 --> 00:00:41,505
+The report begins with the decision and guides you to the right evidence.
+
+12
+00:00:42,280 --> 00:00:52,698
+Activity and Value shows where Cowork is becoming part of everyday work: which skills are used most, which categories contribute the most estimated hours, and which departments are building momentum.
+
+13
+00:00:52,699 --> 00:00:56,499
+This turns generic training into targeted workflow enablement.
+
+14
+00:00:57,256 --> 00:01:00,453
+Actions explains what people ask Cowork to do.
+
+15
+00:01:00,454 --> 00:01:08,071
+Move from skill volume to work categories and value tiers, spot unmapped tools, and identify repeatable actions worth scaling.
+
+16
+00:01:08,072 --> 00:01:10,414
+The goal is not more prompts.
+
+17
+00:01:10,415 --> 00:01:12,970
+It is better, higher-value work.
+
+18
+00:01:13,723 --> 00:01:16,786
+How Far They Delegate goes beyond activity.
+
+19
+00:01:16,787 --> 00:01:23,756
+It shows task duration, steps, skill chaining, and movement from trying to using, delegating, and automating.
+
+20
+00:01:23,757 --> 00:01:29,962
+These signals show workflow depth—not unattended work—and where users are ready for advanced patterns.
+
+21
+00:01:30,723 --> 00:01:35,159
+Value by User Tier reveals whether adoption is broad or concentrated.
+
+22
+00:01:35,160 --> 00:01:41,582
+Find champions who can teach proven patterns, teams that depend on a few experts, and users who may need coaching.
+
+23
+00:01:41,583 --> 00:01:44,998
+Pair each tier with business context before acting.
+
+24
+00:01:45,756 --> 00:01:49,344
+The methodology page keeps the value story defensible.
+
+25
+00:01:49,345 --> 00:01:57,341
+Every output traces to observed task volume, published time-saved assumptions, a selected labor rate, and optional quality adjustments.
+
+26
+00:01:57,342 --> 00:02:00,354
+Change the assumptions and the result changes.
+
+27
+00:02:00,355 --> 00:02:03,847
+This is scenario planning, not audited savings.
+
+28
+00:02:04,596 --> 00:02:09,356
+Together, these views answer the questions leaders have: Is adoption growing?
+
+29
+00:02:09,357 --> 00:02:11,482
+What work is being delegated?
+
+30
+00:02:11,483 --> 00:02:14,172
+Are people moving into deeper workflows?
+
+31
+00:02:14,173 --> 00:02:15,946
+Where are the champions?
+
+32
+00:02:15,947 --> 00:02:18,379
+Which patterns should we scale next?
+
+33
+00:02:18,380 --> 00:02:23,804
+Consumption and cost are available when needed, but they support the story—they do not define it.
+
+34
+00:02:24,564 --> 00:02:30,853
+That is Cowork Value Intelligence: one report from activity to a defensible value and enablement story.
+
+35
+00:02:30,854 --> 00:02:37,934
+Download the template, connect your approved exports, and turn your organization's Cowork activity into an actionable value story.
+

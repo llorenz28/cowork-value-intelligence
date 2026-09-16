@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "Cowork Value Intelligence"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "bba2afc6-8b66-5dbc-857c-aca3d18666dd"
+  }
+}

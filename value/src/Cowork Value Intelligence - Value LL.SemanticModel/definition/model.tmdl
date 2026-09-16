@@ -1,0 +1,131 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	discourageImplicitMeasures
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		fastCombine
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation PBI_QueryOrder = ["DataFolderPath","fnFindCsvPath","fnLoadCsv","DataSourceMode","CreditCsvPath","AsOfDate","CurrencyCode","DefaultRatePerCredit","CopilotAuditFolderPath","CoworkUsageCsvPath","OrgCsvPath","Dim_Date","Dim_User","Dim_Service","Dim_Policy","Dim_TaskCategory","Fact_Consumption","Fact_Tasks","AsOf","Human Time Estimates","Value Constants","Metric Glossary","AppHost Category Map","Fact_CopilotAuditRaw","Fact_CopilotAuditRaw_WithLists","Cowork Skill Category Map","Bridge_CoworkPlugin","Bridge_CoworkResource","Dim_CoworkSkill","Dim_Behavior","Fact_CoworkAction","Fact_CoworkThread","Fact_CoworkUsage","Dim_UserOrg","Dim_ModelProvider","SampleDataFolder"]
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBI_ProTooling = ["TMDL-Extension","DevMode"]
+
+ref table AsOf
+ref table Dim_Date
+ref table Dim_Policy
+ref table Dim_Service
+ref table Dim_TaskCategory
+ref table Dim_User
+ref table Fact_Consumption
+ref table Fact_Tasks
+ref table 'Loaded Labor Rate'
+ref table 'Rate per Credit'
+ref table 'Time Intelligence'
+ref table _Measures
+ref table 'Human Time Estimates'
+ref table 'Value Constants'
+ref table 'Metric Glossary'
+ref table 'Success Quality %'
+ref table 'Reinvestment Slider %'
+ref table 'Billing Model'
+ref table 'AppHost Category Map'
+ref table Fact_CopilotAuditRaw
+ref table Fact_CoworkDetail
+ref table 'Cowork Skill Category Map'
+ref table 'Prepaid Rate per Credit'
+ref table 'Committed Credits'
+ref table 'Prepaid Credits Procured'
+ref table 'Allocation Model'
+ref table 'Skill Adjustment %'
+ref table Bridge_CoworkPlugin
+ref table Bridge_CoworkResource
+ref table Dim_CoworkSkill
+ref table Fact_CoworkThread
+ref table Fact_CoworkUsage
+ref table Dim_UserOrg
+ref table 'Estimate Basis'
+ref table Dim_ModelProvider
+ref table 'Skill Pick 01'
+ref table 'Skill Min 01 Param'
+ref table 'Skill Pick 02'
+ref table 'Skill Min 02 Param'
+ref table 'Skill Pick 03'
+ref table 'Skill Min 03 Param'
+ref table 'Skill Pick 04'
+ref table 'Skill Min 04 Param'
+ref table 'Skill Pick 05'
+ref table 'Skill Min 05 Param'
+ref table 'Skill Pick 06'
+ref table 'Skill Min 06 Param'
+ref table 'Skill Pick 07'
+ref table 'Skill Min 07 Param'
+ref table 'Skill Pick 08'
+ref table 'Skill Min 08 Param'
+ref table 'Skill Pick 09'
+ref table 'Skill Min 09 Param'
+ref table 'Skill Pick 10'
+ref table 'Skill Min 10 Param'
+ref table 'Skill Pick 11'
+ref table 'Skill Min 11 Param'
+ref table 'Skill Pick 12'
+ref table 'Skill Min 12 Param'
+ref table 'Skill Pick 13'
+ref table 'Skill Min 13 Param'
+ref table 'Skill Pick 14'
+ref table 'Skill Min 14 Param'
+ref table 'Skill Pick 15'
+ref table 'Skill Min 15 Param'
+ref table Dim_Behavior
+ref table Fact_CoworkAction
+ref table 'Action Value Scope'
+ref table 'Action Minutes 01'
+ref table 'Action Minutes 02'
+ref table 'Action Minutes 03'
+ref table 'Action Minutes 04'
+ref table 'Action Minutes 05'
+ref table 'Action Minutes 06'
+ref table 'Action Minutes 07'
+ref table 'Action Minutes 08'
+ref table 'Action Minutes 09'
+ref table 'Action Minutes 10'
+ref table 'Action Minutes 11'
+ref table 'Action Minutes 12'
+ref table 'Action Minutes 13'
+ref table 'Action Minutes 14'
+ref table 'Action Minutes 15'
+ref table 'Action Minutes 16'
+ref table 'Action Minutes 17'
+ref table 'Action Minutes 18'
+ref table 'Action Minutes 19'
+ref table 'Action Minutes 20'
+ref table 'Action Minutes 21'
+ref table 'Action Minutes 22'
+ref table 'Action Minutes 23'
+ref table 'Action Minutes 24'
+ref table 'Action Minutes 25'
+ref table 'Action Minutes 26'
+ref table 'Action Minutes 27'
+ref table 'Action Minutes 28'
+ref table 'Action Minutes 29'
+ref table 'Action Minutes 30'
+ref table 'Action Minutes 31'
+ref table 'Action Minutes 32'
+ref table 'Action Minutes 33'
+ref table 'Action Minutes 34'
+ref table 'Action Minutes 35'
+ref table 'Action Minutes 36'
+ref table 'Action Minutes 37'
+ref table 'Action Minutes 38'
+ref table 'Action Minutes 39'
+ref table 'Action Minutes 40'
+ref table 'Action Minutes 41'
+ref table 'Action Minutes 42'
+ref table 'Action Minutes 43'
+ref table 'Action Minutes 44'
+
+ref cultureInfo en-US
+

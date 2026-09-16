@@ -1,0 +1,345 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/bookmark/2.1.0/schema.json",
+  "displayName": "Right-Sizing — overview",
+  "name": "a1b2c3d4e5f6000005j1",
+  "options": {
+    "targetVisualNames": [
+      "budget_slicer_05cohorts",
+      "date_slicer_05cohorts",
+      "dept_slicer_05cohorts",
+      "filter_header_05cohorts",
+      "license_slicer_05cohorts",
+      "p5_bar_recency",
+      "p5_card_over",
+      "p5_card_reclaim",
+      "p5_card_underutil",
+      "p5_card_within",
+      "p5_col_cohort_credits",
+      "p5_col_cohort_users",
+      "p5_disclosure",
+      "p5_slicer_budget",
+      "p5_slicer_rate",
+      "p5_slicer_recency",
+      "p5_subtitle",
+      "p5_table",
+      "p5_title",
+      "panel_bg_05cohorts",
+      "panel_close_05cohorts",
+      "panel_open_05cohorts",
+      "rate_slicer_05cohorts",
+      "mv_rt_budget_slicer_99rt",
+      "mv_rt_date_slicer_99rt",
+      "mv_rt_dept_slicer_99rt",
+      "mv_rt_filter_header_99rt",
+      "mv_rt_license_slicer_99rt",
+      "mv_rt_panel_bg_99rt",
+      "mv_rt_panel_close_99rt",
+      "mv_rt_panel_open_99rt",
+      "mv_rt_rate_slicer_99rt",
+      "mv_rt_rt_provenance",
+      "mv_rt_rt_subtitle",
+      "mv_rt_rt_table_reference",
+      "mv_rt_rt_title"
+    ],
+    "suppressActiveSection": true,
+    "suppressData": true
+  },
+  "explorationState": {
+    "version": "1.0",
+    "activeSection": "05_cohorts",
+    "sections": {
+      "05_cohorts": {
+        "visualContainers": {
+          "budget_slicer_05cohorts": {
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "date_slicer_05cohorts": {
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "dept_slicer_05cohorts": {
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "filter_header_05cohorts": {
+            "singleVisual": {
+              "visualType": "textbox",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "license_slicer_05cohorts": {
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "p5_bar_recency": {
+            "singleVisual": {
+              "visualType": "barChart",
+              "objects": {}
+            }
+          },
+          "p5_card_over": {
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {}
+            }
+          },
+          "p5_card_reclaim": {
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {}
+            }
+          },
+          "p5_card_underutil": {
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {}
+            }
+          },
+          "p5_card_within": {
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {}
+            }
+          },
+          "p5_col_cohort_credits": {
+            "singleVisual": {
+              "visualType": "lineStackedColumnComboChart",
+              "objects": {}
+            }
+          },
+          "p5_col_cohort_users": {
+            "singleVisual": {
+              "visualType": "clusteredColumnChart",
+              "objects": {}
+            }
+          },
+          "p5_disclosure": {
+            "singleVisual": {
+              "visualType": "textbox",
+              "objects": {}
+            }
+          },
+          "p5_slicer_budget": {
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "p5_slicer_rate": {
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "p5_slicer_recency": {
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "p5_subtitle": {
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {}
+            }
+          },
+          "p5_table": {
+            "singleVisual": {
+              "visualType": "tableEx",
+              "objects": {}
+            }
+          },
+          "p5_title": {
+            "singleVisual": {
+              "visualType": "textbox",
+              "objects": {}
+            }
+          },
+          "panel_bg_05cohorts": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "panel_close_05cohorts": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "panel_open_05cohorts": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "rate_slicer_05cohorts": {
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "mv_rt_budget_slicer_99rt": {
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "mv_rt_date_slicer_99rt": {
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "mv_rt_dept_slicer_99rt": {
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "mv_rt_filter_header_99rt": {
+            "singleVisual": {
+              "visualType": "textbox",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "mv_rt_license_slicer_99rt": {
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "mv_rt_panel_bg_99rt": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "mv_rt_panel_close_99rt": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "mv_rt_panel_open_99rt": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "mv_rt_rate_slicer_99rt": {
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "mv_rt_rt_provenance": {
+            "singleVisual": {
+              "visualType": "textbox",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "mv_rt_rt_subtitle": {
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "mv_rt_rt_table_reference": {
+            "singleVisual": {
+              "visualType": "tableEx",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "mv_rt_rt_title": {
+            "singleVisual": {
+              "visualType": "textbox",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

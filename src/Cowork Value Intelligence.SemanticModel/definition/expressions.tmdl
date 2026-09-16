@@ -1,0 +1,199 @@
+/// Data source mode gate. "MAC-CSV" uses only the Microsoft Admin Center Cost
+/// Management "Consumption - Users" export. Reserved values ("Hybrid","Full")
+/// light up the seeded/empty dimensions and facts in later slices.
+expression DataSourceMode = "MAC-CSV" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 7b7ec5f1-73c9-4dab-84fa-4ed53d257999
+
+/// Optional production Microsoft admin center Cowork "Consumption - Users" CSV export.
+/// The nine-column schema is enforced by fnLoadCsv. Fact_Consumption degrades to an
+/// explicit "Unavailable" state when the file is missing, invalid, or has no matching
+/// Cowork UPNs.
+expression CreditCsvPath = "C:\CoworkValueIntelligence\sample_data\CoworkConsumptionDetails.csv" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 42ce1bbf-ae41-46a0-80e7-a61843e91fe0
+
+	annotation PBI_ResultType = Text
+
+/// The snapshot as-of date. Each MAC export is one dated monthly snapshot.
+expression AsOfDate = #date(2026, 9, 6) meta [IsParameterQuery=true, Type="Date", IsParameterQueryRequired=true]
+	lineageTag: 55722e25-54f4-4d6f-9069-7dcde29d9722
+
+	annotation PBI_ResultType = Date
+
+/// Reporting currency code for cost/value measures.
+expression CurrencyCode = "USD" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 97001769-ec26-4a7d-b1bf-f9f41a26c855
+
+/// Fallback rate per credit used only if the "Rate per Credit" what-if slicer
+/// has no selection. Note: M parameters are not usable inside DAX, so DAX
+/// measures use the 0.01 literal fallback instead of this value.
+expression DefaultRatePerCredit = 0.01 meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=true]
+	lineageTag: c4cde930-0eaa-4919-9545-37e297833dbc
+
+/// Reusable, schema-tolerant CSV loader. Promotes headers and raises a clear
+/// error if any of the 9 required MAC "Consumption - Users" columns is missing.
+expression fnLoadCsv =
+		let
+			fn = (path as text) as table =>
+				let
+					Source = Csv.Document(File.Contents(path), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+					Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+					Required = {"Display Name", "User Principal Name", "Monthly credit limit", "Monthly credits used", "User ID", "Microsoft 365 Copilot license", "Last activity date", "Session Count", "% Used"},
+					Actual = Table.ColumnNames(Promoted),
+					Missing = List.Difference(Required, Actual),
+					Checked = if List.Count(Missing) > 0 then error "fnLoadCsv: missing required column(s): " & Text.Combine(Missing, ", ") else Promoted
+				in
+					Checked
+		in
+			fn
+	lineageTag: 38d1df1b-008d-45ff-b72c-506be9198f23
+
+/// Folder containing the RAW Microsoft Purview Audit Search export CSVs
+/// (schema: RecordId, CreationDate, RecordType, Operation, UserId, AuditData, ...).
+/// Point this at a folder holding one or more export parts. Only files with
+/// that exact header shape are read; anything else in the folder is ignored.
+/// Also drives Dim_User's dynamic Cowork-eligible-user detection: a user is
+/// Cowork-eligible only when they appear in a CopilotInteraction record whose
+/// AppHost contains "cowork" (case-insensitive).
+expression CopilotAuditFolderPath = "C:\CoworkValueIntelligence\sample_data\purview_audit" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 9a2d9d6e-9d0a-4b4a-8f4e-6a6a2b6c9a10
+
+	annotation PBI_ResultType = Text
+
+/// Path to the Microsoft admin center Cowork usage export CSV
+/// (schema: UserPrincipalName, DisplayName,
+/// TotalTasks, ScheduledTasks, UserInitiatedTasks, ActiveDays, LastActivityDate).
+/// This is the ONLY source for the reported task total / scheduled-vs-user-
+/// initiated split -- Fact_Tasks[Scheduled] is a hardcoded 0 (no real trigger-type
+/// field exists in the Purview audit log itself, see 96_task_categories QA finding).
+/// Fact_CoworkUsage distinguishes
+/// "not connected" from "connected, zero rows" from "connected, real rows";
+/// audit-coverage measures remain blank until a populated export is connected.
+expression CoworkUsageCsvPath = "C:\CoworkValueIntelligence\sample_data\CoworkUserDetails.csv" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: b1436d3a-1657-4199-8e91-09673a96dc2c
+
+	annotation PBI_ResultType = Text
+
+/// Folder containing optional local identity-enrichment files used only to match the
+/// detected Cowork UPNs to known display names and IDs. Consumption and license values
+/// never come from this folder.
+expression SampleDataFolder = "C:\CoworkValueIntelligence\sample_data" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 49c56ce4-c730-490a-b671-4eea6f8d2db5
+
+/// Shared parser used by the audit fact and resource/plugin bridges. It retains
+/// the per-file and outer projections keep the four raw list columns
+/// (_messages, _plugins, _resources, _models) that Fact_CopilotAuditRaw
+/// itself still truncates to a first-element scalar. NOT loaded as a model
+/// table (Import-mode/VertiPaq cannot store list-typed columns) -- this is a
+/// shared, non-loaded query that Fact_CopilotAuditRaw (thin projection, see
+/// its own partition source) and Bridge_CoworkPlugin / Bridge_CoworkResource
+/// (list-expansion, see those tables) each reference independently. Every
+/// a thin fact projection while allowing bridges to expand every list element.
+expression Fact_CopilotAuditRaw_WithLists =
+		let
+			Files0 = Folder.Files(CopilotAuditFolderPath),
+			CsvOnly = Table.SelectRows(Files0, each Text.Lower(Text.End([Name], 4)) = ".csv"),
+		
+			FinalSchema = type table [
+				RecordId = text, CreationDateParsed = nullable datetime, DateKey = nullable Int64.Type,
+				Audit_UserId = text, Audit_UserId_Normalized = text,
+				Workload = text, ClientRegion = text, AppIdentity = text, AppHost = text, ThreadId = text, LicenseType = text,
+				Message_Count = Int64.Type, Message_PromptCount = Int64.Type,
+				Plugin_Count = Int64.Type, Plugin_FirstId = text, Plugin_FirstName = text,
+				Resource_Count = Int64.Type, AccessedResource_FirstSiteUrl = text, AccessedResource_FirstAction = text,
+				ModelProviderName = text,
+				_messages = list, _plugins = list, _resources = list, _models = list
+			],
+			EmptyPerFile = #table(FinalSchema, {}),
+		
+			ProcessOneFile = (fileContent as binary) as table =>
+				let
+					Attempt = try
+						let
+							Parsed = Csv.Document(fileContent, [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+							Promoted = Table.PromoteHeaders(Parsed, [PromoteAllScalars = true]),
+							HasCols = Table.HasColumns(Promoted, {"Operation", "AuditData", "UserId", "CreationDate", "RecordId"}),
+							Base = if not HasCols then EmptyPerFile else
+								let
+									OnlyCopilot = Table.SelectRows(Promoted, each [Operation] = "CopilotInteraction"),
+		
+									AddJson = Table.AddColumn(OnlyCopilot, "_json", each
+										let a = try Json.Document(Text.ToBinary([AuditData])) in if a[HasError] then null else a[Value]
+									),
+									OnlyValidJson = Table.SelectRows(AddJson, each [_json] <> null),
+		
+									AddWorkload = Table.AddColumn(OnlyValidJson, "Workload", each try [_json][Workload] otherwise null, type text),
+									AddClientRegion = Table.AddColumn(AddWorkload, "ClientRegion", each try [_json][ClientRegion] otherwise null, type text),
+									AddAppIdentity = Table.AddColumn(AddClientRegion, "AppIdentity", each try [_json][AppIdentity] otherwise null, type text),
+									AddCed = Table.AddColumn(AddAppIdentity, "_ced", each try [_json][CopilotEventData] otherwise null),
+		
+									AddAppHost = Table.AddColumn(AddCed, "AppHost", each if [_ced] = null then null else (try [_ced][AppHost] otherwise null), type text),
+									AddThreadId = Table.AddColumn(AddAppHost, "ThreadId", each if [_ced] = null then null else (try [_ced][ThreadId] otherwise null), type text),
+									AddLicenseType = Table.AddColumn(AddThreadId, "LicenseType", each if [_ced] = null then null else (try [_ced][LicenseType] otherwise null), type text),
+		
+									AddMsgList = Table.AddColumn(AddLicenseType, "_messages", each if [_ced] = null then {} else (let m = try [_ced][Messages] otherwise null in if m = null then {} else m)),
+									AddMsgCount = Table.AddColumn(AddMsgList, "Message_Count", each List.Count([_messages]), Int64.Type),
+									AddPromptCount = Table.AddColumn(AddMsgCount, "Message_PromptCount", each List.Count(List.Select([_messages], each (try _[isPrompt] otherwise false) = true)), Int64.Type),
+		
+									AddPluginList = Table.AddColumn(AddPromptCount, "_plugins", each if [_ced] = null then {} else (let p = try [_ced][AISystemPlugin] otherwise null in if p = null then {} else p)),
+									AddPluginCount = Table.AddColumn(AddPluginList, "Plugin_Count", each List.Count([_plugins]), Int64.Type),
+									AddPluginFirstName = Table.AddColumn(AddPluginCount, "Plugin_FirstName", each if List.Count([_plugins]) = 0 then null else (try [_plugins]{0}[Name] otherwise null), type text),
+									AddPluginFirstId = Table.AddColumn(AddPluginFirstName, "Plugin_FirstId", each if List.Count([_plugins]) = 0 then null else (try [_plugins]{0}[Id] otherwise null), type text),
+		
+									AddResList = Table.AddColumn(AddPluginFirstId, "_resources", each if [_ced] = null then {} else (let r = try [_ced][AccessedResources] otherwise null in if r = null then {} else r)),
+									AddResCount = Table.AddColumn(AddResList, "Resource_Count", each List.Count([_resources]), Int64.Type),
+									AddResSiteUrl = Table.AddColumn(AddResCount, "AccessedResource_FirstSiteUrl", each if List.Count([_resources]) = 0 then null else (try [_resources]{0}[SiteUrl] otherwise null), type text),
+									AddResAction = Table.AddColumn(AddResSiteUrl, "AccessedResource_FirstAction", each if List.Count([_resources]) = 0 then null else (let a = try [_resources]{0}[Action] otherwise null in if a <> null then a else (try [_resources]{0}[Type] otherwise null)), type text),
+		
+									AddModelList = Table.AddColumn(AddResAction, "_models", each if [_ced] = null then {} else (let mo = try [_ced][ModelTransparencyDetails] otherwise null in if mo = null then {} else mo)),
+									AddModelProvider = Table.AddColumn(AddModelList, "ModelProviderName", each if List.Count([_models]) = 0 then null else (try [_models]{0}[ModelProviderName] otherwise null), type text),
+		
+									AddDateParsed = Table.AddColumn(AddModelProvider, "CreationDateParsed", each
+										let
+											t = Text.Trim(Text.From([CreationDate])),
+											a = try DateTimeZone.RemoveZone(DateTimeZone.FromText(t))
+										in
+											if a[HasError] then (let b = try DateTime.FromText(t) in if b[HasError] then null else b[Value]) else a[Value]
+									),
+									AddDateKey = Table.AddColumn(AddDateParsed, "DateKey", each
+										if [CreationDateParsed] = null then null else Date.Year(DateTime.Date([CreationDateParsed])) * 10000 + Date.Month(DateTime.Date([CreationDateParsed])) * 100 + Date.Day(DateTime.Date([CreationDateParsed])),
+										Int64.Type),
+		
+									AddUpn = Table.AddColumn(AddDateKey, "Audit_UserId", each Text.Trim(Text.From([UserId])), type text),
+									AddUpnNorm = Table.AddColumn(AddUpn, "Audit_UserId_Normalized", each Text.Lower([Audit_UserId]), type text),
+		
+									Projected = Table.SelectColumns(AddUpnNorm, Table.ColumnNames(EmptyPerFile))
+								in
+									Projected
+						in
+							Base
+					in
+						if Attempt[HasError] then EmptyPerFile else Attempt[Value],
+		
+			AddProcessed = Table.AddColumn(CsvOnly, "Processed", each ProcessOneFile([Content])),
+			AllExtracted = Table.Combine(AddProcessed[Processed]),
+			Deduped = Table.Distinct(AllExtracted, {"RecordId"}),
+		
+			MergeUser = Table.NestedJoin(Deduped, {"Audit_UserId_Normalized"}, Dim_User, {"UserPrincipalName"}, "u", JoinKind.LeftOuter),
+			AddUserKeyExpanded = Table.ExpandTableColumn(MergeUser, "u", {"UserKey"}, {"UserKey"}),
+		
+			Final = Table.SelectColumns(AddUserKeyExpanded, {
+				"RecordId", "CreationDateParsed", "DateKey", "Audit_UserId", "Audit_UserId_Normalized", "UserKey",
+				"Workload", "ClientRegion", "AppIdentity", "AppHost", "ThreadId", "LicenseType",
+				"Message_Count", "Message_PromptCount",
+				"Plugin_Count", "Plugin_FirstId", "Plugin_FirstName",
+				"Resource_Count", "AccessedResource_FirstSiteUrl", "AccessedResource_FirstAction",
+				"ModelProviderName",
+				"_messages", "_plugins", "_resources", "_models"
+			})
+		in
+			Final
+	lineageTag: d4ec29cc-487d-4a76-b665-edde08d42bd4
+
+/// Path to a customer Entra/HR user-org export CSV (schema: userPrincipalName, displayName,
+/// department, jobTitle, jobFamily, city, country, costCenter, manager,
+/// businessUnit). Dim_UserOrg stays empty until a matching export is available;
+/// it never substitutes illustrative organization data into a production model.
+expression OrgCsvPath = "C:\CoworkValueIntelligence\sample_data\CoworkUserOrgDetails.csv" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 8f6b1a2e-3c7d-4e5f-9a1b-2d4c6e8f0a1b
+
+	annotation PBI_ResultType = Text

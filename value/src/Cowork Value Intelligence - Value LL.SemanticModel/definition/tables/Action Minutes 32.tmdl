@@ -1,0 +1,19 @@
+table 'Action Minutes 32'
+	lineageTag: 92320000-4e3b-47c9-a320-7f3c7e033200
+
+	/// Customer-editable minutes for action 32 (Trigger a Power Automate flow). Uses the research benchmark until explicitly changed.
+	measure 'Action Minutes 32 Value' = SELECTEDVALUE('Action Minutes 32'[Minutes], 15)
+		formatString: #,0
+		lineageTag: 92320001-4e3b-47c9-a321-7f3c7e033201
+
+	column Minutes
+		dataType: int64
+		formatString: #,0
+		lineageTag: 92320002-4e3b-47c9-a322-7f3c7e033202
+		summarizeBy: none
+		sourceColumn: [Value]
+
+	partition 'Action Minutes 32' = calculated
+		mode: import
+		source = GENERATESERIES(0, 120, 1)
+

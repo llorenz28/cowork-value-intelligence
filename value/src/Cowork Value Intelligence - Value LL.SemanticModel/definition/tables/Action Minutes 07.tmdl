@@ -1,0 +1,19 @@
+table 'Action Minutes 07'
+	lineageTag: 92070000-4e3b-47c9-a070-7f3c7e030700
+
+	/// Customer-editable minutes for action 07 (Draft a chat or Teams update). Uses the research benchmark until explicitly changed.
+	measure 'Action Minutes 07 Value' = SELECTEDVALUE('Action Minutes 07'[Minutes], 4)
+		formatString: #,0
+		lineageTag: 92070001-4e3b-47c9-a071-7f3c7e030701
+
+	column Minutes
+		dataType: int64
+		formatString: #,0
+		lineageTag: 92070002-4e3b-47c9-a072-7f3c7e030702
+		summarizeBy: none
+		sourceColumn: [Value]
+
+	partition 'Action Minutes 07' = calculated
+		mode: import
+		source = GENERATESERIES(0, 120, 1)
+

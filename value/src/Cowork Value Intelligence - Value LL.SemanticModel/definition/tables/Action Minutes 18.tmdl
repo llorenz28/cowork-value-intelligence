@@ -1,0 +1,19 @@
+table 'Action Minutes 18'
+	lineageTag: 92180000-4e3b-47c9-a180-7f3c7e031800
+
+	/// Customer-editable minutes for action 18 (Create a slide deck). Uses the research benchmark until explicitly changed.
+	measure 'Action Minutes 18 Value' = SELECTEDVALUE('Action Minutes 18'[Minutes], 90)
+		formatString: #,0
+		lineageTag: 92180001-4e3b-47c9-a181-7f3c7e031801
+
+	column Minutes
+		dataType: int64
+		formatString: #,0
+		lineageTag: 92180002-4e3b-47c9-a182-7f3c7e031802
+		summarizeBy: none
+		sourceColumn: [Value]
+
+	partition 'Action Minutes 18' = calculated
+		mode: import
+		source = GENERATESERIES(0, 120, 1)
+

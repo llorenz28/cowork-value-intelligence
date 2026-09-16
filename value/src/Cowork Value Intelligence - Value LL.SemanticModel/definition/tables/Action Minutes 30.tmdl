@@ -1,0 +1,19 @@
+table 'Action Minutes 30'
+	lineageTag: 92300000-4e3b-47c9-a300-7f3c7e033000
+
+	/// Customer-editable minutes for action 30 (Get Excel formula or analysis help). Uses the research benchmark until explicitly changed.
+	measure 'Action Minutes 30 Value' = SELECTEDVALUE('Action Minutes 30'[Minutes], 30)
+		formatString: #,0
+		lineageTag: 92300001-4e3b-47c9-a301-7f3c7e033001
+
+	column Minutes
+		dataType: int64
+		formatString: #,0
+		lineageTag: 92300002-4e3b-47c9-a302-7f3c7e033002
+		summarizeBy: none
+		sourceColumn: [Value]
+
+	partition 'Action Minutes 30' = calculated
+		mode: import
+		source = GENERATESERIES(0, 120, 1)
+

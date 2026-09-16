@@ -1,0 +1,87 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/bookmark/2.1.0/schema.json",
+  "displayName": "Filters Open (Value by User Tier)",
+  "name": "a1b2c3d4e5f600009701",
+  "options": {
+    "targetVisualNames": [
+      "panel_open_97vt",
+      "panel_close_97vt",
+      "panel_bg_97vt",
+      "filter_header_97vt",
+      "date_slicer_97vt",
+      "dept_slicer_97vt",
+      "license_slicer_97vt",
+      "budget_slicer_97vt",
+      "rate_slicer_97vt"
+    ],
+    "suppressActiveSection": true,
+    "suppressData": true
+  },
+  "explorationState": {
+    "version": "1.0",
+    "activeSection": "97_value_tiers",
+    "sections": {
+      "97_value_tiers": {
+        "visualContainers": {
+          "panel_open_97vt": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "panel_close_97vt": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "panel_bg_97vt": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "filter_header_97vt": {
+            "singleVisual": {
+              "visualType": "textbox",
+              "objects": {}
+            }
+          },
+          "date_slicer_97vt": {
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {}
+            }
+          },
+          "dept_slicer_97vt": {
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {}
+            }
+          },
+          "license_slicer_97vt": {
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {}
+            }
+          },
+          "budget_slicer_97vt": {
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {}
+            }
+          },
+          "rate_slicer_97vt": {
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {}
+            }
+          }
+        }
+      }
+    }
+  }
+}

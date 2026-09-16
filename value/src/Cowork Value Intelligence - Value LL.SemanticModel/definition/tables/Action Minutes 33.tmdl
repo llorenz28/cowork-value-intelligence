@@ -1,0 +1,19 @@
+table 'Action Minutes 33'
+	lineageTag: 92330000-4e3b-47c9-a330-7f3c7e033300
+
+	/// Customer-editable minutes for action 33 (Manage tasks or project plan). Uses the research benchmark until explicitly changed.
+	measure 'Action Minutes 33 Value' = SELECTEDVALUE('Action Minutes 33'[Minutes], 20)
+		formatString: #,0
+		lineageTag: 92330001-4e3b-47c9-a331-7f3c7e033301
+
+	column Minutes
+		dataType: int64
+		formatString: #,0
+		lineageTag: 92330002-4e3b-47c9-a332-7f3c7e033302
+		summarizeBy: none
+		sourceColumn: [Value]
+
+	partition 'Action Minutes 33' = calculated
+		mode: import
+		source = GENERATESERIES(0, 120, 1)
+

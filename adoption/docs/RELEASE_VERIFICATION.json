@@ -1,0 +1,87 @@
+{
+  "report": "Cowork Adoption Intelligence",
+  "version": "2.0.1-testing",
+  "verifiedAt": "2026-09-15T20:37:03.0222320-05:00",
+  "result": "pass",
+  "checks": {
+    "pbir": {
+      "errors": 0,
+      "warnings": 3,
+      "warningScope": "remote JSON schemas unreachable; local structural validation completed"
+    },
+    "report": {
+      "pages": 9,
+      "visuals": 266,
+      "bookmarks": 41,
+      "bookmarkActions": 50,
+      "unresolvedBookmarkActions": 0,
+      "canvasInteractionQa": "pass",
+      "sampleRefresh": "pass",
+      "champions": {
+        "defaultTop10Candidates": 8,
+        "top5Candidates": 4,
+        "top20Candidates": 15,
+        "analysisAndResearchCandidates": 5,
+        "salesTop5Candidates": 1,
+        "filterDrawer": "pass",
+        "startHereNavigation": "pass",
+        "glossaryUpdated": true,
+        "spacing": {
+          "categoryRows": 1,
+          "categoryTiles": 7,
+          "candidateRowsVisible": 8,
+          "alignedAnalysisPanels": true,
+          "selectionBasisCallout": true,
+          "clippedTextOrRows": false
+        }
+      }
+    },
+    "parameters": {
+      "requiredPrompts": 1,
+      "promptNames": [
+        "DataFolderPath"
+      ]
+    },
+    "pbit": {
+      "filename": "Cowork Adoption Intelligence v2 Testing.pbit",
+      "bytes": 659508,
+      "sha256": "b35722cbcc0445b5b6b1a4b190d2751a9a49eed0caa17e60a6ba7a06210d171a",
+      "importedDataModel": false,
+      "securityBindings": false,
+      "securityBindingsContentTypeOverride": false,
+      "sensitivityState": "public-labeled-and-unprotected",
+      "sensitivityLabelDisplayName": "Public",
+      "sensitivityLabelId": "87867195-f2b8-4ac2-b0b6-6bb73cb33afc",
+      "embeddedLabelPropertyName": "Not Restricted"
+    },
+    "exactPbitSemanticQa": {
+      "status": "pass",
+      "auditEvents": 3342,
+      "taskThreads": 900,
+      "users": 72,
+      "multiSkillThreads": 346,
+      "multiSkillTaskPercent": 0.3844444444444444,
+      "maxDistinctSkillsPerThread": 3,
+      "unmatchedThreadUserKeys": 0,
+      "unmatchedAuditUserKeys": 0,
+      "allPartitionsReady": true
+    },
+    "sampleData": {
+      "files": 8,
+      "bytes": 2821858,
+      "manifestSha256": "74b57b6c80b8c57d3c5b0abb2d77120ccb7facaaa163530c029406ce1ce7abb6",
+      "zipBytes": 219589,
+      "zipSha256": "534e620e6e153e0cb846bc6b92fef554f5eae9391a41fa355035752cc66d6910",
+      "nonExampleIdentities": 0,
+      "nonExampleUrls": 0
+    },
+    "source": {
+      "localStateFiles": 0,
+      "userProfilePathMatches": 0,
+      "datedDevelopmentNameMatches": 0
+    },
+    "documentation": {
+      "missingRelativeLinks": 0
+    }
+  }
+}

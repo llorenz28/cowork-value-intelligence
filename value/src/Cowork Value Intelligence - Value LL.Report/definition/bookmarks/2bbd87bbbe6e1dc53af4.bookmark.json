@@ -1,0 +1,88 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/bookmark/2.1.0/schema.json",
+  "displayName": "Filters Open (Skills & Allocated Consumption)",
+  "name": "2bbd87bbbe6e1dc53af4",
+  "options": {
+    "targetVisualNames": [
+      "panel_open_92hskills",
+      "panel_close_92hskills",
+      "panel_bg_92hskills",
+      "filter_header_92hskills",
+      "date_slicer_92hskills",
+      "dept_slicer_92hskills",
+      "license_slicer_92hskills",
+      "budget_slicer_92hskills",
+      "rate_slicer_92hskills"
+    ],
+    "suppressActiveSection": true,
+    "suppressData": true,
+    "applyOnlyToTargetVisuals": true
+  },
+  "explorationState": {
+    "version": "1.0",
+    "activeSection": "92h_skill_consumption",
+    "sections": {
+      "92h_skill_consumption": {
+        "visualContainers": {
+          "panel_open_92hskills": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "panel_close_92hskills": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "panel_bg_92hskills": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "filter_header_92hskills": {
+            "singleVisual": {
+              "visualType": "textbox",
+              "objects": {}
+            }
+          },
+          "date_slicer_92hskills": {
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {}
+            }
+          },
+          "dept_slicer_92hskills": {
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {}
+            }
+          },
+          "license_slicer_92hskills": {
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {}
+            }
+          },
+          "budget_slicer_92hskills": {
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {}
+            }
+          },
+          "rate_slicer_92hskills": {
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {}
+            }
+          }
+        }
+      }
+    }
+  }
+}

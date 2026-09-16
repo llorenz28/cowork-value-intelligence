@@ -1,0 +1,134 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/bookmarksMetadata/1.0.0/schema.json",
+  "items": [
+    {
+      "name": "a1b2c3d4e5f60000ab01"
+    },
+    {
+      "name": "a1b2c3d4e5f60000ab02"
+    },
+    {
+      "name": "a1b2c3d4e5f600000301"
+    },
+    {
+      "name": "a1b2c3d4e5f600000302"
+    },
+    {
+      "name": "a1b2c3d4e5f600000501"
+    },
+    {
+      "name": "a1b2c3d4e5f600000502"
+    },
+    {
+      "name": "a1b2c3d4e5f600009201"
+    },
+    {
+      "name": "a1b2c3d4e5f600009202"
+    },
+    {
+      "name": "a1b2c3d4e5f600009401"
+    },
+    {
+      "name": "a1b2c3d4e5f600009402"
+    },
+    {
+      "name": "a1b2c3d4e5f600009701"
+    },
+    {
+      "name": "a1b2c3d4e5f600009702"
+    },
+    {
+      "name": "a1b2c3d4e5f6000092e1"
+    },
+    {
+      "name": "a1b2c3d4e5f6000092e2"
+    },
+    {
+      "name": "a1b2c3d4e5f6000092f1"
+    },
+    {
+      "name": "a1b2c3d4e5f6000092f2"
+    },
+    {
+      "name": "a1b2c3d4e5f6000092f3"
+    },
+    {
+      "name": "a1b2c3d4e5f6000092g1"
+    },
+    {
+      "name": "a1b2c3d4e5f6000092g2"
+    },
+    {
+      "name": "a1b2c3d4e5f6000092h1"
+    },
+    {
+      "name": "a1b2c3d4e5f6000092h2"
+    },
+    {
+      "name": "a1b2c3d4e5f6000002d1"
+    },
+    {
+      "name": "a1b2c3d4e5f6000002d2"
+    },
+    {
+      "name": "a1b2c3d4e5f6000092a1"
+    },
+    {
+      "name": "a1b2c3d4e5f6000092a2"
+    },
+    {
+      "name": "a1b2c3d4e5f6000092c1"
+    },
+    {
+      "name": "a1b2c3d4e5f6000092c2"
+    },
+    {
+      "name": "a1b2c3d4e5f6000092f4"
+    },
+    {
+      "name": "a1b2c3d4e5f6000092f5"
+    },
+    {
+      "name": "a1b2c3d4e5f6000092i1"
+    },
+    {
+      "name": "a1b2c3d4e5f6000092i2"
+    },
+    {
+      "name": "a1b2c3d4e5f6000092j1"
+    },
+    {
+      "name": "a1b2c3d4e5f6000092j2"
+    },
+    {
+      "name": "a1b2c3d4e5f6000092k1"
+    },
+    {
+      "name": "a1b2c3d4e5f6000092k2"
+    },
+    {
+      "name": "a1b2c3d4e5f6000094j1"
+    },
+    {
+      "name": "a1b2c3d4e5f6000094j2"
+    },
+    {
+      "name": "a1b2c3d4e5f6000094k1"
+    },
+    {
+      "name": "a1b2c3d4e5f6000094k2"
+    },
+    {
+      "name": "a1b2c3d4e5f6000005j1"
+    },
+    {
+      "name": "a1b2c3d4e5f6000005j2"
+    },
+    {
+      "name": "a1b2c3d4e5f6000005k1"
+    },
+    {
+      "name": "a1b2c3d4e5f6000005k2"
+    }
+  ]
+}

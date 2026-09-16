@@ -1,0 +1,108 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/bookmark/2.1.0/schema.json",
+  "displayName": "BU Showback — attribution filters closed",
+  "name": "a1b2c3d4e5f6000094k2",
+  "options": {
+    "targetVisualNames": [
+      "mv_attr_panel_open_95attr",
+      "mv_attr_panel_close_95attr",
+      "mv_attr_panel_bg_95attr",
+      "mv_attr_filter_header_95attr",
+      "mv_attr_date_slicer_95attr",
+      "mv_attr_dept_slicer_95attr",
+      "mv_attr_license_slicer_95attr",
+      "mv_attr_budget_slicer_95attr",
+      "mv_attr_rate_slicer_95attr"
+    ],
+    "suppressActiveSection": true,
+    "suppressData": true
+  },
+  "explorationState": {
+    "version": "1.0",
+    "activeSection": "94_bu_showback",
+    "sections": {
+      "94_bu_showback": {
+        "visualContainers": {
+          "mv_attr_panel_open_95attr": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "mv_attr_panel_close_95attr": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "mv_attr_panel_bg_95attr": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "mv_attr_filter_header_95attr": {
+            "singleVisual": {
+              "visualType": "textbox",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "mv_attr_date_slicer_95attr": {
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "mv_attr_dept_slicer_95attr": {
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "mv_attr_license_slicer_95attr": {
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "mv_attr_budget_slicer_95attr": {
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "mv_attr_rate_slicer_95attr": {
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

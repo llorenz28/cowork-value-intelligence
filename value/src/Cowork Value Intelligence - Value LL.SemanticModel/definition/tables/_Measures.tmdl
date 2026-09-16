@@ -1,0 +1,1547 @@
+table _Measures
+	isHidden
+	lineageTag: ad3d4aec-985e-4adb-8b52-ff1a6638d059
+
+	/// True only when a customer-provided Microsoft admin center consumption export loaded and matched the detected Cowork population.
+	measure 'Consumption Data Available' = COUNTROWS(FILTER(ALL(Fact_Consumption), LEFT(Fact_Consumption[ConsumptionDataQuality], 4) = "Real")) > 0
+		lineageTag: 7c3d5f82-51e3-4b30-8a91-ea2fc4fd0e01
+
+	/// Total customer-observed Cowork credits consumed in the current filter context.
+	measure 'Total Credits Used' = IF([Consumption Data Available], SUM(Fact_Consumption[CreditsUsed]), BLANK())
+		formatString: #,0
+		lineageTag: 830ddffa-0760-4f0f-be46-3fea4dfd47b8
+
+	/// Total customer-observed monthly credit allowance in the current filter context.
+	measure 'Total Credit Limit' = IF([Consumption Data Available], SUM(Fact_Consumption[CreditLimit]), BLANK())
+		formatString: #,0
+		lineageTag: d8181425-8417-4f5e-8d40-30230f97c194
+
+	/// Allocated credits not yet consumed (limit minus used).
+	measure 'Credits Remaining' = IF(ISBLANK([Total Credit Limit]) || ISBLANK([Total Credits Used]), BLANK(), [Total Credit Limit] - [Total Credits Used])
+		formatString: #,0
+		lineageTag: c9a82945-88f4-4a69-9b7b-2809e1977576
+
+	/// Distinct users detected from customer Purview Cowork activity, evaluated through Fact_Consumption so consumption and recency dimensions filter correctly.
+	measure 'User Count' = DISTINCTCOUNT(Fact_Consumption[UserKey])
+		formatString: #,0
+		lineageTag: 312ec8e8-0ffa-453d-aaa5-9e8607b14c08
+
+	/// Distinct users with a customer-provided Microsoft 365 Copilot license assignment; blank while that source is unavailable.
+	measure 'Licensed Users' = IF(COUNTROWS(FILTER(ALL(Dim_User), Dim_User[DemographicDataQuality] <> "Unavailable - no production license-assignment source connected")) = 0, BLANK(), CALCULATE([User Count], Dim_User[CopilotLicense] = "Yes"))
+		formatString: #,0
+		lineageTag: d9877a30-d364-45c2-afb2-b5efc67661e1
+
+	/// Total customer-observed Cowork sessions across users in context.
+	measure 'Total Sessions' = IF([Consumption Data Available], SUM(Fact_Consumption[SessionCount]), BLANK())
+		formatString: #,0
+		lineageTag: 6f50fdaa-f08d-4225-9c73-6b58f51c96ba
+
+	/// Average credits consumed per distinct user.
+	measure 'Avg Credits per User' = DIVIDE([Total Credits Used], [User Count])
+		formatString: #,0.0
+		lineageTag: 0c37585d-3419-4aca-b9dc-0571b6597b44
+
+	/// Average sessions per distinct user.
+	measure 'Avg Sessions per User' = DIVIDE([Total Sessions], [User Count])
+		formatString: #,0.0
+		lineageTag: 21d98e11-9295-444d-a9b3-434827c435bb
+
+	/// Users whose last activity was within 30 days of the snapshot date.
+	measure 'Active Users (30d)' = CALCULATE([User Count], Fact_Consumption[DaysSinceActivity] <= 30)
+		formatString: #,0
+		lineageTag: 9e3e4ca9-e3d0-43c2-92bf-71fa4932380d
+
+	/// Share of users active within the last 30 days.
+	measure '% Active' = DIVIDE([Active Users (30d)], [User Count])
+		formatString: 0.0%
+		lineageTag: ad9cf5bc-e2dc-4096-9072-24b7ba550ed8
+
+	/// The rate per credit currently applied (from the what-if slicer, default 0.01).
+	measure 'Effective Rate' = [Rate per Credit Value]
+		formatString: $ #,0.000
+		lineageTag: 99f5d5e8-e4d5-477b-a66c-c867f2d1b53f
+
+	/// Cost of consumed credits at the effective (contracted) rate.
+	measure 'Contracted Cost' = IF(ISBLANK([Total Credits Used]) || ISBLANK([Effective Rate]), BLANK(), [Total Credits Used] * [Effective Rate])
+		formatString: $ #,0
+		lineageTag: 49b00e66-7a0c-485c-a1de-6617eb8d2003
+
+	/// Cost of consumed credits at the 0.01 USD list rate.
+	measure 'List Cost' = [Total Credits Used] * 0.01
+		formatString: $ #,0
+		lineageTag: 47bc289f-f55b-45e2-9a51-93d421b097ea
+
+	/// Savings achieved versus the list rate at the effective rate.
+	measure 'Savings vs List' = IF(ISBLANK([List Cost]) || ISBLANK([Contracted Cost]), BLANK(), [List Cost] - [Contracted Cost])
+		formatString: $ #,0
+		lineageTag: bb04ce39-6314-4645-9138-8338ad2c2051
+
+	/// Consumed credits as a share of the allocated limit.
+	measure 'Utilization %' = DIVIDE([Total Credits Used], [Total Credit Limit])
+		formatString: 0.0%
+		lineageTag: fa286ff3-d2cb-4eb6-bdcd-4ae41736883d
+
+	/// Sum of per-user credits consumed above each user's limit.
+	measure 'Over Limit Credits' = IF([Consumption Data Available] = FALSE(), BLANK(), SUMX(SUMMARIZE(Fact_Consumption, Dim_User[UserKey], "u", [Total Credits Used], "l", [Total Credit Limit]), MAX(0, [u] - [l])))
+		formatString: #,0
+		lineageTag: 02958e88-f853-4bf8-b87a-c0bd49204e3e
+
+	/// Chargeback cost for over-limit credits at the effective rate.
+	measure 'Chargeback $' = [Over Limit Credits] * [Effective Rate]
+		formatString: $ #,0.00
+		lineageTag: da2b502f-6049-439c-92f8-e69e29476094
+
+	/// Users whose consumption exceeded their allowance.
+	measure 'Users Over Limit' = IF(NOT [Consumption Data Available], BLANK(), CALCULATE([User Count], KEEPFILTERS(Fact_Consumption[BudgetSegment] = "Over allowance")))
+		formatString: #,0
+		lineageTag: 769e7409-a968-4980-b015-bb03e5ba4456
+
+	/// Users at 85% or more of their allowance.
+	measure 'Users Near Limit' = IF(NOT [Consumption Data Available], BLANK(), CALCULATE([User Count], KEEPFILTERS(Fact_Consumption[BudgetSegment] = "Near limit")))
+		formatString: #,0
+		lineageTag: 39d3d6ec-e338-4718-a1e9-a3a761a57d99
+
+	/// Users consuming within their allowance (healthy or under-using).
+	measure 'Users Within Budget' = IF(NOT [Consumption Data Available], BLANK(), CALCULATE([User Count], KEEPFILTERS(Fact_Consumption[BudgetSegment] IN {"Healthy 25-85%", "Under 25%"})))
+		formatString: #,0
+		lineageTag: 7e52bccd-b29d-4c4e-bb15-318e6617eaff
+
+	/// Share of users exceeding their allowance.
+	measure '% Users Over Limit' = DIVIDE([Users Over Limit], [User Count])
+		formatString: 0.0%
+		lineageTag: 803bdc7a-8a1c-4fca-9501-391c0eb4b418
+
+	/// Contribution of the current selection to total credits within the visual.
+	measure '% of Total Credits' = DIVIDE([Total Credits Used], CALCULATE([Total Credits Used], ALLSELECTED(Fact_Consumption)))
+		formatString: 0.0%
+		lineageTag: bd1dd2a1-8bb6-4063-ae50-16cd8b16bdb8
+
+	/// How efficiently allocated credits are being consumed.
+	measure 'Allocation Efficiency %' = DIVIDE([Total Credits Used], [Total Credit Limit])
+		formatString: 0.0%
+		lineageTag: 72285c1b-860a-4070-94ed-e2522f3f8043
+
+	/// Sum of per-user credits allocated but not consumed.
+	measure 'Under-Utilized Credits' = IF([Consumption Data Available] = FALSE(), BLANK(), SUMX(SUMMARIZE(Fact_Consumption, Dim_User[UserKey], "u", [Total Credits Used], "l", [Total Credit Limit]), MAX(0, [l] - [u])))
+		formatString: #,0
+		lineageTag: ad91ff8a-0707-400d-8e8c-c3d96d83e865
+
+	/// Value of unused allocated credits at the effective rate.
+	measure 'Under-Utilized $' = [Under-Utilized Credits] * [Effective Rate]
+		formatString: $ #,0
+		lineageTag: abdd0670-827a-4753-be06-640866d5772e
+
+	measure 'Reclaimable License $' =
+			IF(
+				ISBLANK([Licensed Users]) || [Consumption Data Available] = FALSE(),
+				BLANK(),
+				COALESCE(
+					CALCULATE([Under-Utilized $], KEEPFILTERS(Dim_User[CopilotLicense] = "Yes"), KEEPFILTERS(Fact_Consumption[DaysSinceActivity] > 30)),
+					0
+				)
+			)
+		formatString: $ #,0
+		lineageTag: ee8f1918-35f4-4dd2-b948-949873437dc4
+
+	/// Share of total credits consumed by the heaviest-using 10% of users.
+	measure 'Top 10% Credit Share' =
+			VAR RankedUsers = ADDCOLUMNS(VALUES(Dim_User[UserKey]), "@c", [Total Credits Used])
+			VAR N = COUNTROWS(RankedUsers)
+			VAR TopNCount = ROUNDUP(N * 0.1, 0)
+			VAR TopUsers = TOPN(TopNCount, RankedUsers, [@c], DESC)
+			VAR TopCredits = SUMX(TopUsers, [@c])
+			VAR TotalCredits = [Total Credits Used]
+			RETURN
+				DIVIDE(TopCredits, TotalCredits)
+		formatString: 0.0%
+		lineageTag: 5431529c-05d5-4343-9e7f-9c182798bb5d
+
+	measure 'Days Elapsed' = DAY(MAX(Fact_Consumption[LastActivityDate]))
+		formatString: #,0
+		lineageTag: 84b990e2-b74d-4ba6-b38f-22c4e62aa1a8
+
+	measure 'Days in Month' = DAY(EOMONTH(MAX(Fact_Consumption[LastActivityDate]), 0))
+		formatString: #,0
+		lineageTag: 89664dfc-c3e4-402c-8bd3-f64595038cf0
+
+	/// Average credits consumed per elapsed day in the month.
+	measure 'Daily Run Rate' = DIVIDE([Total Credits Used], [Days Elapsed])
+		formatString: #,0.0
+		lineageTag: 1c9c6161-6662-411b-a501-79bb30d73f7b
+
+	/// Estimated days until remaining credits are exhausted at the current run rate.
+	measure 'Days of Credits Left' = DIVIDE([Credits Remaining], [Daily Run Rate])
+		formatString: #,0.0
+		lineageTag: 5117c407-75bb-4761-8de5-dd314c7f149f
+
+	/// Projected total credits consumed by month-end at the current run rate.
+	measure 'Projected Month-End Credits' = [Daily Run Rate] * [Days in Month]
+		formatString: #,0
+		lineageTag: 1f3f36a7-b458-4e72-823a-b2ae74def4a8
+
+	/// Projected month-end cost at the effective rate.
+	measure 'Projected Month-End $' = [Projected Month-End Credits] * [Effective Rate]
+		formatString: $ #,0
+		lineageTag: d0b66ee9-620c-4754-8547-24700092f028
+
+	/// Estimated hours assisted, using real per-category task volume times the selected cited Estimate Basis benchmark (Low/Mid/High). The basis measure defaults to Mid when no single basis is selected.
+	measure 'Assisted Hours' =
+			VAR _basis = [Estimate Basis Selected]
+			RETURN
+				SWITCH(
+					_basis,
+					"Low", [Assisted Hours Low],
+					"Mid", DIVIDE(SUMX(Fact_Tasks, Fact_Tasks[Tasks] * RELATED(Dim_TaskCategory[MidMin])), 60),
+					"High", [Assisted Hours High],
+					BLANK()
+				)
+		formatString: #,0.0
+		lineageTag: 144462ba-0ad3-4d91-80f3-980ffbc48379
+
+	/// Estimated assisted hours using the conservative (low) time-saved benchmark.
+	measure 'Assisted Hours Low' = DIVIDE(SUMX(Fact_Tasks, Fact_Tasks[Tasks] * RELATED(Dim_TaskCategory[LowMin])), 60)
+		formatString: #,0.0
+		lineageTag: dd5c90e7-5e8e-4230-8d11-1e376f270355
+
+	/// Estimated assisted hours using the optimistic (high) time-saved benchmark.
+	measure 'Assisted Hours High' = DIVIDE(SUMX(Fact_Tasks, Fact_Tasks[Tasks] * RELATED(Dim_TaskCategory[HighMin])), 60)
+		formatString: #,0.0
+		lineageTag: 176454ba-709d-4903-9775-d78c0a8f8a43
+
+	/// Monetary value of assisted hours at the loaded labor rate.
+	measure 'Estimated Value $' = [Assisted Hours] * [Loaded Rate Value]
+		formatString: $ #,0
+		lineageTag: c0c56606-1a1a-4153-96ac-91e4891519d1
+
+	/// Estimated value returned per dollar of contracted cost.
+	measure 'ROI Multiple' = DIVIDE([Estimated Value $], [Contracted Cost])
+		formatString: 0.0"x"
+		lineageTag: c6a6f1e0-7ad1-4d93-8202-f7ca54405c30
+
+	/// Customer-defined recapture scenario applied to derived estimated value.
+	measure 'Recaptured Value $' = IF(ISBLANK([Estimated Value $]) || ISBLANK([Reinvestment Slider Value]), BLANK(), [Estimated Value $] * [Reinvestment Slider Value])
+		formatString: $ #,0
+		lineageTag: d523afc4-e330-4fb9-9c0e-cbd2a8ce3446
+
+	measure 'Total Interactions' =
+			IF(
+				ISCROSSFILTERED(Dim_TaskCategory),
+				BLANK(),
+				[Cowork Task Count]
+			)
+		formatString: #,0
+		lineageTag: b97deae4-964c-4aa0-b1e0-8d3190e33c63
+
+	/// Share of freed time reinvested into productive work (from Value Constants).
+	measure 'Reinvestment Rate' = LOOKUPVALUE('Value Constants'[Value], 'Value Constants'[ConstantName], "Reinvestment rate")
+		formatString: 0%
+		lineageTag: 43810b42-537e-44ab-b806-af5d064a3a92
+
+	/// Conservatism haircut applied to gross estimated value (from Value Constants).
+	measure 'Penalty Factor' = LOOKUPVALUE('Value Constants'[Value], 'Value Constants'[ConstantName], "Penalty factor")
+		formatString: 0%
+		lineageTag: 51481f7c-6b51-44ec-8aea-0b03ba7e1974
+
+	measure 'Interaction Hours Saved' = [Assisted Hours]
+		formatString: #,0.0
+		lineageTag: 97dfcdba-516a-4b50-8869-30afb158eec5
+
+	measure 'Interaction Value $' = [Estimated Value $]
+		formatString: $ #,0
+		lineageTag: 0ce6ebb6-ec69-4778-aa93-c66902d5b404
+
+	/// Derived ROI using modeled value, observed customer consumption, and an explicitly selected customer rate. Blank when any required input is unavailable.
+	measure 'Interaction ROI Multiple' = [ROI Multiple]
+		formatString: 0.0"x"
+		lineageTag: f65a7b06-5c44-4168-8fad-edfd0b2ecd46
+
+	measure 'Interaction Users' =
+			IF(
+				ISCROSSFILTERED(Dim_TaskCategory),
+				BLANK(),
+				[Cowork Active Users]
+			)
+		formatString: #,0
+		lineageTag: 1b91585c-258d-47f1-9c0f-dbe32568fced
+
+	/// Average assisted interactions per active user.
+	measure 'Avg Interactions per User' = DIVIDE([Total Interactions], [Interaction Users])
+		formatString: #,0.0
+		lineageTag: 6654e386-c551-4538-bc09-28e38cc3db68
+
+	measure 'Behaviors Used' = DISTINCTCOUNT(Bridge_CoworkPlugin[PluginName])
+		formatString: #,0
+		lineageTag: bdcd2653-8cf1-47cf-b4da-92ea174dd4af
+
+	measure 'Attributed Users %' = DIVIDE(CALCULATE([User Count], KEEPFILTERS(NOT ISBLANK(Dim_User[BusinessUnit]) && Dim_User[BusinessUnit] <> "Unassigned")), [User Count])
+		formatString: 0.0%
+		lineageTag: d8dcef02-81d0-4338-be56-d73e43b655e0
+
+	measure 'Attributed Cost %' = DIVIDE(CALCULATE([Total Credits Used], KEEPFILTERS(NOT ISBLANK(Dim_User[BusinessUnit]) && Dim_User[BusinessUnit] <> "Unassigned")), [Total Credits Used])
+		formatString: 0.0%
+		lineageTag: 4906bd62-bcf7-45c1-980a-4ba717d02684
+
+	measure 'Unattributed Cost' = CALCULATE([Total Credits Used], KEEPFILTERS(ISBLANK(Dim_User[BusinessUnit]) || Dim_User[BusinessUnit] = "Unassigned"))
+		formatString: #,0
+		lineageTag: 797b23f9-e640-4ca6-8166-3eb127b4d216
+
+	/// Latest observed Cowork activity date from the customer Purview export.
+	measure 'Data As Of' = MAX(Fact_Consumption[LastActivityDate])
+		formatString: Long Date
+		lineageTag: 84d9626f-c41f-4b59-b9de-aa763433b7b5
+
+	measure 'Reclaimable Seats' =
+			IF(
+				ISBLANK([Licensed Users]) || [Consumption Data Available] = FALSE(),
+				BLANK(),
+				COALESCE(CALCULATE([Licensed Users], KEEPFILTERS(Fact_Consumption[DaysSinceActivity] > 30)), 0)
+			)
+		formatString: #,0
+		lineageTag: bbf30595-f9ee-40f9-a990-9dc3d630aaca
+
+	/// Contracted cost per active (last-30-day) user - unit economics.
+	measure 'Cost per Active User' = DIVIDE([Contracted Cost], [Active Users (30d)])
+		formatString: $ #,0
+		lineageTag: a5a6d292-d45d-4f73-a261-d0fb7eef6ca3
+
+	/// Estimated value per active (last-30-day) user - unit economics.
+	measure 'Value per Active User' = DIVIDE([Estimated Value $], [Active Users (30d)])
+		formatString: $ #,0
+		lineageTag: 1edf5f3b-0df4-41aa-958b-ba0e5b036b9a
+
+	/// Total categorized tasks assisted by Copilot across users, categories, and periods in context.
+	measure 'Total Tasks' = SUM(Fact_Tasks[Tasks])
+		formatString: #,0
+		lineageTag: a898304b-174a-4a7e-a87d-d60dadbbbf3c
+
+	/// Average categorized tasks per calendar month containing observed tasks.
+	measure 'Tasks per Month' = DIVIDE([Total Tasks], COUNTROWS(SUMMARIZE(Fact_Tasks, Dim_Date[MonthKey])))
+		formatString: #,0
+		lineageTag: d22b9141-744a-4c5e-adcb-a7b07dcd9259
+
+	measure 'Scheduled Share' = [Scheduled Share %]
+		formatString: 0.0%
+		lineageTag: 53d92b1d-e9b2-4f5d-9df9-e5ceefab09af
+
+	measure 'Turns per Month' = DIVIDE([Cowork Task Count], COUNTROWS(SUMMARIZE(Fact_CoworkDetail, Dim_Date[MonthKey])))
+		formatString: #,0
+		lineageTag: 763e9e32-ccfd-4672-935a-d6a6a1d0c219
+
+	/// Share of active users from one observed activity date who return on the
+	/// next observed date, averaged across consecutive dates in context.
+	measure 'Weekly Return Rate' = AVERAGEX ( FILTER ( VALUES ( Fact_Tasks[DateKey] ), Fact_Tasks[DateKey] > CALCULATE ( MIN ( Fact_Tasks[DateKey] ), ALL ( Fact_Tasks[DateKey] ) ) ), VAR CurrDate = Fact_Tasks[DateKey] VAR PrevDate = CALCULATE ( MAX ( Fact_Tasks[DateKey] ), FILTER ( ALL ( Fact_Tasks[DateKey] ), Fact_Tasks[DateKey] < CurrDate ) ) VAR PrevUsers = CALCULATETABLE ( VALUES ( Fact_Tasks[UserKey] ), ALL ( Fact_Tasks[DateKey] ), Fact_Tasks[DateKey] = PrevDate, Fact_Tasks[Tasks] > 0 ) VAR CurrUsers = CALCULATETABLE ( VALUES ( Fact_Tasks[UserKey] ), ALL ( Fact_Tasks[DateKey] ), Fact_Tasks[DateKey] = CurrDate, Fact_Tasks[Tasks] > 0 ) RETURN DIVIDE ( COUNTROWS ( INTERSECT ( PrevUsers, CurrUsers ) ), COUNTROWS ( PrevUsers ) ) )
+		formatString: 0.0%
+		lineageTag: abff008d-a626-4c20-a6a4-52c05170a0c5
+
+	measure 'High-Value Action Share %' = DIVIDE(CALCULATE([Estimated Value $], KEEPFILTERS(Dim_TaskCategory[Value Tier] = "High")), [Estimated Value $])
+		formatString: 0.0%
+		lineageTag: 7a1c9d2e-4b6f-4a10-9c3e-2f81ab55c003
+
+	measure 'Value per Credit' = DIVIDE([Estimated Value $], [Total Credits Used])
+		formatString: \$#,0.00
+		lineageTag: f9f40d14-c7fc-4bac-954f-016483086f19
+
+	measure 'Value Share %' = DIVIDE([Estimated Value $], CALCULATE([Estimated Value $], REMOVEFILTERS(Dim_User[Value Band], Dim_User[Value Band Order])))
+		formatString: 0.0%
+		lineageTag: 488c4343-fb76-4bc9-b69d-4837ca9fa995
+
+	measure 'Value Users' = DISTINCTCOUNT(Dim_User[UserKey])
+		formatString: #,0
+		lineageTag: 4ec3c32e-8645-4870-9060-fd0d19f44d28
+
+	measure 'Value from Top Tier %' =
+			VAR Total = CALCULATE([Estimated Value $], REMOVEFILTERS(Dim_User[Value Band], Dim_User[Value Band Order]))
+			VAR TopTier = CALCULATE([Estimated Value $], REMOVEFILTERS(Dim_User[Value Band], Dim_User[Value Band Order]), Dim_User[Value Band] = "Top 10%")
+			RETURN DIVIDE(TopTier, Total)
+		formatString: 0.0%
+		lineageTag: 05c99e65-4253-4045-bfd1-f19209aed1a9
+
+	measure 'Credit Share %' = DIVIDE([Total Credits Used], CALCULATE([Total Credits Used], REMOVEFILTERS(Dim_User[Credit Band], Dim_User[Credit Band Order])))
+		formatString: 0.0%
+		lineageTag: 9245d2f7-786c-4475-b7d7-4d274f940529
+
+	measure 'Users Spend Ahead' = CALCULATE([Value Users], KEEPFILTERS(Dim_User[Value vs Credit] = "Spend ahead of value"))
+		formatString: #,0
+		lineageTag: b7bf1847-0323-4033-a4ac-9d6b900ccf4c
+
+	measure 'Credits at Risk' = CALCULATE([Total Credits Used], KEEPFILTERS(Dim_User[Value vs Credit] = "Spend ahead of value"))
+		formatString: #,0
+		lineageTag: 5210163d-eedf-4bdc-a424-5e993f0afa6e
+
+	measure 'Value at Risk $' = CALCULATE([Estimated Value $], KEEPFILTERS(Dim_User[Value vs Credit] = "Spend ahead of value"))
+		formatString: \$#,0
+		lineageTag: e3b86069-a019-4117-b23d-259ca87e7e3e
+
+	measure 'Value per Credit at Risk' = DIVIDE([Value at Risk $], [Credits at Risk])
+		formatString: \$#,0.00
+		lineageTag: d5fdd7e7-c421-4051-b935-1fa79e86d7de
+
+	measure 'Adjusted Interaction Value $' = [Hybrid Adjusted Action Value $]
+		formatString: $ #,0
+		lineageTag: 7cad0001-cd26-4c01-9a01-0001cd000001
+
+	/// Adjusted value as a share of the skill-invocation baseline, including minutes, reinvestment, and quality assumptions.
+	measure 'Adjusted vs Gross %' = DIVIDE ( [Adjusted Interaction Value $], [Hybrid Baseline Action Value $] )
+		formatString: 0.0%
+		lineageTag: 7cad0002-cd26-4c02-9a02-0002cd000002
+
+	measure 'Adjusted Value Delta $' = IF(ISBLANK([Adjusted Interaction Value $]), BLANK(), [Adjusted Interaction Value $] - [Hybrid Baseline Action Value $])
+		formatString: $ #,0
+		lineageTag: 7cad0003-cd26-4c03-9a03-0003cd000003
+
+	measure 'Adjusted Net Value $' = IF(ISBLANK([Adjusted Interaction Value $]), BLANK(), [Adjusted Interaction Value $] - [Contracted Cost])
+		formatString: $ #,0
+		lineageTag: 7cad0004-cd26-4c04-9a04-0004cd000004
+
+	/// Customer-adjusted interaction value returned per dollar of contracted cost.
+	measure 'Adjusted ROI Multiple' = DIVIDE([Adjusted Interaction Value $], [Contracted Cost])
+		formatString: 0.0"x"
+		lineageTag: 7cad0005-cd26-4c05-9a05-0005cd000005
+
+	/// Forward-looking annual value: the most recent COMPLETE calendar month's Estimated Value, annualised (x12). If no complete prior month has data (e.g. customers on the default 30-day window with under one full month), it projects the current partial month to a full month via elapsed days, then annualises. Basis = full month x 12.
+	measure 'Projected Annualised Value $' = VAR AsOfDate = [Data As Of] VAR CurEnd = EOMONTH(AsOfDate, 0) VAR CurStart = EOMONTH(AsOfDate, -1) + 1 VAR PrevEnd = EOMONTH(AsOfDate, -1) VAR PrevStart = EOMONTH(PrevEnd, -1) + 1 VAR IsCurComplete = AsOfDate = CurEnd VAR CurMonthValue = CALCULATE([Estimated Value $], DATESBETWEEN(Dim_Date[Date], CurStart, CurEnd)) VAR PrevMonthValue = CALCULATE([Estimated Value $], DATESBETWEEN(Dim_Date[Date], PrevStart, PrevEnd)) VAR CurMTD = CALCULATE([Estimated Value $], DATESBETWEEN(Dim_Date[Date], CurStart, AsOfDate)) VAR CurProjected = DIVIDE(CurMTD, DAY(AsOfDate)) * DAY(CurEnd) VAR FullMonthValue = SWITCH(TRUE(), IsCurComplete, CurMonthValue, PrevMonthValue > 0, PrevMonthValue, CurProjected) RETURN FullMonthValue * 12
+		formatString: $ #,0
+		lineageTag: c36cdd23-7f4e-4adb-acaf-6d1d1113fa0c
+
+	/// Platform cost under the selected billing model. Prepaid, Hybrid, and Monthly Committed require their corresponding customer-entered assumptions.
+	measure 'Effective Platform Cost $' =
+			SWITCH(
+				[Billing Mode],
+				"License-Included", 0,
+				"Credit-Priced", [Contracted Cost],
+				"Prepaid", [Prepaid Cost $],
+				"Hybrid", [Hybrid Cost $],
+				"Monthly Committed", [Effective Cost (Committed) $],
+				BLANK()
+			)
+		formatString: $ #,0
+		lineageTag: be8d3f5c-1b87-42f6-b1ed-b3b77d22de1c
+
+	/// Allocates the selected effective platform cost across the departments shown in a visual using each department's share of observed credits. The total remains equal to Effective Platform Cost $.
+	measure 'Effective Platform Cost (Allocated) $' =
+			VAR _contextCredits = [Total Credits Used]
+			VAR _selectedCredits =
+				CALCULATE(
+					[Total Credits Used],
+					ALLSELECTED(Dim_User)
+				)
+			VAR _selectedCost =
+				CALCULATE(
+					[Effective Platform Cost $],
+					ALLSELECTED(Dim_User)
+				)
+			RETURN
+				IF(
+					ISBLANK(_selectedCost) || ISBLANK(_contextCredits) || ISBLANK(_selectedCredits),
+					BLANK(),
+					_selectedCost * DIVIDE(_contextCredits, _selectedCredits)
+				)
+		formatString: $ #,0
+		lineageTag: 9f83d577-72a4-45df-9a89-b022869e66c1
+
+	/// Net business value under the selected billing model: customer-adjusted interaction value minus effective platform cost. Remains blank until both modeled value and billing cost are available.
+	measure 'Net Value (Billing) $' = IF(ISBLANK([Adjusted Interaction Value $]) || ISBLANK([Effective Platform Cost $]), BLANK(), [Adjusted Interaction Value $] - [Effective Platform Cost $])
+		formatString: $ #,0
+		lineageTag: a6ae685d-68c4-488b-9649-321bca8e6863
+
+	/// Adjusted value returned per dollar of effective platform cost. BLANK under License-Included because there is no incremental platform cost to divide by.
+	measure 'ROI (Billing)' = IF([Billing Mode] = "License-Included", BLANK(), DIVIDE([Adjusted Interaction Value $], [Effective Platform Cost $]))
+		formatString: 0.0"x"
+		lineageTag: 7cf78f1e-7eab-4991-86a1-2518fc708d52
+
+	/// Dynamic one-line ROI verdict keyed to the billing-aware ROI multiple (mirrors the ESS executive-headline pattern, Cowork-specific thresholds).
+	measure 'ROI Verdict' =
+			VAR _mode = [Billing Mode]
+			VAR _roi = [ROI (Billing)]
+			VAR _val = [Adjusted Interaction Value $]
+			RETURN
+				SWITCH(
+					TRUE(),
+					ISBLANK(_val), "Select a labor rate to unlock modeled value.",
+					_val = 0, "No assisted value in the current selection.",
+					_mode = "License-Included", "Classified-action value: " & FORMAT(_val, "$#,0") & " with no incremental credit cost.",
+					_mode IN {"Prepaid", "Hybrid"} && (ISBLANK([Prepaid Credits Procured Value]) || ISBLANK([Prepaid Rate per Credit Value])), "Enter prepaid credits purchased and the prepaid rate to unlock the ROI read.",
+					_mode = "Monthly Committed" && (ISBLANK([Committed Credits Value]) || ISBLANK([Prepaid Rate per Credit Value])), "Enter monthly committed credits and the prepaid rate to unlock the ROI read.",
+					_mode IN {"Credit-Priced", "Hybrid", "Monthly Committed"} && ISBLANK([Effective Rate]), "Enter the PAYG rate per credit to unlock the ROI read.",
+					_roi >= 5, "Classified-action ROI: " & FORMAT(_roi, "0.0") & "x adjusted value per dollar of platform cost.",
+					_roi >= 2, "Classified-action ROI is solid at " & FORMAT(_roi, "0.0") & "x adjusted value per dollar of platform cost.",
+					_roi >= 1, "Classified-action value is near break-even at " & FORMAT(_roi, "0.0") & "x.",
+					ISBLANK(_mode), "Select the customer billing model to unlock the ROI read.",
+					ISBLANK(_roi), "Connect customer consumption data to unlock the full ROI read.",
+					"Classified-action value is below platform cost at " & FORMAT(_roi, "0.0") & "x."
+				)
+		lineageTag: f2413b66-915f-48fb-a621-29a1ca0462a5
+
+	measure 'Skill-Sliced Assisted Hours' = CALCULATE([Assisted Hours], CROSSFILTER(Dim_CoworkSkill[CategoryKey], Dim_TaskCategory[CategoryKey], Both))
+		formatString: #,0.0
+		lineageTag: 7c4e9a1d-5f68-4b3e-9c72-1e8a6d4f2b90
+
+	/// Same category-grain-via-skill-filter technique as 'Skill-Sliced Assisted Hours', applied
+	/// to Estimated Value $. Same "repeated per category, not truly per-skill" caveat applies.
+	measure 'Skill-Sliced Estimated Value $' = CALCULATE([Estimated Value $], CROSSFILTER(Dim_CoworkSkill[CategoryKey], Dim_TaskCategory[CategoryKey], Both))
+		formatString: $ #,0
+		lineageTag: 9d3f7b2e-8a41-4c95-b6d0-3f5e9a7c1d84
+
+	/// Distinct users with at least one categorized task in the current context.
+	measure 'Task Users' = DISTINCTCOUNT(Fact_Tasks[UserKey])
+		formatString: #,0
+		lineageTag: 2f6b7e94-8c3d-4a91-b5e6-1d9a7c4f0e82
+
+	/// Modeled value per categorized Cowork task. Value per Credit remains unavailable until observed credit consumption is connected.
+	measure 'Value per Task' = DIVIDE([Estimated Value $], [Total Tasks])
+		formatString: \$#,0.00
+		lineageTag: 902b2d73-a206-4ac5-8d33-d188c1231584
+
+	/// Card-safe ROI display with billing-mode-specific messages for missing
+	/// assumptions or consumption inputs.
+	measure 'ROI (Billing) Display' =
+			VAR _mode = [Billing Mode]
+			VAR _missingInput =
+				SWITCH(
+					TRUE(),
+					ISBLANK(_mode), "Input required - billing model",
+					_mode IN {"Prepaid", "Hybrid"} && ISBLANK([Prepaid Credits Procured Value]), "Input required - prepaid credits",
+					_mode IN {"Prepaid", "Hybrid", "Monthly Committed"} && ISBLANK([Prepaid Rate per Credit Value]), "Input required - prepaid rate",
+					_mode = "Monthly Committed" && ISBLANK([Committed Credits Value]), "Input required - committed credits",
+					_mode IN {"Credit-Priced", "Hybrid", "Monthly Committed"} && ISBLANK([Effective Rate]), "Input required - PAYG rate",
+					BLANK()
+				)
+			RETURN
+				SWITCH(
+					TRUE(),
+					_mode = "License-Included", "No incremental credit cost",
+					NOT ISBLANK(_missingInput), _missingInput,
+					ISBLANK([ROI (Billing)]) && (ISBLANK([Effective Platform Cost $]) || [Effective Platform Cost $] = 0), "N/A - no consumption data",
+					FORMAT([ROI (Billing)], "0.0") & "x"
+				)
+		lineageTag: 7cad0006-cd26-4c06-9a06-0006cd000006
+
+	/// Cost of the customer-entered prepaid credit pool at the customer-entered prepaid rate.
+	measure 'Prepaid Cost $' = IF(ISBLANK([Prepaid Credits Procured Value]) || ISBLANK([Prepaid Rate per Credit Value]), BLANK(), [Prepaid Credits Procured Value] * [Prepaid Rate per Credit Value])
+		formatString: $ #,0
+		lineageTag: 2c004351-1dfb-4bf3-b61f-75b963fe7b22
+
+	/// Cost under a hybrid model: customer-entered prepaid pool and rate plus observed overage at the customer-entered pay-as-you-go rate.
+	measure 'Hybrid Cost $' = IF(ISBLANK([Prepaid Credits Procured Value]) || ISBLANK([Prepaid Rate per Credit Value]) || ISBLANK([Total Credits Used]) || ISBLANK([Effective Rate]), BLANK(), [Prepaid Credits Procured Value] * [Prepaid Rate per Credit Value] + MAX(0, [Total Credits Used] - [Prepaid Credits Procured Value]) * [Effective Rate])
+		formatString: $ #,0
+		lineageTag: 3d830294-6bd2-4629-b862-e35d4cffa356
+
+	/// The lowest cost among the three billing models (pay-as-you-go via Contracted Cost, fully prepaid, hybrid) for the current selection.
+	measure 'Cheapest Billing Model $' = IF(ISBLANK([Contracted Cost]) || ISBLANK([Prepaid Cost $]) || ISBLANK([Hybrid Cost $]), BLANK(), MIN(MIN([Contracted Cost], [Prepaid Cost $]), [Hybrid Cost $]))
+		formatString: $ #,0
+		lineageTag: ed092b55-1278-4858-b633-be115d5d278b
+
+	/// Labels which of the three billing models is currently cheapest.
+	measure 'Cheapest Billing Model' = IF(ISBLANK([Cheapest Billing Model $]), BLANK(), SWITCH(TRUE(), [Cheapest Billing Model $] = [Prepaid Cost $], "Prepaid", [Cheapest Billing Model $] = [Hybrid Cost $], "Hybrid", "Pay-As-You-Go"))
+		formatString: General
+		lineageTag: a5282715-a2aa-4c67-928d-6d26a216a9ee
+
+	/// Cost if the customer commits to this monthly credit volume at the discounted prepaid rate, with any projected usage above the commitment billed at the pay-as-you-go rate.
+	measure 'Effective Cost (Committed) $' = IF(ISBLANK([Committed Credits Value]) || ISBLANK([Prepaid Rate per Credit Value]) || ISBLANK([Projected Month-End Credits]) || ISBLANK([Effective Rate]), BLANK(), [Committed Credits Value] * [Prepaid Rate per Credit Value] + MAX(0, [Projected Month-End Credits] - [Committed Credits Value]) * [Effective Rate])
+		formatString: $ #,0
+		lineageTag: 97a37f9f-288b-464f-81f5-d537777d5127
+
+	/// Positive means projected usage is expected to exceed the committed volume (pay-as-you-go overage applies); negative means the commitment is projected to go under-utilized this month.
+	measure 'Committed Credits Gap' = IF(ISBLANK([Projected Month-End Credits]) || ISBLANK([Committed Credits Value]), BLANK(), [Projected Month-End Credits] - [Committed Credits Value])
+		formatString: #,0
+		lineageTag: 6a1f9317-9d03-4c25-83b2-a9345db3ea14
+
+	/// Credits consumed within each user's observed monthly allowance. This follows
+	/// Microsoft's CreditUsage Cowork chargeback reference
+	/// (https://github.com/microsoft/CreditUsage): underuse by one user never offsets
+	/// another user's overage.
+	measure 'Alloc Prepaid Covered (Credits)' =
+			IF(
+				[Consumption Data Available] = FALSE(),
+				BLANK(),
+				[Total Credits Used] - [Over Limit Credits]
+			)
+		formatString: #,0
+		lineageTag: 26cce74c-f7e6-426c-bfef-7e48c5f0c8eb
+
+	/// Sum of per-user credits above the observed monthly allowance.
+	measure 'Alloc PAYGO Gap (Credits)' = [Over Limit Credits]
+		formatString: #,0
+		lineageTag: d4fca0bc-e51c-4ab6-b66b-ba2c85b543fa
+
+	/// Chargeback for per-user overage only. Usage within allowance is not charged.
+	measure 'Alloc Cost $' = [Chargeback $]
+		formatString: $ #,0.00
+		lineageTag: b939940b-c31f-4050-aa83-83fa9553fc09
+
+	measure 'Population Sufficient' = IF([Cowork Active Users] >= 20, TRUE(), FALSE())
+		lineageTag: 705af29a-80d5-4b70-9d3f-ce11abbe4c83
+
+	measure 'Page Gate - Org' = IF(ISEMPTY(Dim_UserOrg), "Connect your Entra user export to enable this page.", BLANK())
+		lineageTag: 4eb650a0-05f6-4a32-bda7-08160d63aeb8
+
+	measure 'Page Gate - Usage' = IF(ISEMPTY(Fact_CoworkUsage), "Connect the Cowork usage export to enable this page.", BLANK())
+		lineageTag: 37545933-3338-4ab9-a3d9-4cb656f96c97
+
+	measure 'Page Gate - Population' = IF(NOT [Population Sufficient], "Needs 20+ active users for a stable split. Currently " & [Cowork Active Users] & ".", BLANK())
+		lineageTag: 9656b87f-af1a-4c5a-90df-58fc6cee8ffc
+
+	/// Comparator (re-anchored, not ambient DATEADD): month-over-month change in real estimated
+	/// value, anchored to the latest month with real activity vs. the month before it. The prior
+	/// ambient-DATEADD version only looked safe because Dim_Date's range happened to end on the
+	/// same month as the last real activity -- its "current" value was actually an unsliced
+	/// grand total across the whole range, not a true single month (see bug pattern #14).
+	measure 'Value MoM %' =
+			VAR _lastActiveMonth =
+			    MAXX(
+			        FILTER(ALL(Dim_Date[MonthStart]), CALCULATE([Estimated Value $]) > 0),
+			        Dim_Date[MonthStart]
+			    )
+			VAR _prevMonth = EDATE(_lastActiveMonth, -1)
+			VAR _cur = CALCULATE([Estimated Value $], ALL(Dim_Date), Dim_Date[MonthStart] = _lastActiveMonth)
+			VAR _prev = CALCULATE([Estimated Value $], ALL(Dim_Date), Dim_Date[MonthStart] = _prevMonth)
+			RETURN DIVIDE(_cur - _prev, _prev)
+		formatString: +0.0%;-0.0%;0.0%
+		lineageTag: 0e2db06d-2f0a-4232-a77a-8c212449e410
+
+	/// Uses the same task-share allocation basis as credits and skills. This
+	/// preserves reconciliation and avoids circularly allocating cost by value.
+	measure 'Est. Allocated Cost $ (by Model)' = [Est. Allocated Credits (by Model)] * [Effective Rate]
+		formatString: $ #,0
+		lineageTag: 4c0bf3ad-1a2e-4b7c-9d3e-6f81ab55c004
+
+	/// GATED (see 'Est. Allocated Cost $ (by Model)'). Real per-task cost once a real Model split
+	/// exists; today a Category-only per-task cost since Model has a single bucket.
+	measure 'Est. Cost per Task (by Model)' = DIVIDE([Est. Allocated Cost $ (by Model)], [Total Tasks])
+		formatString: $ #,0.00
+		lineageTag: 17d34402-2b3f-4c8d-ae4f-7092bc66d015
+
+	/// GATED (see 'Est. Allocated Cost $ (by Model)'). Per-Model equivalent of ROI Multiple --
+	/// directly answers "how do the same actions compare across models on cost and efficiency."
+	measure 'Est. Efficiency Ratio (by Model)' = DIVIDE([Estimated Value $], [Est. Allocated Cost $ (by Model)])
+		formatString: 0.00"x"
+		lineageTag: dfbc1e2b-3c4a-4d9e-bf5a-8103cd77e026
+
+	measure 'Est. Efficiency Ratio (by Model) vs Avg' = DIVIDE([Est. Efficiency Ratio (by Model)], CALCULATE([Est. Efficiency Ratio (by Model)], ALLSELECTED(Dim_ModelProvider)))
+		formatString: 0.00"x"
+		lineageTag: 73463cdf-10f0-41d9-8a2f-b91bdd8dab9c
+
+	/// Comparator (re-anchored, not ambient DATEADD): point change (not %) in High-Value Action
+	/// Share % between the latest month with real activity and the month before it. Stays a plain
+	/// subtraction (pts), not a DIVIDE ratio, matching 'Multi-Skill MoM pts''s pattern. _cur/_prev
+	/// are wrapped in COALESCE(...,0) deliberately: the latest active month can genuinely have zero
+	/// High-tier dollars (a real 0% share), which must compare as 0, not as an implicit blank.
+	measure 'High-Value Share MoM pts' =
+			VAR _lastActiveMonth =
+			    MAXX(
+			        FILTER(ALL(Dim_Date[MonthStart]), CALCULATE([Estimated Value $]) > 0),
+			        Dim_Date[MonthStart]
+			    )
+			VAR _prevMonth = EDATE(_lastActiveMonth, -1)
+			VAR _cur = COALESCE(CALCULATE([High-Value Action Share %], ALL(Dim_Date), Dim_Date[MonthStart] = _lastActiveMonth), 0)
+			VAR _prev = COALESCE(CALCULATE([High-Value Action Share %], ALL(Dim_Date), Dim_Date[MonthStart] = _prevMonth), 0)
+			RETURN _cur - _prev
+		formatString: +0.0%;-0.0%;0.0%
+		lineageTag: 9c26cc7e-2b4d-4c11-a698-929659fc6e1b
+
+	measure 'Estimated Value $ Low' = [Assisted Hours Low] * [Loaded Rate Value]
+		formatString: $ #,0
+		lineageTag: c2cf834f-c1c0-4296-b138-076dd944d9a4
+
+	/// Dollar-denominated twin of 'Assisted Hours High'. See 'Estimated Value $ Low' comment.
+	measure 'Estimated Value $ High' = [Assisted Hours High] * [Loaded Rate Value]
+		formatString: $ #,0
+		lineageTag: 9f209102-2b05-4bb5-b2db-db26a4b0e9a8
+
+	measure 'Estimated Value $ Range Display' = FORMAT([Estimated Value $], "$#,0") & " - range " & FORMAT([Estimated Value $ Low], "$#,0") & "-" & FORMAT([Estimated Value $ High], "$#,0")
+		lineageTag: ddef1502-e768-4e25-ab41-0297d6dd58a3
+
+	/// Card-safe arrow and percentage display for the month-over-month value change.
+	measure 'Value MoM % Display' = IF(ISBLANK([Value MoM %]), "–", IF([Value MoM %] > 0, "▲ " & FORMAT([Value MoM %], "0.0%"), IF([Value MoM %] < 0, "▼ " & FORMAT(ABS([Value MoM %]), "0.0%"), "— 0.0%")))
+		lineageTag: 1391c95e-f6ba-46b4-8e6b-d62f619c28f5
+
+	/// Sign-driven color for the month-over-month value-change chip.
+	measure 'Value MoM % Color' = IF(ISBLANK([Value MoM %]) || [Value MoM %] = 0, "#5C6B7F", IF([Value MoM %] > 0, "#107C10", "#A80000"))
+		lineageTag: d37040a6-3491-4b30-b5bc-5b8950dac2f5
+
+	/// Allocates the observed monthly credit total across category-by-model cells
+	/// using task share. This is an allocation, not model-specific metering.
+	measure 'Est. Allocated Credits (by Model)' =
+			VAR _numerator = [Total Tasks]
+			VAR _denominator = CALCULATE([Total Tasks], ALLSELECTED(Dim_TaskCategory), ALLSELECTED(Dim_ModelProvider))
+			VAR _share = DIVIDE(_numerator, _denominator)
+			RETURN _share * [Total Credits Used]
+		formatString: #,0
+		lineageTag: c78d033d-cca6-4829-84f6-fc71c6063236
+
+	/// Allocated average credits per task in the current model and category context.
+	measure 'Est. Avg Credits per Task (by Model)' = DIVIDE([Est. Allocated Credits (by Model)], [Total Tasks])
+		formatString: #,0.00
+		lineageTag: b922bb34-688c-442d-ad49-165d1ee6cf3b
+
+	/// Finding text based only on observed thread-level skill chaining and trend.
+	measure 'Multi-Skill Finding' =
+			VAR _pct = [Multi-Skill Task %]
+			VAR _pts = [Multi-Skill MoM pts]
+			RETURN
+			SWITCH(TRUE(),
+			    ISBLANK(_pct), "Not enough task volume yet to measure skill-chaining",
+			    _pts > 0.005, FORMAT(_pct, "0%") & " of tasks now chain multiple skills, up " & FORMAT(_pts * 100, "0.0") & " pts vs last month",
+			    _pts < -0.005, FORMAT(_pct, "0%") & " of tasks now chain multiple skills, down " & FORMAT(ABS(_pts) * 100, "0.0") & " pts vs last month",
+			    FORMAT(_pct, "0%") & " of tasks chain multiple skills, flat vs last month")
+		lineageTag: 73c3c8b3-a05e-4bcf-9c5a-a4eb2b9d8c96
+
+	/// Evidence line using observed skill and thread counts without a value split.
+	measure 'Multi-Skill Evidence' =
+			FORMAT([Avg Skills per Task], "0.0") & " skills per task on average, across " &
+			FORMAT([Cowork Tasks (Threads)], "#,0") & " real threads this period"
+		lineageTag: ba9d74f5-2011-414b-96d7-1a20de13b058
+
+	/// Relates skill-chaining depth to observed thread duration.
+	measure 'Multi-Skill Implication' =
+			"Deeper skill-chaining signals more complex delegation -- avg task now runs " &
+			FORMAT([Avg Task Duration (min)], "0.0") & " min, " &
+			FORMAT([Duration MoM %], "+0.0%;-0.0%;0.0%") & " vs last month"
+		lineageTag: b50894dd-6fae-46a0-8a46-d32cfe16c09f
+
+	/// Honest substitute action line -- the brief's version cites Delegation Ladder rung
+	/// populations, which do not exist in this model yet (no Interaction_Design_Spec rung
+	/// definition has been supplied/built; tracked separately as mp2-phase2b-rungcolumn). This
+	/// version calls out real, already-available signals instead.
+	measure 'Multi-Skill Action' =
+			"→ " & FORMAT([Multi-Skill Task %], "0%") & " chain skills today; " &
+			FORMAT([Long-Running Task %], "0%") & " of tasks run 10+ minutes -- prioritize coaching where both are low"
+		lineageTag: 528a999b-9f75-4bc9-a5b5-60c9ff21e3ce
+
+	/// Page subtitle string for 92d_action_maturity (am_subtitle), same two-sentence pattern as
+	/// the brief's 'Page 4 Answer' but chained from the honest Finding/Implication above.
+	measure 'Page 4 Answer' = [Multi-Skill Finding] & ". " & [Multi-Skill Implication]
+		lineageTag: 968aeb2b-ebd5-4982-b6a3-6690e5a747a2
+
+	/// Honest substitute for the brief's 'Ladder Title' (which needs a Delegation Rung column
+	/// that does not exist yet -- see 'Multi-Skill Action' comment above). Drives am_ladder_stack's
+	/// dynamic chart title off real Dim_CoworkSkill[Category] x Bridge_CoworkPlugin data instead:
+	/// names whichever real skill category currently has the largest share of real invocations.
+	/// Same TOPN/ADDCOLUMNS dynamic-title shape the brief specifies for Ladder Title, just pointed
+	/// at real, joinable columns (Bridge_CoworkPlugin -> Dim_CoworkSkill -> Dim_Date all have real
+	/// relationships; see relationships.tmdl).
+	measure 'Skill Mix Title' =
+			VAR _ranked =
+			    TOPN(
+			        1,
+			        ADDCOLUMNS(VALUES(Dim_CoworkSkill[Category]), "@Inv", CALCULATE([Skill Invocations])),
+			        [@Inv], DESC
+			    )
+			VAR _topCat = MAXX(_ranked, Dim_CoworkSkill[Category])
+			VAR _topInv = MAXX(_ranked, [@Inv])
+			VAR _topShare = DIVIDE(_topInv, [Skill Invocations])
+			RETURN
+			IF(
+			    ISBLANK(_topCat) || ISBLANK([Skill Invocations]),
+			    "Skill categories delegated to Cowork, by month",
+			    _topCat & " leads at " & FORMAT(_topShare, "0%") & " of skill use, by month"
+			)
+		lineageTag: cc37d44b-a8a1-44be-97c1-86d937cd02e4
+
+	measure 'Skills Used' = CALCULATE ( DISTINCTCOUNT ( Bridge_CoworkPlugin[PluginName] ), ALL ( Dim_Date ) )
+		formatString: #,0
+		lineageTag: 1a6c8dde-8c5f-47d7-b4ca-6d02ad65567c
+
+	measure 'Skills Available' = COUNTROWS ( FILTER ( ALL ( Dim_CoworkSkill ), NOT ISBLANK ( Dim_CoworkSkill[PluginName] ) ) )
+		formatString: #,0
+		lineageTag: 32856fa7-029d-44ed-9aa8-05dfe0441101
+
+	measure 'Skills Never Used' = [Skills Available] - [Skills Used]
+		formatString: #,0
+		lineageTag: 78b37a13-9b9a-44fb-a9e0-9f4d8788dced
+
+	measure 'Unused Skill List' =
+			CONCATENATEX (
+			    FILTER (
+			        ALL ( Dim_CoworkSkill ),
+			        AND ( NOT ISBLANK ( Dim_CoworkSkill[PluginName] ), ISBLANK ( CALCULATE ( [Skill Invocations] ) ) )
+			    ),
+			    Dim_CoworkSkill[SkillDisplayName], ", ", Dim_CoworkSkill[SkillDisplayName]
+			)
+		lineageTag: a8b212c0-05f5-4739-8f00-041ec67af763
+
+	measure 'Exec Finding' =
+			VAR _val = [Estimated Value $]
+			VAR _valMoM = [Value MoM %]
+			RETURN
+			SWITCH(TRUE(),
+			    ISBLANK(_valMoM), "Not enough month-over-month history yet to show a value trend",
+			    _valMoM > 0.05, "Value is up " & FORMAT(_valMoM, "0.0%") & " MoM, now $" & FORMAT(_val, "#,0"),
+			    _valMoM < -0.05, "Value dropped " & FORMAT(ABS(_valMoM), "0.0%") & " MoM, down to $" & FORMAT(_val, "#,0"),
+			    "Value is roughly flat MoM at $" & FORMAT(_val, "#,0"))
+		lineageTag: 0afc0a60-5e38-4339-b854-dc793972edec
+
+	/// Evidence line for 'Exec Finding' -- cites the same MoM re-anchoring measures already proven
+	/// on 02_exec's own delta chips (s2_chip_credits/s2_chip_cost).
+	measure 'Exec Evidence' =
+			"Active users " & [Active Users MoM % Display] & " to " & FORMAT([Cowork Active Users], "#,0") &
+			"; tasks " & [Tasks MoM % Display] & " to " & FORMAT([Cowork Tasks (Threads)], "#,0")
+		lineageTag: 98751c72-a6ee-4439-bed7-c39fb2395371
+
+	/// Implication line -- calls out the value-mix shift via 'High-Value Share MoM pts' (signed point
+	/// delta, not a ratio) alongside the current share level.
+	measure 'Exec Implication' =
+			"Mix is shifting toward lower-value work -- high-value share moved " &
+			FORMAT([High-Value Share MoM pts] * 100, "0.0") & " pts to " & FORMAT([High-Value Action Share %], "0.0%") & " of value"
+		lineageTag: a693c557-15a6-4e20-9305-5634ffeeafdd
+
+	/// Recommended next action, arrow-prefixed per the 92d_action_maturity 'am_action' card convention.
+	measure 'Exec Action' =
+			"→ Coach new users toward high-value workflows (" & FORMAT([High-Value Action Share %], "0.0%") &
+			" of value today) to sustain growth"
+		lineageTag: 81bff64d-8346-4846-be96-f395759a482d
+
+	/// Page subtitle string for 02_exec, same two-sentence pattern as 'Page 4 Answer' above.
+	measure 'Exec Page Answer' = [Exec Finding] & ". " & [Exec Implication]
+		lineageTag: e3286095-a988-440b-8c95-8467417fb862
+
+	/// Executive headline with explicit handling for license-included billing and
+	/// unavailable ROI.
+	measure 'Exec Headline' =
+			VAR _users = [Cowork Active Users]
+			VAR _tasks = [Cowork Tasks (Threads)]
+			VAR _hours = [Assisted Hours]
+			VAR _mode = [Billing Mode]
+			VAR _roi = [ROI (Billing)]
+			VAR _rung3Pct = DIVIDE([Users on Rung 3+], [Cowork Active Users])
+			VAR _roiClause =
+			    SWITCH(
+			        TRUE(),
+			        _mode = "License-Included", " at no incremental credit cost",
+			        ISBLANK(_roi), "",
+			        " at " & FORMAT(_roi, "0.0") & "x the selected platform cost"
+			    )
+			RETURN
+			FORMAT(_users, "#,0") & " people delegated " & FORMAT(_tasks, "#,0") &
+			" tasks to Cowork this period, displacing an estimated " &
+			FORMAT(_hours, "#,0") & " hours of work" & _roiClause & ". " &
+			FORMAT(_rung3Pct, "0%") & " have progressed beyond basic use."
+		lineageTag: 50a4c503-45f8-4efb-8bad-0a5e1791e5d9
+
+	/// Executive verdict used by the current summary layout.
+	measure 'Exec Verdict' =
+			VAR _users = [Cowork Active Users]
+			RETURN
+			IF(
+			    _users = 0,
+			    "No Cowork activity in the current view - widen the date range or clear a filter.",
+			    [ROI Verdict]
+			)
+		lineageTag: 88d90174-a95a-4449-8ae1-08302a7f1f32
+
+	measure 'Actions Hub Subtitle' =
+			VAR _interactions = [Total Interactions]
+			RETURN
+			IF(
+			    ISBLANK(_interactions) || _interactions = 0,
+			    "No Cowork actions in the current view - widen the date range or clear a filter.",
+			    FORMAT([Behaviors Used], "#,0") & " skills invoked across " & FORMAT(_interactions, "#,0") & " real actions, worth an estimated " & FORMAT([Interaction Value $], "$#,0") & " - " & FORMAT([High-Value Action Share %], "0%") & " from high-value work."
+			)
+		lineageTag: 3a7c1f92-6d84-4e51-9b02-7c8f5a1d4e63
+
+	measure 'Value Tiers Subtitle' =
+			VAR _users = COALESCE([Cowork Active Users], 0)
+			VAR _tasks = [Total Tasks]
+			VAR _value = [Estimated Value $]
+			RETURN
+			SWITCH(
+			    TRUE(),
+			    _users < 20,
+			        "Only " & FORMAT(_users, "#,0") & " active users are in view, below the 20-user percentile gate. " &
+			        IF(
+			            _users = 0,
+			            "No tier conclusion is shown.",
+			            "Measured tasks and modeled value remain available."
+			        ),
+			    ISBLANK(_tasks) || _tasks = 0,
+			        "No measured Cowork tasks are available in the current view - widen the date range or clear a filter.",
+			    NOT ISBLANK(_value),
+			        FORMAT(_users, "#,0") & " active users generated " & FORMAT(_tasks, "#,0") & " measured tasks and an estimated " & FORMAT(_value, "$#,0") & " in modeled value; percentile tiers are now available.",
+			    "The population supports percentile tiers, but modeled value is unavailable for the current view."
+			)
+		lineageTag: 80815c73-c0dd-4de3-9079-48f2123ab070
+
+	measure 'Forecast Subtitle' =
+			VAR _realConsumptionRows =
+			    COUNTROWS(
+			        FILTER(
+			            ALL(Fact_Consumption),
+			            LEFT(Fact_Consumption[ConsumptionDataQuality], 4) = "Real"
+			        )
+			    )
+			VAR _creditsUsed = [Total Credits Used]
+			VAR _daysElapsed = [Days Elapsed]
+			VAR _daysInMonth = [Days in Month]
+			VAR _projectedCredits = [Projected Month-End Credits]
+			RETURN
+			SWITCH(
+			    TRUE(),
+			    ISBLANK(_realConsumptionRows) || _realConsumptionRows = 0,
+			        "No customer consumption export is connected. Day " & FORMAT(_daysElapsed, "0") & " of " &
+			        FORMAT(_daysInMonth, "0") & " is measured; credit volume and straight-line projections remain unavailable.",
+			    ISBLANK(_creditsUsed) || _creditsUsed = 0,
+			        "Consumption is connected, but no credits match the current filters; the straight-line projection is unavailable.",
+			    NOT ISBLANK(_projectedCredits),
+			        "Through day " & FORMAT(_daysElapsed, "0") & " of " & FORMAT(_daysInMonth, "0") & ", " &
+			        FORMAT(_creditsUsed, "#,0") & " credits are recorded; straight-line month-end projection: " &
+			        FORMAT(_projectedCredits, "#,0") & " credits.",
+			    "Consumption is connected, but the straight-line projection is unavailable for the current filters."
+			)
+		lineageTag: 1cb35c30-dde2-4731-a3e5-8c0b4475918e
+
+	measure 'BU Showback Subtitle' =
+			VAR _orgRows = COUNTROWS(ALL(Dim_UserOrg))
+			VAR _realConsumptionRows =
+			    COUNTROWS(
+			        FILTER(
+			            ALL(Fact_Consumption),
+			            LEFT(Fact_Consumption[ConsumptionDataQuality], 4) = "Real"
+			        )
+			    )
+			VAR _tasks = [Total Tasks]
+			VAR _estimatedValue = [Estimated Value $]
+			VAR _creditsUsed = [Total Credits Used]
+			VAR _dataAsOf = [Data As Of]
+			VAR _asOfPrefix = IF(ISBLANK(_dataAsOf), "", "As of " & FORMAT(_dataAsOf, "mmm d") & ": ")
+			RETURN
+			SWITCH(
+			    TRUE(),
+			    ISBLANK(_orgRows) || _orgRows = 0,
+			        _asOfPrefix & FORMAT(COALESCE(_tasks, 0), "#,0") &
+			        " Purview tasks are measured overall. No organization export is connected; BU attribution and chargeback are unavailable.",
+			    ISBLANK(_tasks) || _tasks = 0,
+			        "Organization data is connected, but no Purview tasks match the filters; value and chargeback are unavailable.",
+			    ISBLANK(_realConsumptionRows) || _realConsumptionRows = 0,
+			        _asOfPrefix & FORMAT(_tasks, "#,0") & " Purview tasks are measured by BU; modeled value is " &
+			        FORMAT(_estimatedValue, "$#,0") & ". Chargeback awaits real consumption allowances.",
+			    NOT ISBLANK(_estimatedValue) && NOT ISBLANK(_creditsUsed),
+			        _asOfPrefix & FORMAT(_tasks, "#,0") & " tasks, " & FORMAT(_estimatedValue, "$#,0") &
+			        " modeled value and " & FORMAT(_creditsUsed, "#,0") & " credits support per-user allowance chargeback.",
+			    "Organization data is connected, but value or chargeback is unavailable for the current filters."
+			)
+		lineageTag: 2e73180a-a252-465d-8bda-a86be1ddfbe5
+
+	measure 'Cohorts Subtitle' =
+			VAR _activeUsers = COALESCE([Cowork Active Users], 0)
+			VAR _minimumPopulation = 20
+			VAR _realConsumptionRows =
+			    COUNTROWS(
+			        FILTER(
+			            ALL(Fact_Consumption),
+			            LEFT(Fact_Consumption[ConsumptionDataQuality], 4) = "Real"
+			        )
+			    )
+			VAR _consumptionStatus =
+			    IF(
+			        NOT ISBLANK(_realConsumptionRows) && _realConsumptionRows > 0,
+			        "Consumption and license assignment are measured; inactive unused-credit value uses the selected credit rate.",
+			        "Consumption, license assignment, and inactive unused-credit value remain unavailable."
+			    )
+			RETURN
+			SWITCH(
+			    TRUE(),
+			    _activeUsers = 0,
+			        "No active Cowork users match the current filters; recency and right-sizing evidence are unavailable.",
+			    _activeUsers < _minimumPopulation,
+			        FORMAT(_activeUsers, "#,0") & " active users is below the " & FORMAT(_minimumPopulation, "#,0") &
+			        "-user percentile gate. Recency is measured; value is modeled. " & _consumptionStatus,
+			    ISBLANK(_realConsumptionRows) || _realConsumptionRows = 0,
+			        FORMAT(_activeUsers, "#,0") & " active users supports percentile cohorts. Recency is measured and value is modeled; consumption and license assignment remain unavailable.",
+			    FORMAT(_activeUsers, "#,0") & " active users supports percentile cohorts. Recency, consumption, and license assignment are measured; value and inactive unused-credit value are derived."
+			)
+		lineageTag: 9a07fe4d-cea6-474a-b082-c2c9ec9cd835
+
+	/// Compact executive evidence strip.
+	measure 'Exec Evidence Strip' =
+			VAR _users = [Cowork Active Users]
+			RETURN
+			IF(
+			    _users = 0,
+			    BLANK(),
+			    FORMAT(_users, "#,0") & " active users   -   " &
+			    FORMAT([Cowork Tasks (Threads)], "#,0") & " tasks delegated   -   " &
+			    FORMAT([Assisted Hours], "#,0") & " hours displaced   -   " &
+			    FORMAT([Delegation Ratio], "0.0") & "x delegation ratio   -   " &
+			    FORMAT(DIVIDE([Users on Rung 3+], _users), "0%") & " beyond basic use"
+			)
+		lineageTag: 9cc1c246-3c08-4963-bcbf-ae5af5e4af90
+
+	/// Executive footer with reporting date, audit coverage, and filter health.
+	measure 'Exec Coverage Footer' =
+			VAR _auditCoverageText =
+				IF(ISBLANK([Audit Coverage %]), "unavailable", FORMAT([Audit Coverage %], "0%"))
+			RETURN
+				"Data through " & FORMAT([Data As Of], "d MMM yyyy") &
+				"   -   Audit coverage " & _auditCoverageText &
+				"   -   " & [Cowork Filter Health]
+		lineageTag: f2e7e601-73c9-497f-aa4a-fea7c20cc528
+
+	measure 'VS Users Ahead' = CALCULATE([Value Users], KEEPFILTERS(Dim_User[Value vs Cost Band] = "Value ahead of spend"))
+		formatString: #,0
+		lineageTag: ffa01ee0-3e51-4780-afd2-274b0d8ab0ef
+
+	/// Real value generated by the "Value ahead of spend" band only.
+	measure 'VS Value Ahead $' = CALCULATE([Estimated Value $], KEEPFILTERS(Dim_User[Value vs Cost Band] = "Value ahead of spend"))
+		formatString: "$"#,0.00
+		lineageTag: 7f87e153-e42f-4709-aec1-e2e513b6da8e
+
+	/// Real contracted cost attributable to the "Value ahead of spend" band only.
+	measure 'VS Cost Ahead $' = CALCULATE([Contracted Cost], KEEPFILTERS(Dim_User[Value vs Cost Band] = "Value ahead of spend"))
+		formatString: "$"#,0.00
+		lineageTag: ce795733-cadc-49e5-b46a-d2509a2e9022
+
+	/// Value-to-cost ratio for the "Value ahead of spend" band -- always real/dynamic, never a
+	/// hardcoded multiple, so this stays accurate as real customer data changes.
+	measure 'VS Ratio Ahead' = DIVIDE([VS Value Ahead $], [VS Cost Ahead $])
+		formatString: 0.0"x"
+		lineageTag: adfb9e22-185a-47f4-babd-3a3903456d5e
+
+	measure 'VS Finding' =
+			VAR _ahead = [VS Users Ahead]
+			VAR _total = [Value Users]
+			RETURN
+			SWITCH(TRUE(),
+			    ISBLANK(_total) || _total = 0, "Not enough real usage yet to compare value against cost",
+			    ISBLANK(_ahead) || _ahead = 0, "No users are yet generating more value than their contracted cost",
+			    _ahead = _total, "All " & FORMAT(_total, "#,0") & " active users are generating more value than their contracted cost",
+			    FORMAT(_ahead, "#,0") & " of " & FORMAT(_total, "#,0") & " active users are generating more value than their contracted cost")
+		lineageTag: d1e32e3f-1b22-4046-9f60-73b4948fc28b
+
+	/// Evidence line citing the real $ split behind 'VS Finding'.
+	measure 'VS Evidence' =
+			"Value ahead of spend: $" & FORMAT([VS Value Ahead $], "#,0.00") & " in value on $" &
+			FORMAT([VS Cost Ahead $], "#,0.00") & " of cost (" & FORMAT([VS Ratio Ahead], "0.0") & "x); " &
+			"total across all users: $" & FORMAT([Estimated Value $], "#,0.00") & " value on $" & FORMAT([Contracted Cost], "#,0.00") & " cost"
+		lineageTag: fffff0b2-9bdf-4997-aca1-50428fa93ac1
+
+	/// Implication -- highlights how concentrated the value-ahead-of-spend return is, computed
+	/// dynamically (share of total value vs. share of total cost) rather than naming a specific user.
+	measure 'VS Implication' =
+			VAR _valShare = DIVIDE([VS Value Ahead $], [Estimated Value $])
+			VAR _costShare = DIVIDE([VS Cost Ahead $], [Contracted Cost])
+			RETURN
+			IF(ISBLANK(_valShare), "Value and cost data are still too limited to size the return",
+			    "That group drives " & FORMAT(_valShare, "0.0%") & " of all value from just " & FORMAT(_costShare, "0.0%") & " of all contracted cost")
+		lineageTag: 0ff10045-4a2e-4a5e-ab49-c79d890cb0a7
+
+	/// Recommended next action, arrow-prefixed per the 92d_action_maturity 'am_action' card convention.
+	measure 'VS Action' = "→ Study what the value-ahead-of-spend users are doing differently and help the rest of the population adopt it"
+		lineageTag: 61f5639e-bfc3-4303-a857-e167dec70e86
+
+	/// Page subtitle string for 92f_value_vs_cost, same two-sentence pattern as 'Exec Page Answer'.
+	measure 'VS Page Answer' = [VS Finding] & ". " & [VS Implication]
+		lineageTag: 44a9280c-3a6c-4a47-a207-1054ae5f37b3
+
+	/// Minutes-denominated form of Autonomous Hours used by the delegation ratio.
+	measure 'Autonomous Minutes' = [Autonomous Hours] * 60
+		formatString: #,0
+		lineageTag: 505d006a-6ee4-4a42-92b7-ebf91bc8070d
+
+	measure 'Assisted Minutes' = [Assisted Hours] * 60
+		formatString: #,0
+		lineageTag: fdaa86b8-0d1e-48c8-bcdf-ed19122d39be
+
+	measure 'Delegation Ratio' = DIVIDE([Assisted Minutes], [Autonomous Minutes])
+		formatString: 0.0"x"
+		lineageTag: 7202dd84-75fb-4af7-ba5a-2492010382f4
+
+	measure 'User Delegation Rung' =
+			VAR _tasks  = [Cowork Tasks (Threads)]
+			VAR _sched  = [Reported Scheduled]
+			VAR _multi  = [Multi-Skill Task %]
+			VAR _skills = [Avg Distinct Skills per User]
+			RETURN
+			SWITCH(
+			    TRUE(),
+			    _tasks = 0,      "0 · Not started",
+			    _sched > 0,      "4 · Automating",
+			    _multi >= 0.30,  "3 · Delegating",
+			    _skills >= 3,    "2 · Using",
+			                     "1 · Trying"
+			)
+		lineageTag: 98e3f117-d463-4243-a722-5b9b9e62543c
+
+	measure 'Users on Rung 3+' =
+			CALCULATE(
+			    [Cowork Active Users],
+			    FILTER(VALUES(Dim_User[UserKey]), [User Delegation Rung] IN {"3 · Delegating", "4 · Automating"})
+			)
+		formatString: #,0
+		lineageTag: 29773174-b04a-45ae-b3fe-af8b84937c8a
+
+	measure 'Delegation Ladder Index' =
+			DIVIDE(
+			    SUMX(
+			        VALUES(Dim_User[UserKey]),
+			        SWITCH(
+			            [User Delegation Rung],
+			            "4 · Automating", 4,
+			            "3 · Delegating", 3,
+			            "2 · Using", 2,
+			            "1 · Trying", 1,
+			            0
+			        )
+			    ),
+			    [Cowork Active Users] * 4
+			)
+		formatString: 0%
+		lineageTag: e67e5f26-9744-4210-94a2-35a78a6f6682
+
+	/// Per-rung user counts for the delegation-ladder trend. The leading rung digit
+	/// keeps the filter stable across localized display text.
+	measure 'Users at Rung 1 (Trying)' =
+			CALCULATE(
+			    [Cowork Active Users],
+			    FILTER(VALUES(Dim_User[UserKey]), LEFT([User Delegation Rung], 1) = "1")
+			)
+		formatString: #,0
+		lineageTag: 224726fe-9edc-4e99-a798-c3a1acb68119
+
+	measure 'Users at Rung 2 (Using)' =
+			CALCULATE(
+			    [Cowork Active Users],
+			    FILTER(VALUES(Dim_User[UserKey]), LEFT([User Delegation Rung], 1) = "2")
+			)
+		formatString: #,0
+		lineageTag: 487d63a2-9a51-4fa4-9f71-891b8912cc65
+
+	measure 'Users at Rung 3 (Delegating)' =
+			CALCULATE(
+			    [Cowork Active Users],
+			    FILTER(VALUES(Dim_User[UserKey]), LEFT([User Delegation Rung], 1) = "3")
+			)
+		formatString: #,0
+		lineageTag: 80bf76c1-34c5-4f8c-a4be-52c54acc9402
+
+	measure 'Users at Rung 4 (Automating)' =
+			CALCULATE(
+			    [Cowork Active Users],
+			    FILTER(VALUES(Dim_User[UserKey]), LEFT([User Delegation Rung], 1) = "4")
+			)
+		formatString: #,0
+		lineageTag: fcfc1a05-6e82-413c-9c8e-e53037873c25
+
+	/// Dynamic conclusion for the delegation-ladder chart.
+	measure 'Ladder Title' =
+			VAR _stuck = DIVIDE([Users at Rung 1 (Trying)] + [Users at Rung 2 (Using)], [Cowork Active Users])
+			VAR _auto = DIVIDE([Users at Rung 4 (Automating)], [Cowork Active Users])
+			RETURN
+			SWITCH(
+			    TRUE(),
+			    _auto >= 0.20, FORMAT(_auto, "0%") & " of users now automate work with Cowork",
+			    _stuck >= 0.70, FORMAT(_stuck, "0%") & " of users never get past basic use",
+			    _stuck >= 0.50, "Delegation is deepening, but half your users are still exploring",
+			    "Delegation maturity is healthy across the population"
+			)
+		lineageTag: bf80c679-29ff-42a6-9161-035372592a31
+
+	/// Subtitle composed from observed multi-step share and delegation-rung counts.
+	measure 'Page 4 Subtitle' = FORMAT([Multi-Skill Task %], "0%") & " of tasks are multi-step. " & [Ladder Title]
+		lineageTag: 056771a4-4bf2-43e9-ac3a-c0843f844a1c
+
+	measure 'Review Targets Subtitle' =
+			VAR _users = [Cowork Active Users]
+			VAR _credits = [Total Credits Used]
+			RETURN
+			SWITCH(
+			    TRUE(),
+			    ISBLANK(_users) || _users = 0,
+			        "No Cowork activity in the current view - widen the date range or clear a filter.",
+			    ISBLANK(_credits),
+			        "Billing data is not connected, so cost-risk flags remain off. Prioritize enablement using measured task volume and delegation depth across " & FORMAT(_users, "#,0") & " active users.",
+			    _users < 20,
+			        FORMAT(_users, "#,0") & " active users is below the 20-user percentile gate. Use absolute value and cost evidence; do not treat this as a license-removal list.",
+			    FORMAT([Users Spend Ahead], "#,0") & " users are spend ahead of value. Start with the highest credits at risk, then validate context before any right-sizing decision."
+			)
+		lineageTag: 5e4278dc-0b90-4fb1-9ec8-8fbd9f50f1f0
+
+	/// Suppresses the model's artificial blank relationship member while exposing the measured
+	/// per-user delegation stage in the review list.
+	measure 'Review Delegation Stage' =
+			VAR _user = SELECTEDVALUE(Dim_User[DisplayName])
+			RETURN IF(ISBLANK(_user), BLANK(), [User Delegation Rung])
+		lineageTag: 7a87cf4a-b19c-4e91-8cf5-6f5a5718dce1
+
+	/// Per-user enablement action for 99_review_targets. The rules use measured activity and
+	/// delegation depth only; they intentionally do not infer license-removal or cost-risk decisions.
+	measure 'Review Next Action' =
+			VAR _user = SELECTEDVALUE(Dim_User[DisplayName])
+			VAR _tasks = [Cowork Tasks (Threads)]
+			VAR _stage = [User Delegation Rung]
+			RETURN
+			SWITCH(
+			    TRUE(),
+			    ISBLANK(_user), BLANK(),
+			    ISBLANK(_tasks) || _tasks = 0, "Re-engage - no measured tasks in view",
+			    LEFT(_stage, 1) = "1", "Coach - move from basic use to multi-step delegation",
+			    LEFT(_stage, 1) = "2", "Expand - add specialized skills and repeatable workflows",
+			    LEFT(_stage, 1) = "3", "Scale - share this delegation pattern with peers",
+			    LEFT(_stage, 1) = "4", "Govern - review scheduled work and controls",
+			    "Review measured activity"
+			)
+		lineageTag: 0e32de61-f92e-4d40-9ac9-52ff3dd12051
+
+	/// Observed skill invocations in the current Department, Business Unit, date, and report filter context.
+	measure 'Skill Invocation Volume' =
+			VAR _invocations = [Skill Invocations]
+			RETURN IF ( _invocations > 0, _invocations )
+		formatString: #,0
+		lineageTag: 6a910001-cd26-4c01-9a01-0001cd000101
+
+	/// Cited default minutes for the current skill and selected Low/Mid/High estimate basis.
+	measure 'Skill Default Minutes' =
+			VAR _invocations = [Skill Invocations]
+			VAR _basis = [Estimate Basis Selected]
+			VAR _minutes =
+				SWITCH (
+					_basis,
+					"Low", SELECTEDVALUE ( Dim_CoworkSkill[LowMin] ),
+					"High", SELECTEDVALUE ( Dim_CoworkSkill[HighMin] ),
+					SELECTEDVALUE ( Dim_CoworkSkill[MidMin] )
+				)
+			RETURN IF ( _invocations > 0, _minutes )
+		formatString: #,0
+		lineageTag: 6a910002-cd26-4c02-9a02-0002cd000102
+
+	/// Customer-entered minutes for the current skill. The first matching configured slot wins.
+	measure 'Skill Override Minutes' =
+			VAR _skill = SELECTEDVALUE ( Dim_CoworkSkill[SkillDisplayName] )
+			VAR _s01 = SELECTEDVALUE ( 'Skill Pick 01'[Skill] )
+			VAR _s02 = SELECTEDVALUE ( 'Skill Pick 02'[Skill] )
+			VAR _s03 = SELECTEDVALUE ( 'Skill Pick 03'[Skill] )
+			VAR _s04 = SELECTEDVALUE ( 'Skill Pick 04'[Skill] )
+			VAR _s05 = SELECTEDVALUE ( 'Skill Pick 05'[Skill] )
+			VAR _s06 = SELECTEDVALUE ( 'Skill Pick 06'[Skill] )
+			VAR _s07 = SELECTEDVALUE ( 'Skill Pick 07'[Skill] )
+			VAR _s08 = SELECTEDVALUE ( 'Skill Pick 08'[Skill] )
+			VAR _s09 = SELECTEDVALUE ( 'Skill Pick 09'[Skill] )
+			VAR _s10 = SELECTEDVALUE ( 'Skill Pick 10'[Skill] )
+			VAR _s11 = SELECTEDVALUE ( 'Skill Pick 11'[Skill] )
+			VAR _s12 = SELECTEDVALUE ( 'Skill Pick 12'[Skill] )
+			VAR _s13 = SELECTEDVALUE ( 'Skill Pick 13'[Skill] )
+			VAR _s14 = SELECTEDVALUE ( 'Skill Pick 14'[Skill] )
+			VAR _s15 = SELECTEDVALUE ( 'Skill Pick 15'[Skill] )
+			VAR _m01 = SELECTEDVALUE ( 'Skill Min 01 Param'[Minutes] )
+			VAR _m02 = SELECTEDVALUE ( 'Skill Min 02 Param'[Minutes] )
+			VAR _m03 = SELECTEDVALUE ( 'Skill Min 03 Param'[Minutes] )
+			VAR _m04 = SELECTEDVALUE ( 'Skill Min 04 Param'[Minutes] )
+			VAR _m05 = SELECTEDVALUE ( 'Skill Min 05 Param'[Minutes] )
+			VAR _m06 = SELECTEDVALUE ( 'Skill Min 06 Param'[Minutes] )
+			VAR _m07 = SELECTEDVALUE ( 'Skill Min 07 Param'[Minutes] )
+			VAR _m08 = SELECTEDVALUE ( 'Skill Min 08 Param'[Minutes] )
+			VAR _m09 = SELECTEDVALUE ( 'Skill Min 09 Param'[Minutes] )
+			VAR _m10 = SELECTEDVALUE ( 'Skill Min 10 Param'[Minutes] )
+			VAR _m11 = SELECTEDVALUE ( 'Skill Min 11 Param'[Minutes] )
+			VAR _m12 = SELECTEDVALUE ( 'Skill Min 12 Param'[Minutes] )
+			VAR _m13 = SELECTEDVALUE ( 'Skill Min 13 Param'[Minutes] )
+			VAR _m14 = SELECTEDVALUE ( 'Skill Min 14 Param'[Minutes] )
+			VAR _m15 = SELECTEDVALUE ( 'Skill Min 15 Param'[Minutes] )
+			RETURN
+				SWITCH (
+					TRUE (),
+					_skill = _s01 && NOT ISBLANK ( _m01 ), _m01,
+					_skill = _s02 && NOT ISBLANK ( _m02 ), _m02,
+					_skill = _s03 && NOT ISBLANK ( _m03 ), _m03,
+					_skill = _s04 && NOT ISBLANK ( _m04 ), _m04,
+					_skill = _s05 && NOT ISBLANK ( _m05 ), _m05,
+					_skill = _s06 && NOT ISBLANK ( _m06 ), _m06,
+					_skill = _s07 && NOT ISBLANK ( _m07 ), _m07,
+					_skill = _s08 && NOT ISBLANK ( _m08 ), _m08,
+					_skill = _s09 && NOT ISBLANK ( _m09 ), _m09,
+					_skill = _s10 && NOT ISBLANK ( _m10 ), _m10,
+					_skill = _s11 && NOT ISBLANK ( _m11 ), _m11,
+					_skill = _s12 && NOT ISBLANK ( _m12 ), _m12,
+					_skill = _s13 && NOT ISBLANK ( _m13 ), _m13,
+					_skill = _s14 && NOT ISBLANK ( _m14 ), _m14,
+					_skill = _s15 && NOT ISBLANK ( _m15 ), _m15,
+					BLANK ()
+				)
+		formatString: #,0
+		lineageTag: 6a910003-cd26-4c03-9a03-0003cd000103
+
+	measure 'Skill Effective Minutes' = COALESCE ( [Skill Override Minutes], [Skill Default Minutes] )
+		formatString: #,0
+		lineageTag: 6a910004-cd26-4c04-9a04-0004cd000104
+
+	measure 'Skill Minutes Delta' =
+			VAR _default = [Skill Default Minutes]
+			VAR _effective = [Skill Effective Minutes]
+			RETURN IF ( ISBLANK ( _default ), BLANK (), _effective - _default )
+		formatString: +#,0;-#,0;0
+		lineageTag: 6a910005-cd26-4c05-9a05-0005cd000105
+
+	/// Baseline hours use observed skill invocations and the cited minutes for each skill.
+	measure 'Skill Baseline Assisted Hours' =
+			SUMX (
+				VALUES ( Dim_CoworkSkill[PluginName] ),
+				[Skill Invocations] * [Skill Default Minutes] / 60
+			)
+		formatString: #,0.0
+		lineageTag: 6a910006-cd26-4c06-9a06-0006cd000106
+
+	/// Adjusted hours replace each configured skill's cited minutes with the customer's selected minutes.
+	measure 'Skill Adjusted Assisted Hours' =
+			SUMX (
+				VALUES ( Dim_CoworkSkill[PluginName] ),
+				[Skill Invocations] * [Skill Effective Minutes] / 60
+			)
+		formatString: #,0.0
+		lineageTag: 6a910007-cd26-4c07-9a07-0007cd000107
+
+	measure 'Skill Baseline Value $' =
+			VAR _rate = [Loaded Rate Value]
+			RETURN IF ( ISBLANK ( _rate ), BLANK (), [Skill Baseline Assisted Hours] * _rate )
+		formatString: $ #,0
+		lineageTag: 6a910008-cd26-4c08-9a08-0008cd000108
+
+	measure 'Adjusted Value per Credit' = DIVIDE ( [Adjusted Interaction Value $], [Total Credits Used] )
+		formatString: \$#,0.00
+		lineageTag: 6a910009-cd26-4c09-9a09-0009cd000109
+
+	/// Annualizes the latest complete month of customer-adjusted skill value, or the current partial month when needed.
+	measure 'Adjusted Projected Annualised Value $' =
+			VAR _asOfDate = [Data As Of]
+			VAR _curEnd = EOMONTH ( _asOfDate, 0 )
+			VAR _curStart = EOMONTH ( _asOfDate, -1 ) + 1
+			VAR _prevEnd = EOMONTH ( _asOfDate, -1 )
+			VAR _prevStart = EOMONTH ( _prevEnd, -1 ) + 1
+			VAR _isCurComplete = _asOfDate = _curEnd
+			VAR _curMonthValue = CALCULATE ( [Adjusted Interaction Value $], DATESBETWEEN ( Dim_Date[Date], _curStart, _curEnd ) )
+			VAR _prevMonthValue = CALCULATE ( [Adjusted Interaction Value $], DATESBETWEEN ( Dim_Date[Date], _prevStart, _prevEnd ) )
+			VAR _curMTD = CALCULATE ( [Adjusted Interaction Value $], DATESBETWEEN ( Dim_Date[Date], _curStart, _asOfDate ) )
+			VAR _curProjected = DIVIDE ( _curMTD, DAY ( _asOfDate ) ) * DAY ( _curEnd )
+			VAR _fullMonthValue = SWITCH ( TRUE (), _isCurComplete, _curMonthValue, _prevMonthValue > 0, _prevMonthValue, _curProjected )
+			RETURN _fullMonthValue * 12
+		formatString: $ #,0
+		lineageTag: 6a910010-cd26-4c10-9a10-0010cd000110
+
+	/// All real Cowork Purview records considered by the action classifier, including records whose action is ambiguous or unavailable.
+	measure 'Cowork Action Records' = SUM(Fact_CoworkAction[ActionCount])
+		formatString: #,0
+		lineageTag: 93a00001-4e3b-47c9-a001-7f3c7e040001
+
+	measure 'Direct Action Records' = CALCULATE([Cowork Action Records], Fact_CoworkAction[ClassificationStatus] = "Direct")
+		formatString: #,0
+		lineageTag: 93a00002-4e3b-47c9-a002-7f3c7e040002
+
+	measure 'Representative Action Records' = CALCULATE([Cowork Action Records], Fact_CoworkAction[ClassificationStatus] = "Representative")
+		formatString: #,0
+		lineageTag: 93a00003-4e3b-47c9-a003-7f3c7e040003
+
+	measure 'Proxy Action Records' = CALCULATE([Cowork Action Records], Fact_CoworkAction[ClassificationStatus] = "Proxy")
+		formatString: #,0
+		lineageTag: 93a00004-4e3b-47c9-a004-7f3c7e040004
+
+	measure 'Ambiguous Action Records' = CALCULATE([Cowork Action Records], Fact_CoworkAction[ClassificationStatus] = "Ambiguous")
+		formatString: #,0
+		lineageTag: 93a00005-4e3b-47c9-a005-7f3c7e040005
+
+	measure 'Unclassified Action Records' = CALCULATE([Cowork Action Records], Fact_CoworkAction[ClassificationStatus] = "Unclassified")
+		formatString: #,0
+		lineageTag: 93a00006-4e3b-47c9-a006-7f3c7e040006
+
+	/// Share of Cowork records eligible for either verified or expanded action-level value.
+	measure 'Action Classification Coverage %' = DIVIDE([Direct Action Records] + [Representative Action Records], [Cowork Action Records])
+		formatString: 0.0%
+		lineageTag: 93a00007-4e3b-47c9-a007-7f3c7e040007
+
+	measure 'Direct Action Coverage %' = DIVIDE([Direct Action Records], [Cowork Action Records])
+		formatString: 0.0%
+		lineageTag: 93a00008-4e3b-47c9-a008-7f3c7e040008
+
+	/// Count used by the value model. Verified is the default; the expanded scenario additionally includes representative classifications.
+	measure 'Eligible Action Records' =
+			VAR _scope = [Action Value Scope Selected]
+			RETURN
+				SWITCH (
+					_scope,
+					"Verified + representative",
+						CALCULATE (
+							[Cowork Action Records],
+							Fact_CoworkAction[ClassificationStatus] IN { "Direct", "Representative" }
+						),
+					CALCULATE (
+						[Cowork Action Records],
+						Fact_CoworkAction[ClassificationStatus] = "Direct"
+					)
+				)
+		formatString: #,0
+		lineageTag: 93a00009-4e3b-47c9-a009-7f3c7e040009
+
+	measure 'Action Research Minutes' = SELECTEDVALUE(Dim_Behavior[Typical Minutes])
+		formatString: #,0
+		lineageTag: 93a00010-4e3b-47c9-a010-7f3c7e040010
+
+	/// Customer-entered minutes for the selected action; every action defaults to its research benchmark.
+	measure 'Action Effective Minutes' =
+			SWITCH (
+				SELECTEDVALUE ( Dim_Behavior[BehaviorKey] ),
+				1, [Action Minutes 01 Value],
+				2, [Action Minutes 02 Value],
+				3, [Action Minutes 03 Value],
+				4, [Action Minutes 04 Value],
+				5, [Action Minutes 05 Value],
+				6, [Action Minutes 06 Value],
+				7, [Action Minutes 07 Value],
+				8, [Action Minutes 08 Value],
+				9, [Action Minutes 09 Value],
+				10, [Action Minutes 10 Value],
+				11, [Action Minutes 11 Value],
+				12, [Action Minutes 12 Value],
+				13, [Action Minutes 13 Value],
+				14, [Action Minutes 14 Value],
+				15, [Action Minutes 15 Value],
+				16, [Action Minutes 16 Value],
+				17, [Action Minutes 17 Value],
+				18, [Action Minutes 18 Value],
+				19, [Action Minutes 19 Value],
+				20, [Action Minutes 20 Value],
+				21, [Action Minutes 21 Value],
+				22, [Action Minutes 22 Value],
+				23, [Action Minutes 23 Value],
+				24, [Action Minutes 24 Value],
+				25, [Action Minutes 25 Value],
+				26, [Action Minutes 26 Value],
+				27, [Action Minutes 27 Value],
+				28, [Action Minutes 28 Value],
+				29, [Action Minutes 29 Value],
+				30, [Action Minutes 30 Value],
+				31, [Action Minutes 31 Value],
+				32, [Action Minutes 32 Value],
+				33, [Action Minutes 33 Value],
+				34, [Action Minutes 34 Value],
+				35, [Action Minutes 35 Value],
+				36, [Action Minutes 36 Value],
+				37, [Action Minutes 37 Value],
+				38, [Action Minutes 38 Value],
+				39, [Action Minutes 39 Value],
+				40, [Action Minutes 40 Value],
+				41, [Action Minutes 41 Value],
+				42, [Action Minutes 42 Value],
+				43, [Action Minutes 43 Value],
+				44, [Action Minutes 44 Value],
+				BLANK ()
+			)
+		formatString: #,0
+		lineageTag: 93a00011-4e3b-47c9-a011-7f3c7e040011
+
+	measure 'Action Minutes Delta' = [Action Effective Minutes] - [Action Research Minutes]
+		formatString: +#,0;-#,0;0
+		lineageTag: 93a00012-4e3b-47c9-a012-7f3c7e040012
+
+	measure 'Hybrid Baseline Action Hours' =
+			SUMX (
+				VALUES ( Dim_Behavior[BehaviorKey] ),
+				[Eligible Action Records] * [Action Research Minutes] / 60
+			)
+		formatString: #,0.0
+		lineageTag: 93a00013-4e3b-47c9-a013-7f3c7e040013
+
+	measure 'Hybrid Adjusted Action Hours' =
+			SUMX (
+				VALUES ( Dim_Behavior[BehaviorKey] ),
+				[Eligible Action Records] * [Action Effective Minutes] / 60
+			)
+		formatString: #,0.0
+		lineageTag: 93a00014-4e3b-47c9-a014-7f3c7e040014
+
+	measure 'Hybrid Baseline Action Value $' = [Hybrid Baseline Action Hours] * [Loaded Rate Value] * [Reinvestment Slider Value] * [Success Quality Value]
+		formatString: $ #,0
+		lineageTag: 93a00015-4e3b-47c9-a015-7f3c7e040015
+
+	measure 'Hybrid Adjusted Action Value $' = [Hybrid Adjusted Action Hours] * [Loaded Rate Value] * [Reinvestment Slider Value] * [Success Quality Value]
+		formatString: $ #,0
+		lineageTag: 93a00016-4e3b-47c9-a016-7f3c7e040016
+
+	/// Action value attributed to the primary observed plugin only; this avoids double-counting multi-skill records.
+	measure 'Hybrid Value by Primary Skill $' =
+			VAR _plugins = VALUES ( Dim_CoworkSkill[PluginName] )
+			RETURN
+				IF (
+					ISCROSSFILTERED ( Dim_CoworkSkill ),
+					CALCULATE (
+						[Hybrid Adjusted Action Value $],
+						TREATAS ( _plugins, Fact_CoworkAction[PrimaryPlugin] )
+					),
+					[Hybrid Adjusted Action Value $]
+				)
+		formatString: $ #,0
+		lineageTag: 93a00017-4e3b-47c9-a017-7f3c7e040017
+
+	measure 'Value-Bearing Actions by Primary Skill' =
+			VAR _plugins = VALUES ( Dim_CoworkSkill[PluginName] )
+			RETURN
+				IF (
+					ISCROSSFILTERED ( Dim_CoworkSkill ),
+					CALCULATE (
+						[Eligible Action Records],
+						TREATAS ( _plugins, Fact_CoworkAction[PrimaryPlugin] )
+					),
+					[Eligible Action Records]
+				)
+		formatString: #,0
+		lineageTag: 93a00018-4e3b-47c9-a018-7f3c7e040018
+
+	/// Modeled allocation of the current consumption snapshot across each user's observed skills by invocation share.
+	measure 'Allocated Skill Credits (Modeled)' =
+			IF (
+				NOT [Consumption Data Available],
+				BLANK (),
+				SUMX (
+					VALUES ( Dim_User[UserKey] ),
+					VAR _userCredits =
+						CALCULATE (
+							[Total Credits Used],
+							REMOVEFILTERS ( Dim_Date ),
+							REMOVEFILTERS ( Dim_CoworkSkill ),
+							REMOVEFILTERS ( Dim_TaskCategory )
+						)
+					VAR _selectedSkillInvocations =
+						CALCULATE (
+							[Skill Invocations],
+							REMOVEFILTERS ( Dim_Date )
+						)
+					VAR _allSkillInvocations =
+						CALCULATE (
+							[Skill Invocations],
+							REMOVEFILTERS ( Dim_Date ),
+							REMOVEFILTERS ( Dim_CoworkSkill ),
+							REMOVEFILTERS ( Dim_TaskCategory )
+						)
+					RETURN
+						_userCredits * DIVIDE ( _selectedSkillInvocations, _allSkillInvocations )
+				)
+			)
+		formatString: #,0.0
+		lineageTag: 93a00019-4e3b-47c9-a019-7f3c7e040019
+
+	measure 'Allocated Skill Cost $ (Modeled)' = [Allocated Skill Credits (Modeled)] * [Effective Rate]
+		formatString: $ #,0.00
+		lineageTag: 93a00020-4e3b-47c9-a020-7f3c7e040020
+
+	measure 'Allocated Skill Value per Credit' = DIVIDE([Hybrid Value by Primary Skill $], [Allocated Skill Credits (Modeled)])
+		formatString: $ #,0.00
+		lineageTag: 93a00021-4e3b-47c9-a021-7f3c7e040021
+
+	measure 'Unallocated Credits (No Skill Activity)' =
+			VAR _observedCredits = CALCULATE([Total Credits Used], REMOVEFILTERS(Dim_Date))
+			VAR _allocatedCredits =
+				CALCULATE (
+					[Allocated Skill Credits (Modeled)],
+					REMOVEFILTERS ( Dim_CoworkSkill ),
+					REMOVEFILTERS ( Dim_TaskCategory )
+				)
+			RETURN IF(ISBLANK(_observedCredits), BLANK(), _observedCredits - _allocatedCredits)
+		formatString: #,0.0
+		lineageTag: 93a00022-4e3b-47c9-a022-7f3c7e040022
+
+	column Value
+		dataType: string
+		isHidden
+		lineageTag: a35b7854-64af-4ee0-94ce-3d9f6cb0a930
+		summarizeBy: none
+		sourceColumn: [Value]
+
+	partition _Measures = calculated
+		mode: import
+		source = {BLANK()}

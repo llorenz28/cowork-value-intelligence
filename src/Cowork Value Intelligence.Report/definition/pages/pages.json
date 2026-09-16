@@ -1,0 +1,19 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/pagesMetadata/1.1.0/schema.json",
+  "pageOrder": [
+    "00_start_here",
+    "02_exec_altb",
+    "92_activity_value",
+    "92_actions_hub",
+    "92d_action_maturity",
+    "92f_value_vs_cost",
+    "92e_value_calculator",
+    "03_forecast",
+    "94_bu_showback",
+    "97_value_tiers",
+    "05_cohorts",
+    "92g_model_breakdown",
+    "100_glossary"
+  ],
+  "activePageName": "00_start_here"
+}

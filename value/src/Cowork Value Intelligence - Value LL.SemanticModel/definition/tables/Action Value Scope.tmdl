@@ -1,0 +1,16 @@
+table 'Action Value Scope'
+	lineageTag: 91b01000-4e3b-47c9-a000-7f3c7e021000
+
+	measure 'Action Value Scope Selected' = SELECTEDVALUE('Action Value Scope'[Scope], "Verified only")
+		lineageTag: 91b01001-4e3b-47c9-a001-7f3c7e021001
+
+	column Scope
+		dataType: string
+		lineageTag: 91b01002-4e3b-47c9-a002-7f3c7e021002
+		summarizeBy: none
+		sourceColumn: [Value]
+
+	partition 'Action Value Scope' = calculated
+		mode: import
+		source = DATATABLE("Value", STRING, {{"Verified only"}, {"Verified + representative"}})
+

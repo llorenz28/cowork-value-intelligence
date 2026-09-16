@@ -1,0 +1,74 @@
+[
+  {
+    "id": "introduction",
+    "title": "Cowork Value Intelligence",
+    "startSeconds": 0.0,
+    "endSeconds": 20.88,
+    "narrationSeconds": 20.28,
+    "gapSeconds": 0.6
+  },
+  {
+    "id": "start-here",
+    "title": "Start Here",
+    "startSeconds": 20.88,
+    "endSeconds": 42.18,
+    "narrationSeconds": 20.688,
+    "gapSeconds": 0.6
+  },
+  {
+    "id": "activity-value",
+    "title": "Activity & Value",
+    "startSeconds": 42.18,
+    "endSeconds": 57.156,
+    "narrationSeconds": 14.376,
+    "gapSeconds": 0.6
+  },
+  {
+    "id": "actions",
+    "title": "Actions",
+    "startSeconds": 57.156,
+    "endSeconds": 73.623,
+    "narrationSeconds": 15.864,
+    "gapSeconds": 0.6
+  },
+  {
+    "id": "delegation-depth",
+    "title": "How Far They Delegate",
+    "startSeconds": 73.623,
+    "endSeconds": 90.623,
+    "narrationSeconds": 16.392,
+    "gapSeconds": 0.6
+  },
+  {
+    "id": "value-tiers",
+    "title": "Value by User Tier",
+    "startSeconds": 90.623,
+    "endSeconds": 105.656,
+    "narrationSeconds": 14.424,
+    "gapSeconds": 0.6
+  },
+  {
+    "id": "methodology",
+    "title": "Transparent Value Methodology",
+    "startSeconds": 105.656,
+    "endSeconds": 124.496,
+    "narrationSeconds": 18.24,
+    "gapSeconds": 0.6
+  },
+  {
+    "id": "leadership-payoff",
+    "title": "From usage data to an enablement strategy",
+    "startSeconds": 124.496,
+    "endSeconds": 144.464,
+    "narrationSeconds": 19.368,
+    "gapSeconds": 0.6
+  },
+  {
+    "id": "closing",
+    "title": "One report. A clearer Cowork value story.",
+    "startSeconds": 144.464,
+    "endSeconds": 158.6,
+    "narrationSeconds": 13.536,
+    "gapSeconds": 0.6
+  }
+]

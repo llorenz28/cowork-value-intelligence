@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/pagesMetadata/1.1.0/schema.json",
+  "pageOrder": [
+    "00_start_here",
+    "02_exec_altb",
+    "96_task_categories",
+    "92e_value_calculator",
+    "92e2_adjust_actions",
+    "92f_value_vs_cost",
+    "94_bu_showback",
+    "97_value_tiers",
+    "05_cohorts",
+    "92h_skill_consumption",
+    "92g_model_breakdown",
+    "100_glossary"
+  ],
+  "activePageName": "100_glossary"
+}

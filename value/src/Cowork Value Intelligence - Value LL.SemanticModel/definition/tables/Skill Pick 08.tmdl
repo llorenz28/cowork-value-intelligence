@@ -1,0 +1,13 @@
+table 'Skill Pick 08'
+	lineageTag: d5e730e0-37ba-4db7-ae94-355f869278ab
+
+	column Skill
+		dataType: string
+		lineageTag: f54226f6-2ca4-4987-8255-b13d68b294e2
+		summarizeBy: none
+		sourceColumn: [Skill]
+
+	partition 'Skill Pick 08' = calculated
+		mode: import
+		source = DISTINCT(SELECTCOLUMNS(FILTER(Dim_CoworkSkill, NOT ISBLANK(Dim_CoworkSkill[SkillDisplayName])), "Skill", Dim_CoworkSkill[SkillDisplayName]))
+

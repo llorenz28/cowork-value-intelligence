@@ -1,0 +1,104 @@
+{
+  "release": "Cowork Intelligence split testing templates",
+  "versions": {
+    "adoption": "2.0.1-testing",
+    "value": "1.1.0-testing"
+  },
+  "verifiedAt": "2026-09-15T20:37:03.0222320-05:00",
+  "result": "pass",
+  "checks": {
+    "templates": {
+      "adoption": {
+        "filename": "adoption/Cowork Adoption Intelligence v2 Testing.pbit",
+        "bytes": 659508,
+        "sha256": "b35722cbcc0445b5b6b1a4b190d2751a9a49eed0caa17e60a6ba7a06210d171a",
+        "pages": 9,
+        "bookmarks": 41,
+        "requiredPrompts": [
+          "DataFolderPath"
+        ],
+        "importedDataModel": false,
+        "securityBindings": false,
+        "sensitivityState": "public-labeled-and-unprotected",
+        "sensitivityLabelId": "87867195-f2b8-4ac2-b0b6-6bb73cb33afc",
+        "semanticQa": {
+          "auditEvents": 3342,
+          "taskThreads": 900,
+          "users": 72,
+          "multiSkillThreads": 346,
+          "multiSkillTaskPercent": 0.3844444444444444,
+          "unmatchedUserKeys": 0
+        }
+      },
+      "value": {
+        "filename": "value/Cowork Value V1 Testing.pbit",
+        "bytes": 692164,
+        "sha256": "c7b1a722c672cbf65d9fb4a66bea4dfa7c17ca0e70c3df4ba04a8e49a35176b6",
+        "pages": 12,
+        "bookmarks": 31,
+        "targetOnlyBookmarks": 31,
+        "requiredPrompts": [
+          "DataFolderPath"
+        ],
+        "importedDataModel": false,
+        "securityBindings": false,
+        "sensitivityState": "public-labeled-and-unprotected",
+        "sensitivityLabelId": "87867195-f2b8-4ac2-b0b6-6bb73cb33afc",
+        "interactionChecks": 41,
+        "interactionFailures": 0,
+        "billingModeDaxQa": "pass",
+        "semanticQa": {
+          "totalTasks": 900,
+          "coworkTaskThreads": 900,
+          "categoryTotal": 900,
+          "unmatchedUserKeys": 0,
+          "unmatchedCategoryKeys": 0,
+          "allFiveBillingModes": "pass",
+          "missingInputBranches": "pass"
+        }
+      }
+    },
+    "billingReference": {
+      "name": "Microsoft CreditUsage - Cowork Chargeback",
+      "url": "https://github.com/microsoft/CreditUsage",
+      "alignment": "per-user allowance and overage; unused allowance does not offset another user's overage",
+      "extensions": "five planning modes plus Cowork value and ROI analysis"
+    },
+    "sampleData": {
+      "files": 8,
+      "csvFiles": 6,
+      "bytes": 2821858,
+      "manifestSha256": "74b57b6c80b8c57d3c5b0abb2d77120ccb7facaaa163530c029406ce1ce7abb6",
+      "zipBytes": 219781,
+      "zipSha256": "ec0e863135be26ca84a8d8feaf1662758a56d9a7961cb02f3728344833f1cb82",
+      "zipParity": true,
+      "zipDeterministic": true,
+      "adoptionZipBytes": 219589,
+      "adoptionZipSha256": "534e620e6e153e0cb846bc6b92fef554f5eae9391a41fa355035752cc66d6910",
+      "adoptionZipParity": true,
+      "adoptionZipDeterministic": true,
+      "identityDomain": "example.com"
+    },
+    "documentation": {
+      "missingRelativeLinks": 0
+    },
+    "privacy": {
+      "importedCustomerData": 0,
+      "machineBoundSecurityBindings": 0,
+      "localUserPaths": 0,
+      "storyboardProfilePaths": 0,
+      "nonExampleIdentities": 0,
+      "credentials": 0
+    }
+  },
+  "supportingArtifacts": {
+    "Cowork Value Intelligence V1.0 In Testing - Interpretation Storyboard.pptx": {
+      "bytes": 4373196,
+      "sha256": "13181de17be27c61bbeef1dfdda507d45012ca17fdf83624b43c82637de250db"
+    },
+    "media/Cowork-Value-Intelligence-Walkthrough.mp4": {
+      "bytes": 7644639,
+      "sha256": "e1f9d8bf1828d7197912df86f54181c3c09f4ed76542baa5f3c6344b28db3e66"
+    }
+  }
+}

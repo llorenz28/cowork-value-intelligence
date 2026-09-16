@@ -1,0 +1,108 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/bookmark/2.1.0/schema.json",
+  "displayName": "Value vs Cost — justification filters closed",
+  "name": "a1b2c3d4e5f6000092k2",
+  "options": {
+    "targetVisualNames": [
+      "mv_cj_panel_open_98cj",
+      "mv_cj_panel_close_98cj",
+      "mv_cj_panel_bg_98cj",
+      "mv_cj_filter_header_98cj",
+      "mv_cj_date_slicer_98cj",
+      "mv_cj_dept_slicer_98cj",
+      "mv_cj_license_slicer_98cj",
+      "mv_cj_budget_slicer_98cj",
+      "mv_cj_rate_slicer_98cj"
+    ],
+    "suppressActiveSection": true,
+    "suppressData": true
+  },
+  "explorationState": {
+    "version": "1.0",
+    "activeSection": "92f_value_vs_cost",
+    "sections": {
+      "92f_value_vs_cost": {
+        "visualContainers": {
+          "mv_cj_panel_open_98cj": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "mv_cj_panel_close_98cj": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "mv_cj_panel_bg_98cj": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "mv_cj_filter_header_98cj": {
+            "singleVisual": {
+              "visualType": "textbox",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "mv_cj_date_slicer_98cj": {
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "mv_cj_dept_slicer_98cj": {
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "mv_cj_license_slicer_98cj": {
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "mv_cj_budget_slicer_98cj": {
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "mv_cj_rate_slicer_98cj": {
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

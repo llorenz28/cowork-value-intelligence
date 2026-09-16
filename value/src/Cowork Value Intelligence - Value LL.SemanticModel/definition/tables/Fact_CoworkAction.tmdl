@@ -1,0 +1,163 @@
+/// One confidence-gated primary value action per real Cowork Purview record.
+/// Skill/plugin and resource bridges remain the source of operational activity truth.
+table Fact_CoworkAction
+	lineageTag: 91b02000-4e3b-47c9-a000-7f3c7e022000
+
+	column RecordId
+		dataType: string
+		isHidden
+		isKey
+		lineageTag: 91b02001-4e3b-47c9-a001-7f3c7e022001
+		summarizeBy: none
+		sourceColumn: RecordId
+
+	column ThreadId
+		dataType: string
+		lineageTag: 91b02002-4e3b-47c9-a002-7f3c7e022002
+		summarizeBy: none
+		sourceColumn: ThreadId
+
+	column DateKey
+		dataType: int64
+		isHidden
+		lineageTag: 91b02003-4e3b-47c9-a003-7f3c7e022003
+		summarizeBy: none
+		sourceColumn: DateKey
+
+	column UserKey
+		dataType: int64
+		isHidden
+		lineageTag: 91b02004-4e3b-47c9-a004-7f3c7e022004
+		summarizeBy: none
+		sourceColumn: UserKey
+
+	column PrimaryPlugin
+		dataType: string
+		lineageTag: 91b02005-4e3b-47c9-a005-7f3c7e022005
+		summarizeBy: none
+		sourceColumn: PrimaryPlugin
+
+	column BehaviorKey
+		dataType: string
+		isHidden
+		lineageTag: 91b02006-4e3b-47c9-a006-7f3c7e022006
+		summarizeBy: none
+		sourceColumn: BehaviorKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column ClassificationStatus
+		dataType: string
+		lineageTag: 91b02007-4e3b-47c9-a007-7f3c7e022007
+		summarizeBy: none
+		sourceColumn: ClassificationStatus
+
+	column ClassificationEvidence
+		dataType: string
+		lineageTag: 91b02008-4e3b-47c9-a008-7f3c7e022008
+		summarizeBy: none
+		sourceColumn: ClassificationEvidence
+
+	column ActionCount
+		dataType: int64
+		formatString: #,0
+		lineageTag: 91b02009-4e3b-47c9-a009-7f3c7e022009
+		summarizeBy: sum
+		sourceColumn: ActionCount
+
+	column TriggerType
+		dataType: string
+		lineageTag: 91b02010-4e3b-47c9-a010-7f3c7e022010
+		summarizeBy: none
+		sourceColumn: TriggerType
+
+	partition Fact_CoworkAction = m
+		mode: import
+		source =
+				let
+					Src = Fact_CopilotAuditRaw_WithLists,
+					Cowork = Table.SelectRows(Src, each Text.Lower(Text.From([AppHost])) = "cowork"),
+					HasAny = (value as nullable text, needles as list) as logical =>
+						let t = if value = null then "" else Text.Lower(value)
+						in List.AnyTrue(List.Transform(needles, each Text.Contains(t, Text.Lower(_)))),
+					AddSignals = Table.AddColumn(Cowork, "_signals", each
+						let
+							pluginNames = List.RemoveNulls(List.Transform([_plugins], each try Text.From(_[Name]) otherwise null)),
+							pluginText = Text.Lower(Text.Combine(pluginNames, "|")),
+							primaryPlugin = if List.Count(pluginNames) = 0 then null else pluginNames{0},
+							resourceUrls = List.RemoveNulls(List.Transform([_resources], each try Text.From(_[SiteUrl]) otherwise null)),
+							resourceTypes = List.RemoveNulls(List.Transform([_resources], each try Text.From(_[Type]) otherwise null)),
+							resourceActions = List.RemoveNulls(List.Transform([_resources], each try Text.From(_[Action]) otherwise null)),
+							urlText = Text.Lower(Text.Combine(resourceUrls, "|")),
+							typeText = Text.Lower(Text.Combine(resourceTypes, "|")),
+							actionText = Text.Lower(Text.Combine(resourceActions, "|")),
+							isCreate = HasAny(actionText, {"create", "write", "post", "send", "draft", "invoke", "execute"}),
+							isRead = HasAny(actionText, {"read", "get", "search", "query"}),
+							isCoworkArtifact = Text.Contains(urlText, "/documents/cowork/"),
+							hasDoc = HasAny(urlText, {".docx", ".doc", ".rtf"}),
+							hasPpt = HasAny(urlText, {".pptx", ".ppt", ".potx"}),
+							hasSheet = HasAny(urlText, {".xlsx", ".xlsm", ".csv"}),
+							hasPdf = Text.Contains(urlText, ".pdf"),
+							hasImage = HasAny(urlText, {".png", ".jpg", ".jpeg", ".gif", ".svg"}),
+							hasVideo = HasAny(urlText, {".mp4", ".mov", ".wmv"}) or HasAny(typeText, {"streamvideo", "video"}),
+							hasCode = HasAny(urlText, {".py", ".js", ".ts", ".tsx", ".jsx", ".java", ".sql", ".json", ".xml", ".yaml", ".yml", ".css", ".php", ".sh"}),
+							isCustomSales = HasAny(pluginText, {"sales", "customer", "crm", "revenue"}),
+							isCustomHr = HasAny(pluginText, {"human resources", "recruit", "talent", "onboard", "people"}),
+							isCustomIt = HasAny(pluginText, {"service desk", "servicenow", "ticket", "incident", "it support"}),
+							isCustomCompliance = HasAny(pluginText, {"compliance", "policy", "legal", "risk", "audit"}),
+							isCustomCoaching = HasAny(pluginText, {"coach", "mentor", "learning", "career"}),
+							isCustomData = HasAny(pluginText, {"data agent", "reporting", "dashboard", "metrics"}),
+							isCustomCreative = HasAny(pluginText, {"brainstorm", "ideation", "creative"}),
+							classification =
+								if isCustomSales then [BehaviorKey = 36, Status = "Representative", Evidence = "Custom/plugin name indicates sales, customer, CRM, or revenue work"]
+								else if isCustomHr then [BehaviorKey = 37, Status = "Representative", Evidence = "Custom/plugin name indicates HR, recruiting, talent, onboarding, or people work"]
+								else if isCustomIt then [BehaviorKey = 38, Status = "Representative", Evidence = "Custom/plugin name or resource URL indicates service-desk work"]
+								else if isCustomCompliance then [BehaviorKey = 39, Status = "Representative", Evidence = "Custom/plugin name indicates compliance, policy, legal, audit, or risk work"]
+								else if isCustomCoaching then [BehaviorKey = 40, Status = "Representative", Evidence = "Custom/plugin name indicates coaching, mentoring, learning, or career work"]
+								else if isCustomData then [BehaviorKey = 44, Status = "Representative", Evidence = "Custom/plugin name indicates data, reporting, dashboard, or metrics work"]
+								else if isCustomCreative then [BehaviorKey = 41, Status = "Representative", Evidence = "Custom/plugin name indicates brainstorming, ideation, or creative work"]
+								else if HasAny(pluginText, {"deep research"}) then [BehaviorKey = 3, Status = "Direct", Evidence = "Deep Research skill"]
+								else if HasAny(pluginText, {"enterprise search", "mcp__m365_search__searchm365"}) then [BehaviorKey = 24, Status = "Direct", Evidence = "Enterprise Search skill"]
+								else if HasAny(typeText, {"websearchquery"}) then [BehaviorKey = 23, Status = "Direct", Evidence = "WebSearchQuery resource type"]
+								else if HasAny(typeText, {"peopleinferenceanswer"}) then [BehaviorKey = 27, Status = "Direct", Evidence = "PeopleInferenceAnswer resource type"]
+								else if hasCode and isCreate then [BehaviorKey = 9, Status = "Direct", Evidence = "Created or executed a code-file resource"]
+								else if hasCode and isRead then [BehaviorKey = 31, Status = "Direct", Evidence = "Read a code-file resource"]
+								else if hasVideo and isRead then [BehaviorKey = 16, Status = "Direct", Evidence = "Read a video resource"]
+								else if hasImage and isCreate then [BehaviorKey = 21, Status = "Direct", Evidence = "Created an image resource"]
+								else if HasAny(pluginText, {"word"}) and (isCreate or isCoworkArtifact) then [BehaviorKey = 2, Status = "Direct", Evidence = "Word skill plus Create/write or Cowork-authored document"]
+								else if HasAny(pluginText, {"word"}) and (isRead or hasDoc) then [BehaviorKey = 1, Status = "Representative", Evidence = "Word skill plus Read/document resource; summarization intent is inferred"]
+								else if HasAny(pluginText, {"powerpoint"}) and (isCreate or isCoworkArtifact) then [BehaviorKey = 18, Status = "Direct", Evidence = "PowerPoint skill plus Create/write or Cowork-authored presentation"]
+								else if HasAny(pluginText, {"powerpoint"}) and (isRead or hasPpt) then [BehaviorKey = 19, Status = "Representative", Evidence = "PowerPoint skill plus Read/presentation resource; summarization intent is inferred"]
+								else if HasAny(pluginText, {"email"}) and isCreate then [BehaviorKey = 11, Status = "Representative", Evidence = "Email skill plus Create; drafting versus triage cannot be distinguished"]
+								else if HasAny(pluginText, {"email"}) and isRead then [BehaviorKey = 12, Status = "Representative", Evidence = "Email skill plus Read; thread summary versus triage cannot be distinguished"]
+								else if HasAny(pluginText, {"communications"}) and isCreate then [BehaviorKey = 7, Status = "Representative", Evidence = "Communications skill plus Create; Teams drafting is inferred"]
+								else if HasAny(pluginText, {"communications"}) and isRead then [BehaviorKey = 13, Status = "Representative", Evidence = "Communications skill plus Read; Teams summarization is inferred"]
+								else if HasAny(pluginText, {"daily briefing"}) then [BehaviorKey = 14, Status = "Representative", Evidence = "Daily Briefing skill; meeting preparation is inferred"]
+								else if HasAny(pluginText, {"meetings"}) and isRead then [BehaviorKey = 6, Status = "Representative", Evidence = "Meetings skill plus Read; missed-meeting catch-up is inferred"]
+								else if HasAny(pluginText, {"excel"}) and HasAny(actionText, {"executedatasetquery", "getitems", "getalltables", "query"}) then [BehaviorKey = 28, Status = "Direct", Evidence = "Excel skill plus dataset-query action"]
+								else if HasAny(pluginText, {"excel"}) and isRead and hasSheet then [BehaviorKey = 29, Status = "Representative", Evidence = "Excel skill plus spreadsheet Read; review intent is inferred"]
+								else if HasAny(pluginText, {"excel"}) then [BehaviorKey = 30, Status = "Proxy", Evidence = "Excel skill observed, but analysis, review, and formula-help intent cannot be distinguished"]
+								else if (HasAny(pluginText, {"pdf"}) or hasPdf) and isRead then [BehaviorKey = 25, Status = "Direct", Evidence = "PDF skill/resource plus Read"]
+								else if HasAny(pluginText, {"taskupdate"}) or HasAny(typeText, {"planner", "task"}) then [BehaviorKey = 33, Status = "Direct", Evidence = "TaskUpdate/Planner task signal"]
+								else if HasAny(typeText & "|" & urlText, {"flow", "connector", "powerautomate"}) and HasAny(actionText, {"invoke", "execute", "create"}) then [BehaviorKey = 32, Status = "Direct", Evidence = "Flow/connector resource plus Invoke/execute"]
+								else if HasAny(typeText & "|" & urlText & "|" & pluginText, {"loop", "whiteboard", "vivaengage"}) then [BehaviorKey = 34, Status = "Direct", Evidence = "Loop, Whiteboard, or Viva Engage signal"]
+								else if HasAny(typeText & "|" & urlText & "|" & pluginText, {"forms", "survey"}) then [BehaviorKey = 35, Status = "Direct", Evidence = "Forms or survey signal"]
+								else if HasAny(pluginText, {"adaptive cards"}) then [BehaviorKey = 35, Status = "Proxy", Evidence = "Adaptive Cards is used as a form/survey proxy"]
+								else if HasAny(pluginText, {"glob", "read"}) and isRead and (hasDoc or hasPpt or hasSheet or hasPdf) then [BehaviorKey = 26, Status = "Representative", Evidence = "File-search/read skill plus file resource"]
+								else if HasAny(pluginText, {"scheduling", "calendar management"}) then [BehaviorKey = null, Status = "Ambiguous", Evidence = "Scheduling is observed, but the 44-action catalog has no unique scheduling action"]
+								else if HasAny(pluginText, {"builtin", "report_intent"}) then [BehaviorKey = null, Status = "Ambiguous", Evidence = "Internal helper signal does not identify a user value action"]
+								else [BehaviorKey = null, Status = "Unclassified", Evidence = "No unique 44-action signal in the current Purview record"]
+						in
+							[PrimaryPlugin = primaryPlugin, BehaviorKey = classification[BehaviorKey], ClassificationStatus = classification[Status], ClassificationEvidence = classification[Evidence]]
+					),
+					ExpandSignals = Table.ExpandRecordColumn(AddSignals, "_signals", {"PrimaryPlugin", "BehaviorKey", "ClassificationStatus", "ClassificationEvidence"}),
+					AddCount = Table.AddColumn(ExpandSignals, "ActionCount", each 1, Int64.Type),
+					Final = Table.SelectColumns(
+						AddCount,
+						{"RecordId", "ThreadId", "DateKey", "UserKey", "PrimaryPlugin", "BehaviorKey", "ClassificationStatus", "ClassificationEvidence", "ActionCount", "TriggerType"}
+					)
+				in
+					Final
+
+	annotation PBI_ResultType = Table
+

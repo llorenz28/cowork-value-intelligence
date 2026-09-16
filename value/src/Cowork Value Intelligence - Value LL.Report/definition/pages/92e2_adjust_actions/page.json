@@ -1,0 +1,9 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+  "name": "92e2_adjust_actions",
+  "displayName": "Action Assumptions",
+  "displayOption": "FitToWidth",
+  "height": 1560,
+  "width": 1280,
+  "visibility": "HiddenInViewMode"
+}

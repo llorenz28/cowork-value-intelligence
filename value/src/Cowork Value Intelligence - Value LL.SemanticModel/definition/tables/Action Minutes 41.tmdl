@@ -1,0 +1,19 @@
+table 'Action Minutes 41'
+	lineageTag: 92410000-4e3b-47c9-a410-7f3c7e034100
+
+	/// Customer-editable minutes for action 41 (Brainstorm ideas). Uses the research benchmark until explicitly changed.
+	measure 'Action Minutes 41 Value' = SELECTEDVALUE('Action Minutes 41'[Minutes], 20)
+		formatString: #,0
+		lineageTag: 92410001-4e3b-47c9-a411-7f3c7e034101
+
+	column Minutes
+		dataType: int64
+		formatString: #,0
+		lineageTag: 92410002-4e3b-47c9-a412-7f3c7e034102
+		summarizeBy: none
+		sourceColumn: [Value]
+
+	partition 'Action Minutes 41' = calculated
+		mode: import
+		source = GENERATESERIES(0, 120, 1)
+

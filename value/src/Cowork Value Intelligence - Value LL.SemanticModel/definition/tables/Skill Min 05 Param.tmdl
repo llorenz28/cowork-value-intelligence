@@ -1,0 +1,14 @@
+table 'Skill Min 05 Param'
+	lineageTag: e0dbd1a0-5e74-428d-8d8f-bbe5a6ac085e
+
+	column Minutes
+		dataType: int64
+		formatString: #,0
+		lineageTag: ded3cc38-9f07-4e41-b9ed-5f82a119a4e3
+		summarizeBy: none
+		sourceColumn: [Value]
+
+	partition 'Skill Min 05 Param' = calculated
+		mode: import
+		source = GENERATESERIES(0, 120, 1)
+

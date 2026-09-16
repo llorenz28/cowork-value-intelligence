@@ -1,0 +1,141 @@
+{
+  "report": "Cowork Value Intelligence",
+  "version": "1.1.0-testing",
+  "verifiedAt": "2026-09-15T20:37:03.0222320-05:00",
+  "result": "pass",
+  "checks": {
+    "pbir": {
+      "errors": 0,
+      "warnings": 3,
+      "warningScope": "remote JSON schemas unreachable; local structural validation completed",
+      "pages": 12,
+      "visuals": 426,
+      "reportDefinitionFiles": 473,
+      "semanticModelDefinitionFiles": 117
+    },
+    "bookmarks": {
+      "count": 31,
+      "targetOnly": 31,
+      "canvasActions": 31,
+      "unresolvedActions": 0
+    },
+    "parameters": {
+      "requiredPrompts": 1,
+      "promptNames": [
+        "DataFolderPath"
+      ]
+    },
+    "pbit": {
+      "filename": "Cowork Value V1 Testing.pbit",
+      "bytes": 692164,
+      "sha256": "c7b1a722c672cbf65d9fb4a66bea4dfa7c17ca0e70c3df4ba04a8e49a35176b6",
+      "entries": 487,
+      "pages": 12,
+      "bookmarks": 31,
+      "targetOnlyBookmarks": 31,
+      "importedDataModel": false,
+      "securityBindings": false,
+      "securityBindingsContentTypeOverride": false,
+      "sensitivityState": "public-labeled-and-unprotected",
+      "sensitivityLabelDisplayName": "Public",
+      "sensitivityLabelId": "87867195-f2b8-4ac2-b0b6-6bb73cb33afc",
+      "embeddedLabelPropertyName": "Not Restricted"
+    },
+    "exactPbitLaunch": {
+      "status": "pass",
+      "requiredParameterPrompts": 1,
+      "sampleShape": "one folder containing the fabricated activity and impact CSVs",
+      "loadedAuditEvents": 3342,
+      "loadedTaskThreads": 900,
+      "refresh": "pass",
+      "desktopSensitivityLabel": "Public"
+    },
+    "semanticGrainQa": {
+      "status": "pass",
+      "taskFactGroups": 892,
+      "totalTasks": 900,
+      "coworkTaskThreads": 900,
+      "categoryTotal": 900,
+      "unmatchedTaskUserKeys": 0,
+      "unmatchedThreadUserKeys": 0,
+      "unmatchedTaskCategoryKeys": 0,
+      "partitions": 112,
+      "allPartitionsReady": true
+    },
+    "interactionQa": {
+      "status": "pass",
+      "checks": 41,
+      "failures": 0,
+      "costPages": [
+        "Methodology & Value Calculator",
+        "Value vs Cost"
+      ],
+      "synchronizedControls": [
+        "Billing Mode",
+        "Rate per 1K Credits",
+        "Prepaid Credits",
+        "Prepaid Rate per 1K",
+        "Monthly Committed Credits"
+      ],
+      "billingModes": [
+        "Credit-Priced",
+        "License-Included",
+        "Prepaid",
+        "Hybrid",
+        "Monthly Committed"
+      ]
+    },
+    "liveDaxQa": {
+      "status": "pass",
+      "creditsUsed": 10050,
+      "projectedCredits": 50250,
+      "creditPricedCost": 100.5,
+      "licenseIncludedCost": 0.0,
+      "prepaidCost": 400.0,
+      "hybridOverageCost": 100.5,
+      "hybridAllocatedCost": 100.5,
+      "monthlyCommittedOverageCost": 502.5,
+      "missingPrepaidMessage": "Input required - prepaid credits",
+      "missingCommitmentMessage": "Input required - prepaid rate",
+      "costGlossaryRows": 9,
+      "semanticRepairRetest": {
+        "status": "pass",
+        "ratePerCredit": 0.01,
+        "prepaidRatePerCredit": 0.008,
+        "prepaidCredits": 50000,
+        "committedCredits": 50000,
+        "creditPricedCost": 100.5,
+        "licenseIncludedCost": 0.0,
+        "prepaidCost": 400.0,
+        "hybridCost": 400.0,
+        "hybridZeroPoolCost": 100.5,
+        "monthlyCommittedCost": 402.5,
+        "allocationReconciles": true,
+        "chargebackReconciles": true,
+        "allMissingInputBranchesBlank": true
+      }
+    },
+    "billingReference": {
+      "name": "Microsoft CreditUsage - Cowork Chargeback",
+      "url": "https://github.com/microsoft/CreditUsage",
+      "alignment": "per-user allowance and overage; unused allowance does not offset another user's overage",
+      "extensions": "five planning modes plus Cowork value and ROI analysis"
+    },
+    "source": {
+      "path": "value/src/Cowork Value Intelligence - Value LL.pbip",
+      "localStateEntries": 0,
+      "userProfilePathMatches": 0
+    },
+    "privacy": {
+      "importedData": 0,
+      "machineBoundSecurityBindings": 0,
+      "localProfilePaths": 0,
+      "localUsernames": 0,
+      "nonExampleIdentities": 0,
+      "credentials": 0
+    },
+    "documentation": {
+      "missingRelativeLinks": 0
+    }
+  }
+}

@@ -1,0 +1,123 @@
+table Dim_Behavior
+	lineageTag: b47028ea-b92e-4964-b7bd-b813c10c8dc8
+
+	column BehaviorKey
+		dataType: int64
+		isHidden
+		isKey
+		lineageTag: 132c37c8-a7ce-48be-9be3-aa5e42825b48
+		summarizeBy: none
+		sourceColumn: BehaviorKey
+
+	column Behavior
+		dataType: string
+		lineageTag: 1675fbb7-e6ba-4893-bd33-ef00432e5cc4
+		summarizeBy: none
+		sourceColumn: Behavior
+
+	column Category
+		dataType: string
+		lineageTag: 6ea3d4a8-b9a4-4bee-aa03-97c8dbdff6e1
+		summarizeBy: none
+		sourceColumn: Category
+
+	column CategoryKey = LOOKUPVALUE(Dim_TaskCategory[CategoryKey], Dim_TaskCategory[Category], Dim_Behavior[Category])
+		dataType: int64
+		isHidden
+		lineageTag: 91b00005-4e3b-47c9-a005-7f3c7e020005
+		summarizeBy: none
+
+	/// Value tier of the behavior: High (>=30 baseline min), Mid (10-29), Low (<10). Derived from Human Time Estimates.
+	column 'Value Tier' =
+			VAR m = LOOKUPVALUE('Human Time Estimates'[HumanBaselineMin], 'Human Time Estimates'[Behavior], Dim_Behavior[Behavior])
+			RETURN SWITCH(TRUE(), m >= 30, "High", m >= 10, "Mid", "Low")
+		dataType: string
+		lineageTag: 7a1c9d2e-4b6f-4a10-9c3e-2f81ab55c001
+		summarizeBy: none
+
+	/// Typical human baseline minutes for the behavior (attribute, not summed). Derived from Human Time Estimates.
+	column 'Typical Minutes' = LOOKUPVALUE('Human Time Estimates'[HumanBaselineMin], 'Human Time Estimates'[Behavior], Dim_Behavior[Behavior])
+		dataType: int64
+		formatString: #,0
+		lineageTag: 7a1c9d2e-4b6f-4a10-9c3e-2f81ab55c002
+		summarizeBy: none
+
+	column Confidence = LOOKUPVALUE('Human Time Estimates'[Confidence], 'Human Time Estimates'[Behavior], Dim_Behavior[Behavior])
+		dataType: string
+		lineageTag: 91b00001-4e3b-47c9-a001-7f3c7e020001
+		summarizeBy: none
+
+	column 'Value Outcome' = LOOKUPVALUE('Human Time Estimates'[ValueOutcome], 'Human Time Estimates'[Behavior], Dim_Behavior[Behavior])
+		dataType: string
+		lineageTag: 91b00002-4e3b-47c9-a002-7f3c7e020002
+		summarizeBy: none
+
+	column 'Research Source' = LOOKUPVALUE('Human Time Estimates'[PrimarySource], 'Human Time Estimates'[Behavior], Dim_Behavior[Behavior])
+		dataType: string
+		lineageTag: 91b00003-4e3b-47c9-a003-7f3c7e020003
+		summarizeBy: none
+
+	column 'Research URL' = LOOKUPVALUE('Human Time Estimates'[SourceURL], 'Human Time Estimates'[Behavior], Dim_Behavior[Behavior])
+		dataType: string
+		lineageTag: 91b00004-4e3b-47c9-a004-7f3c7e020004
+		dataCategory: WebUrl
+		summarizeBy: none
+
+	partition Dim_Behavior = m
+		mode: import
+		source =
+				let
+					Seed = #table(
+						type table [BehaviorKey = Int64.Type, Behavior = text, Category = text],
+						{
+							{1, "Summarize a long document", "Document & content creation"},
+							{2, "Draft a first-pass report", "Document & content creation"},
+							{3, "Research a topic and synthesize sources", "Analysis & Research"},
+							{4, "Analyze data and extract insights", "Analysis & Research"},
+							{5, "Triage and reply to an email", "Email workflows"},
+							{6, "Catch up on a missed meeting", "Meeting workflows"},
+							{7, "Draft a chat or Teams update", "Communication workflows"},
+							{8, "Build or automate a workflow step", "Specialized workflows"},
+							{9, "Write or debug a code snippet", "Write or debug code"},
+							{10, "Ask a quick how-to question", "General assistance / Other"},
+							{11, "Draft an email reply", "Email workflows"},
+							{12, "Summarize an email thread", "Email workflows"},
+							{13, "Summarize a Teams chat or channel", "Communication workflows"},
+							{14, "Prepare for an upcoming meeting", "Meeting workflows"},
+							{15, "Extract action items from a meeting", "Meeting workflows"},
+							{16, "Summarize a recorded meeting or video", "Meeting workflows"},
+							{17, "Rewrite or improve existing text", "Document & content creation"},
+							{18, "Create a slide deck", "Document & content creation"},
+							{19, "Summarize a presentation", "Document & content creation"},
+							{20, "Take and organize notes", "Document & content creation"},
+							{21, "Generate an image or visual", "Document & content creation"},
+							{22, "Translate content", "Document & content creation"},
+							{23, "Search the web for information", "Analysis & Research"},
+							{24, "Search internal documents and sites", "Analysis & Research"},
+							{25, "Analyze a PDF or contract", "Analysis & Research"},
+							{26, "Find a document or file", "Analysis & Research"},
+							{27, "Look up a person or expert", "Analysis & Research"},
+							{28, "Query a dataset or report", "Analysis & Research"},
+							{29, "Review or validate a spreadsheet", "Analysis & Research"},
+							{30, "Get Excel formula or analysis help", "Analysis & Research"},
+							{31, "Explain or review existing code", "Write or debug code"},
+							{32, "Trigger a Power Automate flow", "Specialized workflows"},
+							{33, "Manage tasks or project plan", "Specialized workflows"},
+							{34, "Collaborate in real time on a board", "Specialized workflows"},
+							{35, "Build a form or survey", "Specialized workflows"},
+							{36, "Use a sales or customer agent", "Specialized workflows"},
+							{37, "Use an HR or people agent", "Specialized workflows"},
+							{38, "Use an IT or service-desk agent", "Specialized workflows"},
+							{39, "Use a compliance or policy agent", "Specialized workflows"},
+							{40, "Use a coaching or learning agent", "Specialized workflows"},
+							{41, "Brainstorm ideas", "General assistance / Other"},
+							{42, "Get a quick summary or explanation", "General assistance / Other"},
+							{43, "Draft general-purpose content", "General assistance / Other"},
+							{44, "Use a data or reporting agent", "Analysis & Research"}
+						}
+					)
+				in
+					Seed
+
+	annotation PBI_ResultType = Table
+

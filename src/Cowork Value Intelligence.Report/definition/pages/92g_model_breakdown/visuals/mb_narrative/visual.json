@@ -1,0 +1,219 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+  "name": "mb_narrative",
+  "position": {
+    "x": 16,
+    "y": 532,
+    "z": 8000,
+    "height": 168,
+    "width": 1248,
+    "tabOrder": 80
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "How to read this page",
+                    "textStyle": {
+                      "fontWeight": "bold",
+                      "fontSize": "13pt",
+                      "color": "#4B2D83"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Real: ",
+                    "textStyle": {
+                      "fontWeight": "bold",
+                      "fontSize": "9pt",
+                      "color": "#1B1F27"
+                    }
+                  },
+                  {
+                    "value": "Category-level task and modeled-value figures use observed Purview activity plus the selected value inputs. Cost and credit allocations populate only after a matching customer consumption export and the required contract inputs are connected; otherwise those fields remain blank. ",
+                    "textStyle": {
+                      "fontSize": "9pt",
+                      "color": "#1B1F27"
+                    }
+                  },
+                  {
+                    "value": "Not yet available: ",
+                    "textStyle": {
+                      "fontWeight": "bold",
+                      "fontSize": "9pt",
+                      "color": "#1B1F27"
+                    }
+                  },
+                  {
+                    "value": "your tenant's audit export does not yet report which AI model handled each action, so rows are grouped under \"(Model data not available)\" rather than presented as a model comparison. ",
+                    "textStyle": {
+                      "fontSize": "9pt",
+                      "color": "#1B1F27"
+                    }
+                  },
+                  {
+                    "value": "Why the ratio repeats: ",
+                    "textStyle": {
+                      "fontWeight": "bold",
+                      "fontSize": "9pt",
+                      "color": "#1B1F27"
+                    }
+                  },
+                  {
+                    "value": "with a single Model bucket, the efficiency ratio and average credits per task are mathematically guaranteed to match the overall average on every row -- real differences across models will only appear once more than one model is reported. ",
+                    "textStyle": {
+                      "fontSize": "9pt",
+                      "color": "#1B1F27"
+                    }
+                  },
+                  {
+                    "value": "Take action: ",
+                    "textStyle": {
+                      "fontWeight": "bold",
+                      "fontSize": "9pt",
+                      "color": "#1B1F27"
+                    }
+                  },
+                  {
+                    "value": "nothing to configure here -- this page activates automatically with a genuine per-model comparison the moment your audit log starts reporting model attribution per action.",
+                    "textStyle": {
+                      "fontSize": "9pt",
+                      "color": "#1B1F27"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "background": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#F3EFF8'"
+                    }
+                  }
+                }
+              }
+            },
+            "transparency": {
+              "expr": {
+                "Literal": {
+                  "Value": "0D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "border": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#C5B3DA'"
+                    }
+                  }
+                }
+              }
+            },
+            "radius": {
+              "expr": {
+                "Literal": {
+                  "Value": "4D"
+                }
+              }
+            },
+            "width": {
+              "expr": {
+                "Literal": {
+                  "Value": "1D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "visualHeader": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "padding": [
+        {
+          "properties": {
+            "top": {
+              "expr": {
+                "Literal": {
+                  "Value": "8D"
+                }
+              }
+            },
+            "bottom": {
+              "expr": {
+                "Literal": {
+                  "Value": "8D"
+                }
+              }
+            },
+            "left": {
+              "expr": {
+                "Literal": {
+                  "Value": "12D"
+                }
+              }
+            },
+            "right": {
+              "expr": {
+                "Literal": {
+                  "Value": "12D"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,184 @@
+table 'Metric Glossary'
+	lineageTag: 7a6fa9dc-56c6-4955-ba38-99a15e42b939
+
+	column Page
+		dataType: string
+		lineageTag: 371f32a7-311c-42f8-a6ac-55ea911a988d
+		summarizeBy: none
+		sourceColumn: Page
+
+	column Metric
+		dataType: string
+		lineageTag: e390a11d-33d8-45d3-82f5-561723b0b656
+		summarizeBy: none
+		sourceColumn: Metric
+
+	column Description
+		dataType: string
+		lineageTag: 01509042-77cb-4fea-8381-0f86f311b0a9
+		summarizeBy: none
+		sourceColumn: Description
+
+	column DataStatus
+		dataType: string
+		lineageTag: e374024f-92f6-4296-84c3-2abb1f781ffc
+		summarizeBy: none
+		sourceColumn: DataStatus
+
+	column PageOrder
+		dataType: string
+		lineageTag: 68628de8-a773-41e3-ba0b-a4fbd2c9757d
+		summarizeBy: none
+		sourceColumn: PageOrder
+
+		annotation SummarizationSetBy = Automatic
+
+	column MetricOrder
+		dataType: int64
+		lineageTag: 26e74550-a41f-451d-9a0a-dece76d1093f
+		summarizeBy: none
+		sourceColumn: MetricOrder
+
+	column PageDescription
+		dataType: string
+		lineageTag: 841c84ef-afbb-42cb-92f5-1e1bbf57f0d9
+		summarizeBy: none
+		sourceColumn: PageDescription
+
+	column SortKey
+		dataType: int64
+		formatString: ;;;
+		lineageTag: 9c6d2b3a-8e14-4f0a-b6c7-2d1e5a7f9c3b
+		summarizeBy: none
+		sourceColumn: SortKey
+
+	partition 'Metric Glossary' = m
+		mode: import
+		source =
+				let
+					Seed = #table(
+						type table [Page = text, Metric = text, Description = text, PageOrder = Int64.Type, MetricOrder = Int64.Type, PageDescription = text],
+						{
+							{"Report-Wide Definitions", "MAU", "Monthly Active Users: distinct real users with at least one real Cowork task in the reporting period. (Real)", 0, 1, "Foundational definitions used throughout this report."},
+							{"Report-Wide Definitions", "All Users / Total Licensed Users", "Every user in Dim_User, whether or not they've used Cowork yet -- the eligibility/license pool Cowork usage is measured against. (Unavailable until customer license-assignment export is connected)", 0, 2, "Foundational definitions used throughout this report."},
+							{"Report-Wide Definitions", "Data Period", "The date range covered by the connected Purview audit-log export -- not a fixed calendar period, so it grows as more real data is exported. (Real)", 0, 3, "Foundational definitions used throughout this report."},
+							{"Report-Wide Definitions", "Data Sources", "Purview/Copilot audit logs are required. Org, usage-reconciliation, credit-consumption, and license-assignment fields remain unavailable until matching customer exports are connected; there is no sample-data fallback. (Observed activity; optional inputs unavailable until connected)", 0, 4, "Foundational definitions used throughout this report."},
+							{"Report-Wide Definitions", "Classification Rule", "Every real task is assigned to exactly one of 8 task categories via its observed skill/tool, falling back to 'General assistance / Other' when unmapped. (Real, deterministic)", 0, 5, "Foundational definitions used throughout this report."},
+							{"Report-Wide Definitions", "Time Bands (Low/Mid/High)", "The cited-research minutes-saved range for each task category, used to bound the Assisted Hours estimate. Estimate Basis selects which bound drives the headline value. (DECLARED, cited)", 0, 6, "Foundational definitions used throughout this report."},
+							{"Report-Wide Definitions", "Labor Rate", "The customer-entered fully-burdened hourly cost used to convert Assisted Hours into a derived dollar value. Value remains unavailable until this required input is selected. (Customer input)", 0, 7, "Foundational definitions used throughout this report."},
+							{"Report-Wide Definitions", "Cost Scope", "Loaded Labor Rate is a customer input used for modeled labor value. Platform cost uses the selected Credit-Priced, License-Included, Prepaid, Hybrid, or Monthly Committed model and its required assumptions; observed consumption is required for all usage-based results. (Derived from observed data and customer input)", 0, 8, "Foundational definitions used throughout this report."},
+							{"Report-Wide Definitions", "Privacy Treatment", "Org fields (Department, Manager, Business Unit, etc.) are blank until a real Entra export is connected -- never inferred placeholders, and never a stand-in for a real HR/privacy system. (Unavailable until customer org export is connected)", 0, 9, "Foundational definitions used throughout this report."},
+							{"Setup & How to Use", "Cowork Filter Health", "Confirms the Cowork audit-log filter is isolating real Purview records correctly, e.g. 'OK - 21 Cowork records isolated.' (Real)", 1, 1, "How to connect real data, and what is live vs. unavailable today."},
+							{"Setup & How to Use", "Audit Coverage %", "Reconciles tasks derived from the Purview audit log against a separate admin-center Cowork usage export, when connected. A healthy result sits between 80% and 120%. (Unavailable until a separate admin-center usage export is connected)", 1, 2, "How to connect real data, and what is live vs. unavailable today."},
+							{"Setup & How to Use", "DataFolderPath", "The one required setup input. Place the real Purview/Copilot audit exports and any optional consumption, usage, identity, or organization CSVs anywhere under this folder; the model discovers supported files by filename or schema. (Real, required)", 1, 3, "How to connect real data, and what is live vs. unavailable today."},
+							{"Setup & How to Use", "Optional exports", "Consumption, usage, identity, and organization exports in DataFolderPath unlock observed cost, usage reconciliation, display names, and org attribution. Missing or unmatched exports produce unavailable values, never sample replacements.", 1, 4, "How to connect real data, and what's live vs. unavailable today."},
+							{"Value & Spend Overview", "Estimated Value $", "Observed Cowork task volume times the selected cited time-saved benchmark and customer-entered loaded labor rate. (Derived from observed data, cited benchmark, and customer input)", 2, 1, "Tenant-wide value, spend, and reclaim signals at a glance."},
+							{"Value & Spend Overview", "ROI Multiple", "Derived estimated value divided by observed consumption priced with the customer-entered credit rate. It remains unavailable until both consumption and required inputs are present. (Derived; requires observed consumption and customer input)", 2, 2, "Tenant-wide value, spend, and reclaim signals at a glance."},
+							{"Value & Spend Overview", "Scheduled Share %", "Share of reported Cowork tasks that ran on a schedule rather than being user-initiated. (Real, currently blank - needs a populated admin-center usage export)", 2, 3, "Tenant-wide value, spend, and reclaim signals at a glance."},
+							{"Value & Spend Overview", "Recaptured Value $", "A scenario estimate of value recoverable by reclaiming idle licenses (40% of Estimated Value $). (Scenario estimate)", 2, 4, "Tenant-wide value, spend, and reclaim signals at a glance."},
+							{"Activity & Value", "Interaction Value $", "Alias of Estimated Value $, shown per Task Category so modeled value can be compared across categories. (Derived from observed activity, cited benchmark, and customer input)", 3, 1, "Where value concentrates by task category and behavior."},
+							{"Activity & Value", "Interaction Hours Saved", "Alias of Assisted Hours, modeled from observed task volume and a cited time-saved benchmark. (Derived from observed activity and cited benchmark)", 3, 2, "Where value concentrates by task category and behavior."},
+							{"Activity & Value", "Value by Department", "Splits derived Estimated Value $ by customer-provided department. It remains unavailable until a matching Entra/org export is connected. (Unavailable until customer org export is connected)", 3, 3, "Where value concentrates by task category and behavior."},
+							{"Actions", "Value Tier", "Groups the 8 real task categories into High/Mid/Low based on their cited-research minutes-saved midpoint (MidMin). (Real, DECLARED thresholds)", 4, 1, "A category/tier switchboard for exploring where Cowork value comes from."},
+							{"Actions", "Task Users / Total Tasks", "Distinct real users and real task count, correctly split by category and tier. (Real)", 4, 2, "A category/tier switchboard for exploring where Cowork value comes from."},
+							{"Actions", "Behavior (treemap detail)", "A reference catalog of about 44 example actions shown only as treemap drill-down detail; not itself measured per action. (Reference catalog, not measured)", 4, 3, "A category/tier switchboard for exploring where Cowork value comes from."},
+							{"Action Maturity", "Scheduled Share %", "Automation-ladder KPI: share of tasks that run on a schedule. (Real, blank pending a populated usage export)", 5, 1, "Automation, breadth, and depth of real Cowork usage over time."},
+							{"Action Maturity", "Avg Distinct Skills per User", "Breadth: how many different real skills or tools the average user invokes, trended by month. (Real)", 5, 2, "Automation, breadth, and depth of real Cowork usage over time."},
+							{"Action Maturity", "Avg Task Duration (min) / Multi-Skill Task %", "Depth: how long real tasks run and how often they span more than one skill, trended by month. (Real)", 5, 3, "Automation, breadth, and depth of real Cowork usage over time."},
+							{"Action Maturity", "High-Value Action Share %", "Share of modeled Estimated Value $ coming from High-tier task categories. (Derived from observed activity, cited benchmark, and customer input)", 5, 4, "Automation, breadth, and depth of real Cowork usage over time."},
+							{"Value vs Cost", "Value vs Cost Band", "Compares each department's derived Estimated Value $ against its proportional allocation of the selected billing model's Effective Platform Cost $. (Unavailable until observed consumption and customer inputs are present)", 6, 1, "Per-user value against contracted cost."},
+							{"Value vs Cost", "Effective Platform Cost $", "Platform cost under the selected billing model. Department points receive a proportional allocation based on observed credit share so their allocated costs sum to the selected total. (Derived from observed consumption and customer input)", 6, 2, "Per-user value against contracted cost."},
+							{"Methodology & Value Calculator", "Assisted Hours", "Real task volume times a cited-research minutes-saved-per-task estimate, divided by 60. Basis (Low/Mid/High) is user-selectable. (Real volume times DECLARED research estimate)", 7, 1, "How Assisted Hours becomes a dollar value, and the levers that adjust it."},
+							{"Methodology & Value Calculator", "Estimate Basis", "Switches the minutes-saved assumption between the Low/Mid/High cited-research bounds for every downstream value measure. (What-if control, defaults to Mid)", 7, 2, "How Assisted Hours becomes a dollar value, and the levers that adjust it."},
+							{"Methodology & Value Calculator", "ROI (Billing) Display", "Formats derived ROI as text and shows explicit input or availability messages instead of unexplained blanks. (Derived display wrapper)", 7, 3, "How Assisted Hours becomes a dollar value, and the levers that adjust it."},
+							{"Methodology & Value Calculator", "Loaded Labor Rate / Reinvestment Slider % / Success Quality %", "What-if sliders that scale Assisted Hours into a dollar value: hourly cost, how much saved time is reinvested, and how reliably the work lands. (What-if controls)", 7, 4, "How Assisted Hours becomes a dollar value, and the levers that adjust it."},
+							{"Methodology & Value Calculator", "Billing Model", "Selects Credit-Priced, License-Included, Prepaid, Hybrid, or Monthly Committed cost logic. Credit-Priced remains the default until explicitly changed. (Customer input)", 7, 5, "How Assisted Hours becomes a dollar value, and the levers that adjust it."},
+							{"Methodology & Value Calculator", "PAYG Rate per Credit", "Customer-entered pay-as-you-go price used for Credit-Priced billing and for overage under Hybrid or Monthly Committed billing. Defaults to $0.01 per credit. (Customer input)", 7, 6, "How Assisted Hours becomes a dollar value, and the levers that adjust it."},
+							{"Methodology & Value Calculator", "Prepaid Credits Purchased", "Customer-entered size of the purchased prepaid pool. Required for Prepaid and Hybrid billing; no prepaid fallback is assumed. (Customer input)", 7, 7, "How Assisted Hours becomes a dollar value, and the levers that adjust it."},
+							{"Methodology & Value Calculator", "Prepaid Rate per Credit", "Customer-entered discounted rate applied to prepaid or committed credits. Required for Prepaid, Hybrid, and Monthly Committed billing. (Customer input)", 7, 8, "How Assisted Hours becomes a dollar value, and the levers that adjust it."},
+							{"Methodology & Value Calculator", "Monthly Committed Credits", "Customer-entered monthly credit commitment. Monthly Committed cost prices the commitment at the prepaid rate and projected overage at the PAYG rate. (Customer input)", 7, 9, "How Assisted Hours becomes a dollar value, and the levers that adjust it."},
+							{"Methodology & Value Calculator", "Effective Platform Cost $", "Selected cost result: zero incremental cost for License-Included; observed credits times PAYG rate for Credit-Priced; purchased pool for Prepaid; pool plus observed overage for Hybrid; or commitment plus projected overage for Monthly Committed. (Derived)", 7, 10, "How Assisted Hours becomes a dollar value, and the levers that adjust it."},
+							{"Task Categories", "Category / LowMin / MidMin / HighMin", "The 8 real task categories and their cited-research minutes-saved range. (DECLARED, cited)", 8, 1, "Every real task category with its cited time-saved range and value."},
+							{"Task Categories", "Scheduled Share", "Same measure as the automation-ladder KPI, shown per category label, though the underlying export has no per-category breakdown. (Real, tenant-wide, blank pending export)", 8, 2, "Every real task category with its cited time-saved range and value."},
+							{"Task Categories", "Skill Mapping Coverage %", "Share of real observed skills/tools that map to a known task category. (Real)", 8, 3, "Every real task category with its cited time-saved range and value."},
+							{"Adjust Action Values", "Adjusted Interaction Value $", "Real baseline value, plus or minus one selected skill's own category-derived hours scaled by the chosen adjustment %. (Real baseline plus what-if delta on one skill)", 9, 1, "A marginal what-if: how would adjusting one skill's assumed time-saved change the total? Hidden page."},
+							{"Adjust Action Values", "Skill Adjustment %", "The what-if slider (0%-195%) applied to exactly one selected skill at a time; defaults to 100% (no change). (What-if control)", 9, 2, "A marginal what-if: how would adjusting one skill's assumed time-saved change the total? Hidden page."},
+							{"Consumption & Forecast", "Days Elapsed / Days in Month", "Real calendar math off the latest real activity date. (Real)", 10, 1, "Run-rate and projected credit consumption for the period."},
+							{"Consumption & Forecast", "Daily Run Rate / Projected Month-End Credits / Days of Credits Left", "Straight-line projections from observed customer credit consumption. (Unavailable until customer consumption export is connected)", 10, 2, "Run-rate and projected credit consumption for the period."},
+							{"BU Showback", "Estimated Value $ by Business Unit", "Derived value grouped by customer-provided Business Unit. (Unavailable until customer org export is connected)", 11, 1, "Estimated value by Business Unit."},
+							{"Attribution Analysis", "Active Users (30d) / % Active", "Users with real activity in the last 30 days. (Real)", 12, 1, "Who's actively using Cowork, and what license seats might be reclaimable."},
+							{"Attribution Analysis", "Value per Active User", "Modeled Estimated Value $ divided by observed Active Users (30d). (Derived from observed activity, cited benchmark, and customer input)", 12, 2, "Who's actively using Cowork, and what license seats might be reclaimable."},
+							{"Attribution Analysis", "Reclaimable Seats / Inactive unused credit value", "Licensed users inactive more than 30 days, plus their unused allowance priced at the selected credit rate. (Customer import and derived)", 12, 3, "Who's actively using Cowork, and what license seats might be reclaimable."},
+							{"Value by User Tier", "Value Band", "Ranks users into percentile tiers (Top 10%, 10-25%, etc.). Requires 20+ users to populate meaningfully; collapses to one 'Insufficient sample' bucket below that. (Real mechanism, population-gated)", 13, 1, "Value grouped by each user's percentile standing. Needs 20+ users to split meaningfully."},
+							{"Value by User Tier", "Value from Top Tier %", "Share of value coming from the top 10% of users by value. (Real, structurally blank below n=20)", 13, 2, "Value grouped by each user's percentile standing. Needs 20+ users to split meaningfully."},
+							{"Credit Justification", "Credit Band x Value Band", "A two-way percentile cross-tab meant to flag high-spend/low-value users; both axes need 20+ users to split meaningfully. (Real mechanism, population-gated)", 14, 1, "Cross-tabs credit spend against value tier to flag high-cost, low-value users."},
+							{"Credit Justification", "Value per Task", "Modeled Estimated Value $ divided by observed Cowork task count; used here in place of the population-gated 'Users Spend Ahead' card. (Derived from observed activity, cited benchmark, and customer input)", 14, 2, "Cross-tabs credit spend against value tier to flag high-cost, low-value users."},
+							{"Review Targets", "Credits at Risk / Value at Risk $", "Real credits/value tied to users whose spend outpaces their value; requires 20+ users to ever populate. Toggle 'Show names' to see named individuals instead of the Business Unit rollup. (Real mechanism, population-gated)", 15, 1, "Named individuals and Business Unit rollups where spend outpaces value. Needs 20+ users to populate."},
+							{"Right-Sizing & Reclaim", "Cowork Tasks (Threads)", "Observed distinct Cowork work sessions, shown alongside credit cohorts when observed consumption is connected. (Real)", 16, 1, "Grouping users by relative consumption to spot right-sizing and reclaim opportunities."},
+							{"Right-Sizing & Reclaim", "CohortBand", "Ranks users by observed credit usage; requires a customer consumption export and 20+ users. (Population-gated and unavailable until observed consumption is connected)", 16, 2, "Grouping users by relative consumption to spot right-sizing and reclaim opportunities."},
+							{"Right-Sizing & Reclaim", "Inactive unused credit value", "Unused allowance for licensed users inactive more than 30 days, priced at the selected credit rate. (Customer import and derived)", 16, 3, "Grouping users by relative consumption to spot right-sizing and reclaim opportunities."},
+							{"Policy & What-If", "Rate per Credit / Loaded Labor Rate", "Required customer inputs for credit price and hourly labor cost. No coded numeric fallback is applied. (Customer input)", 17, 1, "Rate and labor-cost scenario modeling."},
+							{"Policy & What-If", "Contracted Cost / List Cost / Savings vs List", "Prices observed credit consumption using explicitly selected customer contract inputs. (Derived from observed consumption and customer input)", 17, 2, "Rate and labor-cost scenario modeling."},
+							{"User Detail", "Cowork Tasks (Threads) / Avg Task Duration / Avg Skills per Task / Estimated Value $", "Per-user observed Cowork activity plus derived value when required inputs are selected. (Observed activity and derived value)", 18, 1, "Observed per-user Cowork activity."},
+							{"User Detail", "Reported Tasks / Scheduled Share %", "Per-user reconciliation figures from the admin-center usage export. (Unavailable until populated customer usage export is connected)", 18, 2, "Observed per-user Cowork activity."},
+							{"User Detail", "Total Credits Used / Contracted Cost", "Observed per-user consumption priced with customer-entered contract terms. (Unavailable until observed consumption and customer inputs are present)", 18, 3, "Observed per-user Cowork activity."},
+							{"Action Value by Tier", "Interaction Value $ by Value Tier", "Modeled category value split by tier, with series by category. (Derived from observed activity, cited benchmark, and customer input)", 19, 1, "Modeled category value, grouped by High/Mid/Low value tier."},
+							{"Action Explorer", "Skill-Sliced Assisted Hours / Skill-Sliced Estimated Value $", "Real category totals repeated across every skill in that category - not independently measured per skill. (Real, category-grain)", 20, 1, "Every real observed skill or tool, ranked by usage and mapped to a task category."},
+							{"Action Explorer", "Skill Mapping Coverage %", "Share of observed skills/tools mapped to a known task category. (Real)", 20, 2, "Every real observed skill or tool, ranked by usage and mapped to a task category."},
+							{"Action Explorer", "IsMapped", "Flags skills/tools with no category mapping yet, sorted first for visibility. (Real)", 20, 3, "Every real observed skill or tool, ranked by usage and mapped to a task category."},
+							{"Business Outcomes", "Typical Business Outcome", "The kind of business result this category of work typically supports -- faster decisions, better content, less manual toil -- written as reference discussion guidance, not a measured KPI. (Reference discussion guide, not measured)", 21, 1, "What each task category means for the business, and a discussion prompt for your team."},
+							{"Business Outcomes", "Discussion Prompt", "A starter question for reviewing this category with your team -- pairs with observed Total Tasks and modeled Estimated Value $ alongside it. (Reference discussion guide, not measured)", 21, 2, "What each task category means for the business, and a discussion prompt for your team."},
+							{"Action Assumptions", "Action minutes 01-44", "Customer-editable minutes for each research-backed action. Every control defaults to its cited benchmark and only classified records receive action value. (Customer input)", 22, 1, "The 44 research-backed action assumptions and customer-editable minutes."},
+							{"Action Assumptions", "Value scope", "Verified only uses direct classifications; Verified plus representative adds explicitly labeled representative mappings without assigning value to unclassified records. (Customer input)", 22, 2, "The 44 research-backed action assumptions and customer-editable minutes."},
+							{"Model & LLM Breakdown", "Model attribution", "Model/provider values reported by the loaded Purview ModelTransparencyDetails field. The page identifies QA fixture labels and remains source-gated when attribution is absent. (Observed)", 23, 1, "Observed model attribution with modeled task-share credit and cost allocation."},
+							{"Model & LLM Breakdown", "Allocated credits and cost by model", "Observed total credits are distributed across model and category cells by task share; cost equals allocated credits times the selected credit rate. This is modeled allocation, not model-specific metering. (Derived)", 23, 2, "Observed model attribution with modeled task-share credit and cost allocation."}
+						}
+					),
+					CurrentPageInfo = (page as text) as record =>
+						if page = "Report-Wide Definitions" then [Page = "Report-Wide Definitions", PageOrder = 0, PageDescription = "Foundational definitions used throughout this report."]
+						else if page = "Setup & How to Use" then [Page = "Setup & Data", PageOrder = 1, PageDescription = "How to connect customer data and distinguish imported, observed, and modeled values."]
+						else if page = "Value & Spend Overview" then [Page = "Executive Summary", PageOrder = 2, PageDescription = "Tenant-wide value, spend, and reclaim signals at a glance."]
+						else if List.Contains({"Activity & Value", "Actions", "Action Maturity", "Task Categories", "Business Outcomes"}, page) then [Page = "Task Categories & Methodology", PageOrder = 3, PageDescription = "Task categories, automation indicators, cited effort ranges, and modeled value."]
+						else if List.Contains({"Methodology & Value Calculator", "Policy & What-If"}, page) then [Page = "Methodology & Value Calculator", PageOrder = 4, PageDescription = "How value is calculated and which customer assumptions can be changed."]
+						else if page = "Adjust Action Values" then [Page = "Action Assumptions", PageOrder = 5, PageDescription = "The 44 research-backed action assumptions and customer-editable minutes."]
+						else if page = "Action Assumptions" then [Page = "Action Assumptions", PageOrder = 5, PageDescription = "The 44 research-backed action assumptions and customer-editable minutes."]
+						else if List.Contains({"Value vs Cost", "Credit Justification"}, page) then [Page = "Value vs Cost", PageOrder = 6, PageDescription = "Per-user value, credits, and credit-justification views."]
+						else if List.Contains({"BU Showback", "Attribution Analysis"}, page) then [Page = "Value by Department", PageOrder = 7, PageDescription = "Business-unit showback and active-user attribution."]
+						else if List.Contains({"Value by User Tier", "Action Value by Tier"}, page) then [Page = "Value by User Tier", PageOrder = 8, PageDescription = "Value grouped by user percentile and task value tier."]
+						else if List.Contains({"Right-Sizing & Reclaim", "Review Targets", "User Detail"}, page) then [Page = "Right-Sizing & Reclaim", PageOrder = 9, PageDescription = "Consumption cohorts, recency, reclaim candidates, and recommended actions."]
+						else if page = "Action Explorer" then [Page = "Skills & Allocated Consumption", PageOrder = 10, PageDescription = "Observed skills with modeled credit, cost, and action-value allocation."]
+						else if page = "Skills & Allocated Consumption" then [Page = "Skills & Allocated Consumption", PageOrder = 10, PageDescription = "Observed skills with modeled credit, cost, and action-value allocation."]
+						else if page = "Model & LLM Breakdown" then [Page = "Model & LLM Breakdown", PageOrder = 11, PageDescription = "Observed model attribution with modeled task-share credit and cost allocation."]
+						else [Page = page, PageOrder = 11, PageDescription = "Metric definitions for the current report."],
+					RemoveRetired = Table.SelectRows(Seed, each [Page] <> "Consumption & Forecast"),
+					AddPageInfo = Table.AddColumn(RemoveRetired, "_PageInfo", each CurrentPageInfo([Page]), type record),
+					ExpandPageInfo = Table.ExpandRecordColumn(AddPageInfo, "_PageInfo", {"Page", "PageOrder", "PageDescription"}, {"MappedPage", "MappedPageOrder", "MappedPageDescription"}),
+					RemoveOldPageInfo = Table.RemoveColumns(ExpandPageInfo, {"Page", "PageOrder", "PageDescription"}),
+					NormalizedPages = Table.RenameColumns(RemoveOldPageInfo, {{"MappedPage", "Page"}, {"MappedPageOrder", "PageOrder"}, {"MappedPageDescription", "PageDescription"}}),
+					AddDataStatus = Table.AddColumn(NormalizedPages, "DataStatus", each
+						let
+							d = [Description],
+							marker = Text.PositionOf(d, " (", Occurrence.Last),
+							hasStatus = marker >= 0 and Text.End(d, 1) = ")",
+							rawStatus = if hasStatus then Text.Range(d, marker + 2, Text.Length(d) - marker - 3) else "",
+							status = Text.Lower(rawStatus)
+						in
+							if Text.Contains(status, "customer import") or Text.Contains(status, "customer export") or Text.Contains(status, "until connected") or Text.Contains(status, "pending export") or Text.Contains(status, "blank pending") then "Customer Import"
+							else if Text.Contains(status, "unavailable") or Text.Contains(status, "illustrative") then "Unavailable"
+							else if Text.Contains(status, "population-gated") or Text.Contains(status, "gated") or Text.Contains(status, "below n=20") or Text.Contains(status, "structurally blank") then "Population-Gated"
+							else if Text.Contains(status, "estimate") or Text.Contains(status, "declared") or Text.Contains(status, "scenario") or Text.Contains(status, "category-grain") or Text.Contains(status, "reference") or Text.Contains(status, "derived") or Text.Contains(status, "modeled") or Text.Contains(status, "modelled") then "Derived"
+							else if Text.Contains(status, "customer input") or Text.Contains(status, "what-if") or Text.Contains(status, "control") then "Customer Input"
+							else if Text.Contains(status, "real") or Text.Contains(status, "observed") then "Observed"
+							else "Derived",
+						type text),
+					CleanDescription = Table.TransformColumns(AddDataStatus, {{"Description", each
+						let
+							d = _,
+							marker = Text.PositionOf(d, " (", Occurrence.Last),
+							hasStatus = marker >= 0 and Text.End(d, 1) = ")"
+						in
+							if hasStatus then Text.Start(d, marker) else d,
+						type text}}),
+					Final = Table.AddColumn(CleanDescription, "SortKey", each [PageOrder] * 100 + [MetricOrder], Int64.Type)
+				in
+					Final

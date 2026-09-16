@@ -1,0 +1,202 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/bookmark/2.1.0/schema.json",
+  "displayName": "Value vs Cost — credit justification",
+  "name": "a1b2c3d4e5f6000092j2",
+  "options": {
+    "targetVisualNames": [
+      "vs_card_cost",
+      "vs_card_credits",
+      "vs_card_percredit",
+      "vs_card_roi",
+      "vs_card_value",
+      "vs_chip_value",
+      "vs_narrative",
+      "vs_provenance",
+      "vs_scatter",
+      "vs_subtitle",
+      "vs_title",
+      "mv_cj_cj_card_credits",
+      "mv_cj_cj_card_review",
+      "mv_cj_cj_card_users",
+      "mv_cj_cj_card_value",
+      "mv_cj_cj_card_vpc",
+      "mv_cj_cj_col_shares",
+      "mv_cj_cj_matrix",
+      "mv_cj_cj_narrative",
+      "mv_cj_cj_table",
+      "mv_cj_cj_title"
+    ],
+    "suppressActiveSection": true,
+    "suppressData": true,
+    "applyOnlyToTargetVisuals": true
+  },
+  "explorationState": {
+    "version": "1.0",
+    "activeSection": "92f_value_vs_cost",
+    "sections": {
+      "92f_value_vs_cost": {
+        "visualContainers": {
+          "vs_card_cost": {
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "vs_card_credits": {
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "vs_card_percredit": {
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "vs_card_roi": {
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "vs_card_value": {
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "vs_chip_value": {
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "vs_narrative": {
+            "singleVisual": {
+              "visualType": "textbox",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "vs_provenance": {
+            "singleVisual": {
+              "visualType": "textbox",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "vs_scatter": {
+            "singleVisual": {
+              "visualType": "scatterChart",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "vs_subtitle": {
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "vs_title": {
+            "singleVisual": {
+              "visualType": "textbox",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "mv_cj_cj_card_credits": {
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {}
+            }
+          },
+          "mv_cj_cj_card_review": {
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {}
+            }
+          },
+          "mv_cj_cj_card_users": {
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {}
+            }
+          },
+          "mv_cj_cj_card_value": {
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {}
+            }
+          },
+          "mv_cj_cj_card_vpc": {
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {}
+            }
+          },
+          "mv_cj_cj_col_shares": {
+            "singleVisual": {
+              "visualType": "clusteredColumnChart",
+              "objects": {}
+            }
+          },
+          "mv_cj_cj_matrix": {
+            "singleVisual": {
+              "visualType": "pivotTable",
+              "objects": {}
+            }
+          },
+          "mv_cj_cj_narrative": {
+            "singleVisual": {
+              "visualType": "textbox",
+              "objects": {}
+            }
+          },
+          "mv_cj_cj_table": {
+            "singleVisual": {
+              "visualType": "tableEx",
+              "objects": {}
+            }
+          },
+          "mv_cj_cj_title": {
+            "singleVisual": {
+              "visualType": "textbox",
+              "objects": {}
+            }
+          }
+        }
+      }
+    }
+  }
+}
