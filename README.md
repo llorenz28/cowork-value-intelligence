@@ -28,13 +28,14 @@ delegated work, modeled value, consumption, and right-sizing analysis.
 
 ## Choose the template
 
-The active release contains two testing templates. Both use the same one-folder
-setup.
+The active release contains two local-folder templates plus a separate
+SharePoint-folder edition of the Value template.
 
 | Template | Best for | Pages and setup | Status |
 | --- | --- | --- | --- |
 | [`adoption/Cowork Adoption Intelligence v2 Testing.pbit`](adoption/Cowork%20Adoption%20Intelligence%20v2%20Testing.pbit) | Activation, sustained usage, potential champions, action patterns, and delegation maturity; core pages do not require consumption | Nine visible pages; one `DataFolderPath` parameter | `2.0.1-testing` |
 | [`value/Cowork Value V1 Testing.pbit`](value/Cowork%20Value%20V1%20Testing.pbit) | Modeled value, five billing modes, right-sizing, department views, and allocated consumption | 11 viewer-facing pages plus one hidden assumptions page; one `DataFolderPath` parameter | `1.1.0-testing` |
+| [`value/Cowork Value V1 SharePoint Testing.pbit`](value/Cowork%20Value%20V1%20SharePoint%20Testing.pbit) | The same Value analysis when approved exports are stored in one SharePoint folder | Same pages; `SharePointSiteUrl` plus `SharePointFolderUrl` | `1.1.0-sharepoint-testing` |
 
 Use the [shared data setup guide](DATA_SETUP_START_HERE.md) for the exact sample
 and production workflow for the template you choose.
@@ -44,6 +45,7 @@ and production workflow for the template you choose.
 | Resource | Open or download |
 | --- | --- |
 | Value testing template | [`value/Cowork Value V1 Testing.pbit`](value/Cowork%20Value%20V1%20Testing.pbit) |
+| Value SharePoint testing template | [`value/Cowork Value V1 SharePoint Testing.pbit`](value/Cowork%20Value%20V1%20SharePoint%20Testing.pbit) |
 | Value setup | [`value/README.md`](value/README.md) |
 | Adoption testing template | [`adoption/Cowork Adoption Intelligence v2 Testing.pbit`](adoption/Cowork%20Adoption%20Intelligence%20v2%20Testing.pbit) |
 | Adoption setup | [`adoption/README.md`](adoption/README.md) |
@@ -227,7 +229,10 @@ src/
 tools/
 value/
   Cowork Value V1 Testing.pbit
+  Cowork Value V1 SharePoint Testing.pbit
   README.md
+  tools/
+    New-CoworkValueSharePointTemplate.ps1
 ```
 
 ## Security and privacy
@@ -238,7 +243,7 @@ tenant information. Follow [SECURITY.md](SECURITY.md), the
 handling requirements, and Microsoft 365 retention and access policies.
 
 Repository visibility and file classification are separate controls. This
-repository is public. Both distributable PBITs contain no imported data or
+repository is public. The distributable PBITs contain no imported data or
 machine-bound security binding and carry the tenant **Public** sensitivity
 label without encryption. Apply or confirm the label required by organizational
 policy before sharing a refreshed report.

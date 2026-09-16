@@ -1,7 +1,7 @@
 # Get your data: start here
 
-This guide covers both included Cowork testing templates. It separates collection
-from report operation so no single person needs every tenant role.
+This guide covers the included Cowork testing templates. It separates
+collection from report operation so no single person needs every tenant role.
 
 > **Recommended first step:** load the fabricated sample data. This proves the
 > selected PBIT and local Power BI environment work before customer permissions,
@@ -13,8 +13,9 @@ from report operation so no single person needs every tenant role.
 | --- | --- | --- |
 | `adoption\Cowork Adoption Intelligence v2 Testing.pbit` | You want focused adoption, champions, and delegation analysis without cost/ROI | One required `DataFolderPath` |
 | `value\Cowork Value V1 Testing.pbit` | You want focused value, cost, department, and right-sizing analysis | One required `DataFolderPath` |
+| `value\Cowork Value V1 SharePoint Testing.pbit` | You want the same Value analysis and the approved CSVs are stored together in SharePoint | Required `SharePointSiteUrl` and `SharePointFolderUrl` |
 
-Both templates search one folder and all its subfolders.
+Every template searches one folder and all its subfolders.
 
 ## 2. Know which sources light up the report
 
@@ -59,6 +60,17 @@ tenant data is included.
    not to its parent folder.
 4. Select **Load**, approve the appropriate privacy level, and refresh.
 
+### Value SharePoint template
+
+1. Extract `release\Cowork-Value-Intelligence-Sample-Data.zip`.
+2. Upload the nested `sample_data` folder to a protected SharePoint site.
+3. Open `value\Cowork Value V1 SharePoint Testing.pbit`.
+4. Set `SharePointSiteUrl` to the site root, such as
+   `https://contoso.sharepoint.com/sites/CoworkAnalytics`.
+5. Set `SharePointFolderUrl` to the uploaded `sample_data` folder link.
+6. Select **Load**, sign in with an account that can read the folder, approve
+   the appropriate privacy level, and refresh.
+
 ### Confirm the sample worked
 
 1. A summary page shows users and tasks.
@@ -92,7 +104,8 @@ Power BI operator.
 
 ### Step 2: create a protected working folder
 
-Create a folder outside this Git repository:
+Create a protected local folder outside this Git repository, or use one
+protected SharePoint folder for the SharePoint Value template:
 
 ```text
 C:\CoworkValueData\
@@ -105,8 +118,9 @@ C:\CoworkValueData\
     cowork_users.csv
 ```
 
-Both templates can use `C:\CoworkValueData` as `DataFolderPath` because their
-search is recursive.
+The local-path templates can use `C:\CoworkValueData` as `DataFolderPath`
+because their search is recursive. For the SharePoint Value template, upload
+the same folder structure and enter its site root and folder link.
 
 Keep immutable raw exports in a separately protected location. Normalize only
 working copies. Record the source owner, reporting window, export time, and any
@@ -302,7 +316,9 @@ or QA parent containing unrelated exports.
 
 ### Step 8: load and verify in Power BI Desktop
 
-1. Open the selected PBIT and enter its parameter values.
+1. Open the selected PBIT and enter its parameter values. For the SharePoint
+   template, use the site root for `SharePointSiteUrl` and the protected folder
+   link for `SharePointFolderUrl`.
 2. Select **Load**.
 3. When prompted for privacy levels, use the classification approved by your
    organization. Do not bypass a policy prompt.
@@ -334,14 +350,19 @@ when it displays the unavailable placeholder.
 6. Configure an
    [on-premises data gateway](https://learn.microsoft.com/data-integration/gateway/service-gateway-onprem)
    for scheduled refresh from local or UNC paths.
+7. For the SharePoint Value template, do not configure an on-premises gateway.
+   Configure OAuth credentials for `SharePointSiteUrl` in the semantic model
+   settings instead.
 
-Publishing does not make `C:\CoworkValueData` cloud-accessible.
+Publishing does not make `C:\CoworkValueData` cloud-accessible. SharePoint
+refresh still requires a service credential that can read the configured site.
 
 ## Quick help
 
 | You see | Likely cause | What to do |
 | --- | --- | --- |
 | Folder error during load | `DataFolderPath` is missing or inaccessible | Select an existing narrow folder and confirm local permission |
+| SharePoint site or folder error | The site root is invalid, the folder is outside that site, or the signed-in account lacks access | Enter the site root in `SharePointSiteUrl`, paste the folder link in `SharePointFolderUrl`, and confirm read permission |
 | No Cowork users | No valid Cowork `CopilotInteraction` rows | Check the five audit headers, JSON integrity, period, and `AppHost` |
 | Optional file ignored | Filename/header contract failed | Use a preferred filename and exact required headers |
 | Unexpected optional file selected | Multiple schema-valid files are under `DataFolderPath` | Keep one current working file per optional schema |
@@ -350,7 +371,8 @@ Publishing does not make `C:\CoworkValueData` cloud-accessible.
 | Credits, utilization, or cost blank | Wrong report export, missing consumption file, or missing assumptions | Use Cost Management Consumption > Users, then select approved report inputs |
 | Estimated value blank | No labor rate is selected | Select and document one labor rate |
 | Model page says unavailable | Cowork audit data did not emit usable model names | Treat it as unavailable; do not infer a model |
-| Service refresh fails | Power BI Service cannot reach local files | Configure and map an on-premises gateway |
+| Service refresh fails for local files | Power BI Service cannot reach the local folder | Configure and map an on-premises gateway |
+| Service refresh fails for SharePoint | The `SharePointSiteUrl` credential is missing or expired | Sign in to the SharePoint data source in semantic model settings |
 
 ## Security reminders
 

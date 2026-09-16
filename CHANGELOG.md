@@ -1,5 +1,17 @@
 # Changelog
 
+## Cowork Value V1 SharePoint edition - 2026-09-16
+
+- Added `Cowork Value V1 SharePoint Testing.pbit` as a separate template; the
+  existing local-folder template remains unchanged.
+- Added recursive SharePoint-folder discovery through one static
+  `SharePoint.Files` site connector.
+- Added support for direct folder URLs, path-bearing SharePoint `/:f:/r/`
+  links, and `AllItems.aspx?id=...` folder links, with a clear error for opaque
+  token-only sharing links.
+- Preserved the Value report pages, measures, relationships, bookmarks,
+  Public sensitivity metadata, and data-free package.
+
 ## Cowork Value V1 1.1.0 - 2026-09-15
 
 - Added synchronized Billing Mode, Rate per Credit, Prepaid Credits, Prepaid

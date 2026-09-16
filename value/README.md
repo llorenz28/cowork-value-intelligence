@@ -1,8 +1,9 @@
 # Cowork Value V1 Testing
 
 Cowork Value V1 focuses on modeled value, cost, right-sizing, department views,
-skill allocation, and model-attribution readiness. It uses one required
-`DataFolderPath` parameter.
+skill allocation, and model-attribution readiness. The local template uses one
+required `DataFolderPath` parameter. The separate SharePoint template uses
+`SharePointSiteUrl` and `SharePointFolderUrl`.
 
 This testing release is version `1.1.0-testing`. Its Value Calculator and Value
 vs Cost pages keep five cost inputs synchronized across Credit-Priced,
@@ -28,7 +29,9 @@ repository. Source: [Microsoft `CreditUsage`](https://github.com/microsoft/Credi
 | Resource | Open or download |
 | --- | --- |
 | Power BI template | [`Cowork Value V1 Testing.pbit`](Cowork%20Value%20V1%20Testing.pbit) |
+| SharePoint-folder template | [`Cowork Value V1 SharePoint Testing.pbit`](Cowork%20Value%20V1%20SharePoint%20Testing.pbit) |
 | Editable source | [`src/Cowork Value Intelligence - Value LL.pbip`](src/Cowork%20Value%20Intelligence%20-%20Value%20LL.pbip) |
+| SharePoint template builder | [`tools/New-CoworkValueSharePointTemplate.ps1`](tools/New-CoworkValueSharePointTemplate.ps1) |
 | Synthetic sample package | [`../release/Cowork-Value-Intelligence-Sample-Data.zip`](../release/Cowork-Value-Intelligence-Sample-Data.zip) |
 | Shared production guide | [`../DATA_SETUP_START_HERE.md`](../DATA_SETUP_START_HERE.md) |
 | Interpretation guide | [`../INTERPRETATION_GUIDE.md#value-template-page-guide`](../INTERPRETATION_GUIDE.md#value-template-page-guide) |
@@ -79,6 +82,32 @@ Follow the [production export instructions](../DATA_SETUP_START_HERE.md#path-b-c
 for exact filenames, headers, roles, identity handling, and verification. Keep
 only one current schema-valid working file for each optional source.
 
+## Connect a SharePoint folder
+
+Use `Cowork Value V1 SharePoint Testing.pbit` when the approved CSV exports are
+stored together in SharePoint.
+
+1. Put the Purview Audit Search CSVs and optional consumption, usage,
+   organization, and identity CSVs anywhere below one protected SharePoint
+   folder. Discovery is recursive.
+2. Set `SharePointSiteUrl` to the site root, not a library, folder, or file:
+   `https://contoso.sharepoint.com/sites/CoworkAnalytics`.
+3. Set `SharePointFolderUrl` to the folder link. Direct folder URLs,
+   path-bearing SharePoint **Copy link** URLs containing `/:f:/r/`, and library
+   `AllItems.aspx?id=...` URLs are accepted. Opaque `/:f:/s/` or `/:f:/g/`
+   sharing links are not folder paths; open the folder and copy its address
+   instead.
+4. Select **Load**, choose **Microsoft account** or **Organizational account**
+   when Power BI requests SharePoint credentials, and sign in with an account
+   that can read the folder.
+5. Use the privacy level approved by your organization. After publishing,
+   configure credentials for the `SharePointSiteUrl` data source before
+   scheduling refresh.
+
+The site root remains a separate parameter intentionally. `SharePoint.Files`
+uses that static root so Power BI Service can identify the data source; the
+folder link is used only to filter the returned files.
+
 ## Viewer-facing pages
 
 1. Start Here
@@ -120,8 +149,8 @@ unrelated content.
 
 ## Security and classification
 
-The PBIT contains no imported customer data or machine-bound security binding,
-carries the **Public** sensitivity label in Power BI Desktop, and is
+The PBITs contain no imported customer data or machine-bound security binding,
+carry the **Public** sensitivity label in Power BI Desktop, and are
 unprotected. Apply or confirm the label required by organizational policy
 before sharing a refreshed customer-data copy.
 
@@ -129,3 +158,8 @@ The exact distributable PBIT has SHA-256
 `c7b1a722c672cbf65d9fb4a66bea4dfa7c17ca0e70c3df4ba04a8e49a35176b6`,
 contains 12 pages and 31 target-only bookmarks, and passed all 41
 synchronized-control interaction checks.
+
+The exact SharePoint-folder PBIT has SHA-256
+`dd360633f9197db6149d43bec739ec6a7f902581448f260d8c46c043b0d8032b`,
+contains the same report and model, and changes only the data-source queries and
+two setup text entries.

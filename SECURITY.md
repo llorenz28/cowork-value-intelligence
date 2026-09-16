@@ -55,8 +55,8 @@ The repository is public. Never place customer exports, credentials, tenant
 URLs, or identifiable screenshots in commits, branches, pull requests, or
 issues.
 
-The two distributable testing PBIT files contain no imported customer data or
-machine-bound `SecurityBindings` stream. Both carry the tenant **Public**
+The distributable testing PBIT files contain no imported customer data or
+machine-bound `SecurityBindings` stream. They carry the tenant **Public**
 sensitivity label and are unprotected; their label metadata is retained
 separately from the removed machine-bound security stream.
 
