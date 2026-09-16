@@ -13,7 +13,8 @@ collection from report operation so no single person needs every tenant role.
 | --- | --- | --- |
 | `adoption\Cowork Adoption Intelligence v2 Testing.pbit` | You want focused adoption, champions, and delegation analysis without cost/ROI | One required `DataFolderPath` |
 | `value\Cowork Value V1 Testing.pbit` | You want focused value, cost, department, and right-sizing analysis | One required `DataFolderPath` |
-| `value\Cowork Value V1 SharePoint Testing.pbit` | You want the same Value analysis and the approved CSVs are stored together in SharePoint | Required `SharePointSiteUrl` and `SharePointFolderUrl` |
+| `value\Cowork Value V1.2 SharePoint Testing.pbit` | You want the same Value analysis, the approved CSVs are stored together in SharePoint, and current or legacy Purview exports must load | Required `SharePointSiteUrl` and `SharePointFolderUrl` |
+| `value\Cowork Value V1 SharePoint Testing.pbit` | You need the previous SharePoint revision for reproducibility | Required `SharePointSiteUrl` and `SharePointFolderUrl`; legacy Purview outer columns only |
 
 Every template searches one folder and all its subfolders.
 
@@ -21,14 +22,16 @@ Every template searches one folder and all its subfolders.
 
 | Source | Adoption | Value | Minimum access |
 | --- | --- | --- | --- |
-| Purview Audit Search CSVs | **Required** | **Required** | Purview `Audit Reader` role group |
+| Purview Audit Search CSVs | **Required** | Required for core activity and value analysis; optional for a V1.2 SharePoint usage-only partial load | Purview `Audit Reader` role group |
 | Cowork usage details CSV | Recommended | Recommended where usage metrics appear | `Reports Reader` |
 | Cost Management Consumption > Users CSV | Not required for the core adoption experience | Required for credit, cost, utilization, and ROI | `AI Reader` |
 | Organization CSV | Optional enrichment | Optional; enables department views | Existing approved HR/Identity access |
 | `cowork_users.csv` | Optional | Optional | Existing approved Identity access |
 
-Purview is the only hard source dependency. Missing optional files load as
-unavailable; the model never invents customer data.
+Purview is the hard dependency for core activity, task, skill, and value
+analysis. The V1.2 SharePoint template can still load reported usage users and
+metrics without Purview, but marks that state as a partial load. Missing optional
+files load as unavailable; the model never invents customer data.
 
 Read [Security roles and access](docs/SECURITY_ROLES.md) before requesting access.
 This CSV-fed release does not need an app registration, client secret, Microsoft
@@ -64,7 +67,7 @@ tenant data is included.
 
 1. Extract `release\Cowork-Value-Intelligence-Sample-Data.zip`.
 2. Upload the nested `sample_data` folder to a protected SharePoint site.
-3. Open `value\Cowork Value V1 SharePoint Testing.pbit`.
+3. Open `value\Cowork Value V1.2 SharePoint Testing.pbit`.
 4. Set `SharePointSiteUrl` to the site root, such as
    `https://contoso.sharepoint.com/sites/CoworkAnalytics`.
 5. Set `SharePointFolderUrl` to the uploaded `sample_data` folder link.
@@ -126,7 +129,7 @@ Keep immutable raw exports in a separately protected location. Normalize only
 working copies. Record the source owner, reporting window, export time, and any
 header or value transformations.
 
-### Step 3: export required Purview audit records
+### Step 3: export Purview audit records for core analysis
 
 **Access:** assign the collector to the **Audit Reader** role group in Microsoft
 Purview. It grants the `View-Only Audit Logs` role needed to search and export
@@ -139,21 +142,32 @@ without permission to manage auditing.
 5. Run the search and wait for it to complete.
 6. Select **Export** and preserve the downloaded raw CSV unchanged.
 7. Copy the file into `C:\CoworkValueData\purview_audit`.
-8. Confirm the working CSV has these exact outer columns:
+8. For the local templates and the previous V1 SharePoint revision, confirm the
+   working CSV has these outer columns:
 
 ```csv
 RecordId,CreationDate,Operation,UserId,AuditData
 ```
 
-9. Confirm at least one row has `Operation = CopilotInteraction` and its
+   The V1.2 SharePoint revision also accepts the current portal shape without
+   manual header changes:
+
+```csv
+CreationDate,UserIds,Operations,AuditData
+```
+
+   For the current shape, `Operations` and `UserIds` may be scalar values or
+   JSON-style lists. If the outer `RecordId` is absent, V1.2 uses `Id` or
+   `RecordId` from `AuditData`, then source path plus row number.
+9. Confirm at least one row has `Operation` or `Operations` equal to
+   `CopilotInteraction` and its
    `AuditData` JSON contains `CopilotEventData.AppHost` with `cowork`
    case-insensitively.
 
-Do not expand, reformat, or hand-edit the JSON in `AuditData`. If the portal
-export uses different outer header names, create a protected working copy and
-normalize the headers without changing `AuditData`. If a stable `RecordId` is
-absent, do not invent one; ask the Purview owner for the complete raw export
-shape.
+Do not expand, reformat, or hand-edit the JSON in `AuditData`. Use the V1.2
+SharePoint revision for the current four-column portal export. Normalize a
+protected working copy only when using a template that still requires the
+legacy shape.
 
 Audit searches accept a maximum 180-day range. A single Audit Standard export
 can contain up to 50,000 records; Audit Premium raises the export limit to
@@ -284,10 +298,10 @@ only approved fields.
 
 #### UPN normalization
 
-Use the same UPN spelling and letter case across the Purview, usage,
-consumption, organization, and identity working copies. The safest convention
-is lowercase UPNs everywhere, including `cowork_users.csv` when it is present.
-The optional-source joins are case-sensitive.
+The V1.2 SharePoint revision trims UPNs and compares them case-insensitively
+across Purview, usage, consumption, organization, and identity sources. Lowercase
+UPNs remain the safest convention for portable working copies and are still
+required for templates whose optional-source joins are case-sensitive.
 
 Microsoft reference:
 [Download Entra users](https://learn.microsoft.com/entra/identity/users/users-bulk-download).
@@ -301,7 +315,7 @@ these names:
 
 | Source | Preferred filenames |
 | --- | --- |
-| Purview | Any `.csv` with the five required audit columns |
+| Purview | V1.2 SharePoint: any `.csv` with `AuditData` plus current or legacy operation/user fields; other templates: the five legacy audit columns |
 | Cowork usage | `CoworkUserDetails.csv` or `Cowork Usage.csv` |
 | Consumption | `CoworkConsumptionDetails.csv` or `Consumption - Users.csv` |
 | Organization | `CoworkUserOrgDetails.csv` or `Cowork User Organization.csv` |
@@ -327,6 +341,7 @@ or QA parent containing unrelated exports.
 
 | Check | Expected result |
 | --- | --- |
+| Start Here readiness | A specific state reports missing inputs, partial usage-only load, an identity mismatch, core activity readiness, or all core inputs ready |
 | Purview | Cowork users, tasks, skills, categories, and activity dates populate |
 | Usage | Scheduled/user-initiated metrics and audit reconciliation populate where shown |
 | Identity | Friendly names appear and UPN joins do not drop users |
@@ -363,10 +378,11 @@ refresh still requires a service credential that can read the configured site.
 | --- | --- | --- |
 | Folder error during load | `DataFolderPath` is missing or inaccessible | Select an existing narrow folder and confirm local permission |
 | SharePoint site or folder error | The site root is invalid, the folder is outside that site, or the signed-in account lacks access | Enter the site root in `SharePointSiteUrl`, paste the folder link in `SharePointFolderUrl`, and confirm read permission |
-| No Cowork users | No valid Cowork `CopilotInteraction` rows | Check the five audit headers, JSON integrity, period, and `AppHost` |
+| No Cowork users | No valid Cowork `CopilotInteraction` rows | In V1.2, check either supported outer-column shape, JSON integrity, period, and `AppHost`; in earlier templates, check the five legacy headers |
 | Optional file ignored | Filename/header contract failed | Use a preferred filename and exact required headers |
 | Unexpected optional file selected | Multiple schema-valid files are under `DataFolderPath` | Keep one current working file per optional schema |
-| Usage split or audit coverage blank | Usage export is absent, anonymized, or unmatched | Rename `User ID`, align UPN casing, and review the tenant concealment setting |
+| Start Here says partial load | Usage loaded but no recognized Purview Cowork events | Confirm `Operations`/`Operation`, `UserIds`/`UserId`, valid `AuditData`, and a Cowork `AppHost` |
+| Usage split or audit coverage blank | Usage export is absent, anonymized, or unmatched | Rename `User ID`, remove surrounding whitespace, and review the tenant concealment setting |
 | Department visuals blank | Org file is absent, malformed, or unmatched | Confirm all ten exact headers and UPN overlap |
 | Credits, utilization, or cost blank | Wrong report export, missing consumption file, or missing assumptions | Use Cost Management Consumption > Users, then select approved report inputs |
 | Estimated value blank | No labor rate is selected | Select and document one labor rate |

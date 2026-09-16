@@ -2,12 +2,16 @@
 
 Cowork Value V1 focuses on modeled value, cost, right-sizing, department views,
 skill allocation, and model-attribution readiness. The local template uses one
-required `DataFolderPath` parameter. The separate SharePoint template uses
-`SharePointSiteUrl` and `SharePointFolderUrl`.
+required `DataFolderPath` parameter. The recommended SharePoint revision is
+`Cowork Value V1.2 SharePoint Testing.pbit`; it uses `SharePointSiteUrl` and
+`SharePointFolderUrl`.
 
-This testing release is version `1.1.0-testing`. Its Value Calculator and Value
-vs Cost pages keep five cost inputs synchronized across Credit-Priced,
-License-Included, Prepaid, Hybrid, and Monthly Committed billing modes.
+The local testing release remains `1.1.0-testing`. The separate SharePoint
+revision is `1.2.0-sharepoint-testing` and adds current Purview export support,
+usage-based user seeding, normalized UPN matching, and visible load diagnostics.
+Its Value Calculator and Value vs Cost pages keep five cost inputs synchronized
+across Credit-Priced, License-Included, Prepaid, Hybrid, and Monthly Committed
+billing modes.
 
 Per-user allowance and overage chargeback follows Microsoft's
 [`CreditUsage`](https://github.com/microsoft/CreditUsage) Cowork chargeback
@@ -29,7 +33,8 @@ repository. Source: [Microsoft `CreditUsage`](https://github.com/microsoft/Credi
 | Resource | Open or download |
 | --- | --- |
 | Power BI template | [`Cowork Value V1 Testing.pbit`](Cowork%20Value%20V1%20Testing.pbit) |
-| SharePoint-folder template | [`Cowork Value V1 SharePoint Testing.pbit`](Cowork%20Value%20V1%20SharePoint%20Testing.pbit) |
+| Recommended SharePoint-folder template | [`Cowork Value V1.2 SharePoint Testing.pbit`](Cowork%20Value%20V1.2%20SharePoint%20Testing.pbit) |
+| Previous SharePoint-folder template | [`Cowork Value V1 SharePoint Testing.pbit`](Cowork%20Value%20V1%20SharePoint%20Testing.pbit) |
 | Editable source | [`src/Cowork Value Intelligence - Value LL.pbip`](src/Cowork%20Value%20Intelligence%20-%20Value%20LL.pbip) |
 | SharePoint template builder | [`tools/New-CoworkValueSharePointTemplate.ps1`](tools/New-CoworkValueSharePointTemplate.ps1) |
 | Synthetic sample package | [`../release/Cowork-Value-Intelligence-Sample-Data.zip`](../release/Cowork-Value-Intelligence-Sample-Data.zip) |
@@ -84,8 +89,10 @@ only one current schema-valid working file for each optional source.
 
 ## Connect a SharePoint folder
 
-Use `Cowork Value V1 SharePoint Testing.pbit` when the approved CSV exports are
-stored together in SharePoint.
+Use `Cowork Value V1.2 SharePoint Testing.pbit` when the approved CSV exports
+are stored together in SharePoint. The previous V1 SharePoint file remains
+available for reproducibility but does not recognize the newer
+`Operations`/`UserIds` Purview outer-column shape.
 
 1. Put the Purview Audit Search CSVs and optional consumption, usage,
    organization, and identity CSVs anywhere below one protected SharePoint
@@ -108,6 +115,18 @@ The site root remains a separate parameter intentionally. `SharePoint.Files`
 uses that static root so Power BI Service can identify the data source; the
 folder link is used only to filter the returned files.
 
+V1.2 accepts both supported Purview Audit Search shapes:
+
+```csv
+RecordId,CreationDate,Operation,UserId,AuditData
+CreationDate,UserIds,Operations,AuditData
+```
+
+When the outer `RecordId` is absent, the parser uses `Id` or `RecordId` from
+`AuditData`; source path plus row number is the final deterministic fallback.
+UPNs are trimmed and compared case-insensitively across Purview, usage,
+consumption, organization, and identity sources.
+
 ## Viewer-facing pages
 
 1. Start Here
@@ -127,7 +146,10 @@ page tabs.
 
 ## Verify the load
 
+- Start Here shows **Data readiness and next action** after refresh.
 - Users, tasks, dates, skills, and categories populate from Purview.
+- A valid Cowork usage export can populate users and usage metrics even when
+  Purview is absent; Start Here labels this as a partial load.
 - Credits and utilization populate from the compatible Cost Management export.
 - Department visuals populate only when organization UPNs match detected Cowork
   users.
@@ -137,6 +159,11 @@ page tabs.
 - `(Model data not available)` is an expected source limitation when Cowork audit
   records do not emit model-specific names; do not infer model usage.
 - No page shows an error banner.
+
+The readiness card distinguishes no recognized inputs, usage-only partial load,
+unmatched usage identities, core Purview activity without usage, core activity
+without consumption, and all core inputs ready. It does not convert missing
+source data into inferred activity or cost.
 
 For blank or ignored sources, use the shared
 [Quick help](../DATA_SETUP_START_HERE.md#quick-help).
@@ -163,3 +190,10 @@ The exact SharePoint-folder PBIT has SHA-256
 `dd360633f9197db6149d43bec739ec6a7f902581448f260d8c46c043b0d8032b`,
 contains the same report and model, and changes only the data-source queries and
 two setup text entries.
+
+The exact V1.2 SharePoint-folder PBIT has SHA-256
+`4f2e68acc96352a95d8e632f46e61b684d03871f1be3d7cc988277f0e730eb69`,
+contains the same 12 pages and 31 target-only bookmarks,
+and adds dual-format Purview parsing, usage-based user seeding, normalized UPN
+matching, and the Start Here readiness card without imported data or
+machine-bound security binding.

@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [string]$SourceTemplate = (Join-Path (Split-Path $PSScriptRoot -Parent) 'Cowork Value V1 Testing.pbit'),
-    [string]$OutputTemplate = (Join-Path (Split-Path $PSScriptRoot -Parent) 'Cowork Value V1 SharePoint Testing.pbit')
+    [string]$OutputTemplate = (Join-Path (Split-Path $PSScriptRoot -Parent) 'Cowork Value V1.2 SharePoint Testing.pbit')
 )
 
 Set-StrictMode -Version Latest
@@ -160,6 +160,27 @@ function Replace-Literal {
         throw "Expected text was not found: $OldValue"
     }
     return $Text.Replace($OldValue, $NewValue)
+}
+
+function Replace-TextRange {
+    param(
+        [string]$Text,
+        [string]$StartMarker,
+        [string]$EndMarker,
+        [string]$Replacement
+    )
+
+    $start = $Text.IndexOf($StartMarker, [System.StringComparison]::Ordinal)
+    if ($start -lt 0) {
+        throw "Expected range start was not found: $StartMarker"
+    }
+
+    $end = $Text.IndexOf($EndMarker, $start, [System.StringComparison]::Ordinal)
+    if ($end -lt 0) {
+        throw "Expected range end was not found: $EndMarker"
+    }
+
+    return $Text.Substring(0, $start) + $Replacement + $Text.Substring($end)
 }
 
 $normalizeFolderUrl = @'
@@ -359,6 +380,306 @@ fnFindCsvContent(
 )
 '@
 
+$purviewAuditParsed = @'
+let
+	Files0 = SharePointDataFiles,
+	CsvOnly = Table.SelectRows(Files0, each Text.Lower([Extension]) = ".csv"),
+
+	FinalSchema = type table [
+		RecordId = text, CreationDateParsed = nullable datetime, DateKey = nullable Int64.Type,
+		Audit_UserId = nullable text, Audit_UserId_Normalized = nullable text,
+		Workload = nullable text, ClientRegion = nullable text, AppIdentity = nullable text, AppHost = nullable text, ThreadId = nullable text, LicenseType = nullable text,
+		TriggerType = nullable text,
+		Message_Count = Int64.Type, Message_PromptCount = Int64.Type,
+		Plugin_Count = Int64.Type, Plugin_FirstId = nullable text, Plugin_FirstName = nullable text,
+		Resource_Count = Int64.Type, AccessedResource_FirstSiteUrl = nullable text, AccessedResource_FirstAction = nullable text,
+		ModelProviderName = nullable text,
+		_messages = list, _plugins = list, _resources = list, _models = list
+	],
+	EmptyPerFile = #table(FinalSchema, {}),
+
+	ToText = (value as any) as nullable text =>
+		let
+			Scalar =
+				if value = null then null
+				else if Value.Is(value, type list) then
+					List.First(List.RemoveNulls(List.Transform(value, each try Text.From(_) otherwise null)), null)
+				else
+					try Text.From(value) otherwise null,
+			Trimmed = if Scalar = null then null else Text.Trim(Scalar),
+			ParsedList = if Trimmed <> null and Text.StartsWith(Trimmed, "[") then try Json.Document(Trimmed) otherwise null else null,
+			FirstParsed =
+				if ParsedList <> null and Value.Is(ParsedList, type list)
+				then List.First(List.RemoveNulls(List.Transform(ParsedList, each try Text.From(_) otherwise null)), null)
+				else null
+		in
+			if FirstParsed = null then Trimmed else Text.Trim(FirstParsed),
+	FirstText = (values as list) as nullable text =>
+		List.First(List.Select(List.Transform(values, each ToText(_)), each _ <> null and _ <> ""), null),
+
+	ProcessOneFile = (fileContent as binary, sourcePath as text) as table =>
+		let
+			Attempt = try
+				let
+					Parsed = Csv.Document(fileContent, [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+					Promoted = Table.PromoteHeaders(Parsed, [PromoteAllScalars = true]),
+					HasAuditData = Table.HasColumns(Promoted, {"AuditData"}),
+					Base =
+						if not HasAuditData then EmptyPerFile
+						else
+							let
+								Indexed = Table.AddIndexColumn(Promoted, "_sourceRow", 1, 1, Int64.Type),
+								AddJson = Table.AddColumn(Indexed, "_json", each
+									let a = try Json.Document(Text.ToBinary(Text.From([AuditData])))
+									in if a[HasError] or not Value.Is(a[Value], type record) then null else a[Value]
+								),
+								OnlyValidJson = Table.SelectRows(AddJson, each [_json] <> null),
+								AddOperation = Table.AddColumn(OnlyValidJson, "_operation", (row as record) =>
+									FirstText({
+										Record.FieldOrDefault(row, "Operation", null),
+										Record.FieldOrDefault(row, "Operations", null),
+										Record.FieldOrDefault(row[_json], "Operation", null),
+										Record.FieldOrDefault(row[_json], "Operations", null)
+									}), type nullable text),
+								OnlyCopilot = Table.SelectRows(AddOperation, each [_operation] <> null and Text.Lower(Text.Trim([_operation])) = "copilotinteraction"),
+
+								AddAuditUser = Table.AddColumn(OnlyCopilot, "_auditUserId", (row as record) =>
+									FirstText({
+										Record.FieldOrDefault(row, "UserId", null),
+										Record.FieldOrDefault(row, "UserIds", null),
+										Record.FieldOrDefault(row[_json], "UserId", null),
+										Record.FieldOrDefault(row[_json], "UserIds", null)
+									}), type nullable text),
+								AddCreationText = Table.AddColumn(AddAuditUser, "_creationDate", (row as record) =>
+									FirstText({
+										Record.FieldOrDefault(row, "CreationDate", null),
+										Record.FieldOrDefault(row[_json], "CreationDate", null),
+										Record.FieldOrDefault(row[_json], "CreationTime", null)
+									}), type nullable text),
+								AddCed = Table.AddColumn(AddCreationText, "_ced", each try [_json][CopilotEventData] otherwise null),
+
+								AddWorkload = Table.AddColumn(AddCed, "Workload", each try ToText([_json][Workload]) otherwise null, type nullable text),
+								AddClientRegion = Table.AddColumn(AddWorkload, "ClientRegion", each try ToText([_json][ClientRegion]) otherwise null, type nullable text),
+								AddAppIdentity = Table.AddColumn(AddClientRegion, "AppIdentity", each try ToText([_json][AppIdentity]) otherwise null, type nullable text),
+								AddAppHost = Table.AddColumn(AddAppIdentity, "AppHost", each if [_ced] = null then null else (try ToText([_ced][AppHost]) otherwise null), type nullable text),
+								AddThreadId = Table.AddColumn(AddAppHost, "ThreadId", each if [_ced] = null then null else (try ToText([_ced][ThreadId]) otherwise null), type nullable text),
+								AddLicenseType = Table.AddColumn(AddThreadId, "LicenseType", each if [_ced] = null then null else (try ToText([_ced][LicenseType]) otherwise null), type nullable text),
+								AddTriggerType = Table.AddColumn(AddLicenseType, "TriggerType", each if [_ced] = null then null else (try ToText([_ced][TriggerType]) otherwise null), type nullable text),
+
+								AddMsgList = Table.AddColumn(AddTriggerType, "_messages", each if [_ced] = null then {} else (let m = try [_ced][Messages] otherwise null in if Value.Is(m, type list) then m else {})),
+								AddMsgCount = Table.AddColumn(AddMsgList, "Message_Count", each List.Count([_messages]), Int64.Type),
+								AddPromptCount = Table.AddColumn(AddMsgCount, "Message_PromptCount", each List.Count(List.Select([_messages], each (try _[isPrompt] otherwise false) = true)), Int64.Type),
+
+								AddPluginList = Table.AddColumn(AddPromptCount, "_plugins", each if [_ced] = null then {} else (let p = try [_ced][AISystemPlugin] otherwise null in if Value.Is(p, type list) then p else {})),
+								AddPluginCount = Table.AddColumn(AddPluginList, "Plugin_Count", each List.Count([_plugins]), Int64.Type),
+								AddPluginFirstName = Table.AddColumn(AddPluginCount, "Plugin_FirstName", each if List.IsEmpty([_plugins]) then null else (try ToText([_plugins]{0}[Name]) otherwise null), type nullable text),
+								AddPluginFirstId = Table.AddColumn(AddPluginFirstName, "Plugin_FirstId", each if List.IsEmpty([_plugins]) then null else (try ToText([_plugins]{0}[Id]) otherwise null), type nullable text),
+
+								AddResList = Table.AddColumn(AddPluginFirstId, "_resources", each if [_ced] = null then {} else (let r = try [_ced][AccessedResources] otherwise null in if Value.Is(r, type list) then r else {})),
+								AddResCount = Table.AddColumn(AddResList, "Resource_Count", each List.Count([_resources]), Int64.Type),
+								AddResSiteUrl = Table.AddColumn(AddResCount, "AccessedResource_FirstSiteUrl", each if List.IsEmpty([_resources]) then null else (try ToText([_resources]{0}[SiteUrl]) otherwise null), type nullable text),
+								AddResAction = Table.AddColumn(AddResSiteUrl, "AccessedResource_FirstAction", each if List.IsEmpty([_resources]) then null else (let a = try ToText([_resources]{0}[Action]) otherwise null in if a <> null then a else (try ToText([_resources]{0}[Type]) otherwise null)), type nullable text),
+
+								AddModelList = Table.AddColumn(AddResAction, "_models", each if [_ced] = null then {} else (let mo = try [_ced][ModelTransparencyDetails] otherwise null in if Value.Is(mo, type list) then mo else {})),
+								AddModelProvider = Table.AddColumn(AddModelList, "ModelProviderName", each if List.IsEmpty([_models]) then null else (try ToText([_models]{0}[ModelProviderName]) otherwise null), type nullable text),
+
+								AddRecordId = Table.AddColumn(AddModelProvider, "_recordId", (row as record) =>
+									let
+										Observed = FirstText({
+											Record.FieldOrDefault(row, "RecordId", null),
+											Record.FieldOrDefault(row, "Id", null),
+											Record.FieldOrDefault(row[_json], "RecordId", null),
+											Record.FieldOrDefault(row[_json], "Id", null)
+										})
+									in
+										if Observed = null then sourcePath & "#" & Text.From(row[_sourceRow]) else Observed,
+									type text),
+								AddDateParsed = Table.AddColumn(AddRecordId, "CreationDateParsed", each
+									let
+										t = [_creationDate],
+										a = if t = null then null else try DateTimeZone.RemoveZone(DateTimeZone.FromText(t)) otherwise null
+									in
+										if a <> null then a else if t = null then null else (try DateTime.FromText(t) otherwise null),
+									type nullable datetime),
+								AddDateKey = Table.AddColumn(AddDateParsed, "DateKey", each
+									if [CreationDateParsed] = null then null
+									else Date.Year(DateTime.Date([CreationDateParsed])) * 10000 + Date.Month(DateTime.Date([CreationDateParsed])) * 100 + Date.Day(DateTime.Date([CreationDateParsed])),
+									Int64.Type),
+								AddUpnNorm = Table.AddColumn(AddDateKey, "_auditUserIdNormalized", each if [_auditUserId] = null then null else Text.Lower(Text.Trim([_auditUserId])), type nullable text),
+
+								Projected = Table.SelectColumns(AddUpnNorm, {
+									"_recordId", "CreationDateParsed", "DateKey", "_auditUserId", "_auditUserIdNormalized",
+									"Workload", "ClientRegion", "AppIdentity", "AppHost", "ThreadId", "LicenseType", "TriggerType",
+									"Message_Count", "Message_PromptCount",
+									"Plugin_Count", "Plugin_FirstId", "Plugin_FirstName",
+									"Resource_Count", "AccessedResource_FirstSiteUrl", "AccessedResource_FirstAction",
+									"ModelProviderName", "_messages", "_plugins", "_resources", "_models"
+								}),
+								Renamed = Table.RenameColumns(Projected, {
+									{"_recordId", "RecordId"},
+									{"_auditUserId", "Audit_UserId"},
+									{"_auditUserIdNormalized", "Audit_UserId_Normalized"}
+								})
+							in
+								Value.ReplaceType(Renamed, FinalSchema)
+				in
+					Base
+		in
+			if Attempt[HasError] then EmptyPerFile else Attempt[Value],
+
+	AddProcessed = Table.AddColumn(CsvOnly, "Processed", each ProcessOneFile([Content], Text.From([Folder Path]) & Text.From([Name]))),
+	AllExtracted = if Table.IsEmpty(AddProcessed) then EmptyPerFile else Table.Combine(AddProcessed[Processed]),
+	Deduped = Table.Distinct(AllExtracted, {"RecordId"})
+in
+	Deduped
+'@
+
+$auditWithLists = @'
+let
+	MergeUser = Table.NestedJoin(PurviewAuditParsed, {"Audit_UserId_Normalized"}, Dim_User, {"UserPrincipalName"}, "u", JoinKind.LeftOuter),
+	AddUserKeyExpanded = Table.ExpandTableColumn(MergeUser, "u", {"UserKey"}, {"UserKey"}),
+	Final = Table.SelectColumns(AddUserKeyExpanded, {
+		"RecordId", "CreationDateParsed", "DateKey", "Audit_UserId", "Audit_UserId_Normalized", "UserKey",
+		"Workload", "ClientRegion", "AppIdentity", "AppHost", "ThreadId", "LicenseType", "TriggerType",
+		"Message_Count", "Message_PromptCount",
+		"Plugin_Count", "Plugin_FirstId", "Plugin_FirstName",
+		"Resource_Count", "AccessedResource_FirstSiteUrl", "AccessedResource_FirstAction",
+		"ModelProviderName", "_messages", "_plugins", "_resources", "_models"
+	})
+in
+	Final
+'@
+
+$dimUserSeedBlock = @'
+// Build the user population from both recognized Purview Cowork events and the
+					// Cowork usage export. This keeps usage-only customers visible while clearly
+					// leaving Purview-dependent facts unavailable.
+					PurviewCoworkRows = Table.SelectRows(
+						PurviewAuditParsed,
+						each [Audit_UserId_Normalized] <> null
+							and [AppHost] <> null
+							and Text.Contains(Text.Lower(Text.Trim(Text.From([AppHost]))), "cowork")
+					),
+					PurviewUpns = List.Distinct(List.RemoveNulls(PurviewCoworkRows[Audit_UserId_Normalized])),
+					UsageLookup =
+						try
+							let
+								UsageSource = Csv.Document(CoworkUsageCsvContent, [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+								UsagePromoted = Table.PromoteHeaders(UsageSource, [PromoteAllScalars = true]),
+								UsageSelected = Table.SelectColumns(UsagePromoted, {"UserPrincipalName", "DisplayName"}),
+								UsageNormalized = Table.AddColumn(UsageSelected, "_upnNorm", each
+									if [UserPrincipalName] = null then null else Text.Lower(Text.Trim(Text.From([UserPrincipalName]))),
+									type nullable text),
+								UsageValid = Table.SelectRows(UsageNormalized, each [_upnNorm] <> null and [_upnNorm] <> ""),
+								UsageGrouped = Table.Group(UsageValid, {"_upnNorm"}, {
+									{"_usageDisplayName", each List.First(List.Select([DisplayName], each _ <> null and Text.Trim(Text.From(_)) <> ""), null), type nullable text}
+								})
+							in
+								UsageGrouped
+						otherwise
+							#table(type table [_upnNorm = text, _usageDisplayName = nullable text], {}),
+					DynamicCoworkUpns = List.Distinct(List.Combine({PurviewUpns, UsageLookup[_upnNorm]})),
+					CoworkUpnTable = Table.FromList(DynamicCoworkUpns, Splitter.SplitByNothing(), {"_upnNorm"}),
+
+
+'@
+
+$coworkUsageTypedBlock = @'
+Typed = Table.TransformColumnTypes(Checked, {{"TotalTasks", Int64.Type}, {"ScheduledTasks", Int64.Type}, {"UserInitiatedTasks", Int64.Type}, {"ActiveDays", Int64.Type}, {"LastActivityDate", type datetime}}),
+								NormalizedUpn = Table.TransformColumns(Typed, {{"UserPrincipalName", each if _ = null then null else Text.Lower(Text.Trim(Text.From(_))), type nullable text}})
+							in
+								NormalizedUpn
+'@
+
+$templateDataReadiness = @'
+VAR _purviewCoworkRows =
+    COUNTROWS(
+        FILTER(
+            ALL(Fact_CopilotAuditRaw),
+            CONTAINSSTRING(LOWER(TRIM(COALESCE(Fact_CopilotAuditRaw[AppHost], ""))), "cowork")
+        )
+    )
+VAR _usageRows =
+    COUNTROWS(
+        FILTER(
+            ALL(Fact_CoworkUsage),
+            CONTAINSSTRING(Fact_CoworkUsage[DataQuality], "discovered under")
+        )
+    )
+VAR _unmatchedUsageRows =
+    COUNTROWS(
+        FILTER(
+            ALL(Fact_CoworkUsage),
+            CONTAINSSTRING(Fact_CoworkUsage[DataQuality], "discovered under")
+                && ISBLANK(Fact_CoworkUsage[UserKey])
+        )
+    )
+VAR _users = COUNTROWS(ALL(Dim_User))
+VAR _consumptionReady = [Consumption Data Available]
+RETURN
+SWITCH(
+    TRUE(),
+    _purviewCoworkRows = 0 && _usageRows = 0,
+        "ACTION REQUIRED: No recognized Purview Cowork events or Cowork usage rows loaded. Verify the SharePoint folder, then export CopilotInteraction rows with AuditData and AppHost containing cowork.",
+    _purviewCoworkRows = 0,
+        "PARTIAL LOAD: " & FORMAT(_usageRows, "#,0") & " Cowork usage rows loaded for " & FORMAT(_users, "#,0") & " users, but no recognized Purview Cowork events. Purview-dependent activity, skills, task detail, and value remain unavailable.",
+    _unmatchedUsageRows > 0,
+        "ACTION REQUIRED: Purview loaded, but " & FORMAT(_unmatchedUsageRows, "#,0") & " Cowork usage rows did not match a user after normalized UPN matching. Check for blank or anonymized user IDs.",
+    _usageRows = 0,
+        "CORE ACTIVITY READY: " & FORMAT(_purviewCoworkRows, "#,0") & " recognized Purview Cowork events. Cowork usage is absent, so scheduled versus user-initiated metrics are unavailable." &
+        IF(_consumptionReady, "", " Consumption is also absent, so credit, cost, utilization, ROI, and Right-Sizing are unavailable."),
+    NOT _consumptionReady,
+        "CORE ACTIVITY READY: " & FORMAT(_purviewCoworkRows, "#,0") & " recognized Purview Cowork events and " & FORMAT(_usageRows, "#,0") & " usage rows. Consumption is absent, so credit, cost, utilization, ROI, and Right-Sizing are unavailable.",
+    "ALL CORE INPUTS READY: " & FORMAT(_purviewCoworkRows, "#,0") & " recognized Purview Cowork events, " & FORMAT(_usageRows, "#,0") & " usage rows, and matched consumption data."
+)
+'@
+
+$pageGateUsage = @'
+VAR _usageRows =
+    COUNTROWS(
+        FILTER(
+            ALL(Fact_CoworkUsage),
+            CONTAINSSTRING(Fact_CoworkUsage[DataQuality], "discovered under")
+        )
+    )
+VAR _unmatchedRows =
+    COUNTROWS(
+        FILTER(
+            ALL(Fact_CoworkUsage),
+            CONTAINSSTRING(Fact_CoworkUsage[DataQuality], "discovered under")
+                && ISBLANK(Fact_CoworkUsage[UserKey])
+        )
+    )
+RETURN
+SWITCH(
+    TRUE(),
+    _usageRows = 0, "Connect the Cowork usage export to enable reported usage metrics.",
+    _unmatchedRows > 0, "Cowork usage loaded, but " & FORMAT(_unmatchedRows, "#,0") & " row(s) did not match a user. Check for blank or anonymized user IDs.",
+    BLANK()
+)
+'@
+
+$coworkFilterHealth = @'
+VAR RawRows = COUNTROWS(ALL(Fact_CopilotAuditRaw))
+VAR CoworkRows =
+    COUNTROWS(
+        FILTER(
+            ALL(Fact_CopilotAuditRaw),
+            CONTAINSSTRING(
+                LOWER(TRIM(COALESCE(Fact_CopilotAuditRaw[AppHost], ""))),
+                "cowork"
+            )
+        )
+    )
+RETURN
+    SWITCH(
+        TRUE(),
+        RawRows = 0, "No audit data loaded.",
+        CoworkRows = 0, "WARNING: audit data is present but no AppHost value contains ""cowork"". Re-inspect a known Cowork user's records before trusting this report.",
+        "OK - " & FORMAT(CoworkRows, "#,0") & " Cowork records isolated."
+    )
+'@
+
 if (-not (Test-Path -LiteralPath $SourceTemplate -PathType Leaf)) {
     throw "Source template not found: $SourceTemplate"
 }
@@ -382,13 +703,10 @@ try {
         }
 
         $auditExpression = Copy-JsonObject $expressionByName['Fact_CopilotAuditRaw_WithLists']
-        $auditText = ConvertTo-MText $auditExpression.expression
-        $auditText = Replace-Literal $auditText 'Files0 = Folder.Files(CopilotAuditFolderPath),' 'Files0 = SharePointDataFiles,'
-        $auditText = $auditText.Replace('under DataFolderPath', 'under SharePointFolderUrl')
+        $auditText = $auditWithLists
         $auditExpression.expression = ConvertTo-MLines $auditText
         $auditExpression.description = @(
-            'Shared parser used by the audit fact and resource/plugin bridges.',
-            'It reads every schema-valid Purview CSV below SharePointFolderUrl.'
+            'Adds resolved user keys to the shared Purview parser for audit facts and resource/plugin bridges.'
         )
 
         $siteParameter = New-ModelExpression `
@@ -421,6 +739,7 @@ try {
             (New-ModelExpression -Name 'CreditCsvContent' -LineageTag '42ce1bbf-ae41-46a0-80e7-a61843e91fe0' -Expression $creditCsvContent -Description @('Optional Microsoft admin center Consumption - Users CSV content discovered below SharePointFolderUrl.'))
             (New-ModelExpression -Name 'CoworkUsageCsvContent' -LineageTag 'b1436d3a-1657-4199-8e91-09673a96dc2c' -Expression $coworkUsageCsvContent -Description @('Optional Microsoft admin center Cowork usage CSV content discovered below SharePointFolderUrl.'))
             (New-ModelExpression -Name 'OrgCsvContent' -LineageTag '8f6b1a2e-3c7d-4e5f-9a1b-2d4c6e8f0a1b' -Expression $orgCsvContent -Description @('Optional Entra or HR organization CSV content discovered below SharePointFolderUrl.'))
+            (New-ModelExpression -Name 'PurviewAuditParsed' -LineageTag '0dce9a7d-d592-4c4b-b38a-67bf6151d67e' -Expression $purviewAuditParsed -Description @('Parses both current Operations/UserIds and legacy Operation/UserId Purview Audit Search CSV formats before user resolution.') -ResultType 'Table')
             $auditExpression
         )
 
@@ -433,6 +752,7 @@ try {
             'CoworkUsageCsvPath',
             'OrgCsvPath',
             'SampleDataFolder',
+            'PurviewAuditParsed',
             'Fact_CopilotAuditRaw_WithLists'
         )
         $keptExpressions = @($model.model.expressions | Where-Object { $_.name -notin $removedExpressionNames })
@@ -448,10 +768,27 @@ try {
             'Fact_Consumption' = [ordered]@{
                 'fnLoadCsv(CreditCsvPath)' = 'fnLoadCsv(CreditCsvContent)'
                 'under DataFolderPath' = 'under SharePointFolderUrl'
+                'Text.Lower(Text.From([AppHost])) = "cowork"' = '[AppHost] <> null and Text.Contains(Text.Lower(Text.Trim(Text.From([AppHost]))), "cowork")'
+            }
+            'Fact_Tasks' = [ordered]@{
+                'Text.Lower(Text.From([AppHost])) = "cowork"' = '[AppHost] <> null and Text.Contains(Text.Lower(Text.Trim(Text.From([AppHost]))), "cowork")'
+            }
+            'Bridge_CoworkPlugin' = [ordered]@{
+                'Text.Lower([AppHost]) = "cowork"' = '[AppHost] <> null and Text.Contains(Text.Lower(Text.Trim(Text.From([AppHost]))), "cowork")'
+            }
+            'Bridge_CoworkResource' = [ordered]@{
+                'Text.Lower([AppHost]) = "cowork"' = '[AppHost] <> null and Text.Contains(Text.Lower(Text.Trim(Text.From([AppHost]))), "cowork")'
+            }
+            'Fact_CoworkAction' = [ordered]@{
+                'Text.Lower(Text.From([AppHost])) = "cowork"' = '[AppHost] <> null and Text.Contains(Text.Lower(Text.Trim(Text.From([AppHost]))), "cowork")'
+            }
+            'Fact_CoworkThread' = [ordered]@{
+                'Text.Lower([AppHost]) = "cowork"' = '[AppHost] <> null and Text.Contains(Text.Lower(Text.Trim(Text.From([AppHost]))), "cowork")'
             }
             'Fact_CoworkUsage' = [ordered]@{
                 'File.Contents(CoworkUsageCsvPath)' = 'CoworkUsageCsvContent'
                 'under DataFolderPath' = 'under SharePointFolderUrl'
+                'Text.Lower([AppHost]) = "cowork"' = '[AppHost] <> null and Text.Contains(Text.Lower(Text.Trim(Text.From([AppHost]))), "cowork")'
             }
             'Dim_UserOrg' = [ordered]@{
                 'File.Contents(OrgCsvPath)' = 'OrgCsvContent'
@@ -474,6 +811,67 @@ try {
             foreach ($oldValue in $partitionReplacements[$tableName].Keys) {
                 $sourceText = Replace-Literal $sourceText $oldValue $partitionReplacements[$tableName][$oldValue]
             }
+
+            if ($tableName -eq 'Dim_User') {
+                $sourceText = Replace-TextRange `
+                    -Text $sourceText `
+                    -StartMarker '// Dynamically detect Cowork-eligible users from the connected Purview export.' `
+                    -EndMarker "`n`tFiles0 = SharePointDataFiles," `
+                    -Replacement $dimUserSeedBlock
+                $sourceText = Replace-Literal `
+                    $sourceText `
+                    'RealNormalized0 = Table.AddColumn(RealRenamed, "_upnNorm", each Text.Lower(Text.Trim([UserPrincipalName])), type text)' `
+                    'RealNormalized0 = Table.AddColumn(RealRenamed, "_upnNorm", each if [UserPrincipalName] = null then null else Text.Lower(Text.Trim(Text.From([UserPrincipalName]))), type nullable text)'
+                $sourceText = Replace-Literal `
+                    $sourceText `
+                    'ExpandIdentity = Table.ExpandTableColumn(MergeIdentity, "identity", {"UserID", "DisplayName", "UserPrincipalName"}, {"UserID", "DisplayName", "UserPrincipalName"}),' `
+                    @'
+ExpandIdentity = Table.ExpandTableColumn(MergeIdentity, "identity", {"UserID", "DisplayName", "UserPrincipalName"}, {"UserID", "DisplayName", "UserPrincipalName"}),
+					MergeUsage = Table.NestedJoin(ExpandIdentity, {"_upnNorm"}, UsageLookup, {"_upnNorm"}, "usage", JoinKind.LeftOuter),
+					ExpandUsage = Table.ExpandTableColumn(MergeUsage, "usage", {"_usageDisplayName"}, {"_usageDisplayName"}),
+'@
+                $sourceText = Replace-TextRange `
+                    -Text $sourceText `
+                    -StartMarker 'AddIdentityQuality = Table.AddColumn(ExpandIdentity, "IdentityDataQuality", each' `
+                    -EndMarker 'FillUpn = Table.AddColumn' `
+                    -Replacement @'
+AddIdentityQuality = Table.AddColumn(ExpandUsage, "IdentityDataQuality", each
+						if [UserPrincipalName] <> null then "Real (confirmed via Entra export)"
+						else if List.Contains(PurviewUpns, [_upnNorm]) then "Real Cowork activity (Purview); no matching Entra identity record found"
+						else "Real Cowork usage export; no recognized Purview event or matching Entra identity record found", type text),
+
+'@
+                $sourceText = Replace-Literal `
+                    $sourceText `
+                    'FillDisplay = Table.AddColumn(FillUpn, "DisplayNameFinal", each if [DisplayName] = null then [_upnNorm] else [DisplayName], type text),' `
+                    'FillDisplay = Table.AddColumn(FillUpn, "DisplayNameFinal", each if [DisplayName] <> null then [DisplayName] else if [_usageDisplayName] <> null and Text.Trim(Text.From([_usageDisplayName])) <> "" then Text.Trim(Text.From([_usageDisplayName])) else [_upnNorm], type text),'
+            }
+            elseif ($tableName -eq 'Fact_CoworkUsage') {
+                $sourceText = Replace-TextRange `
+                    -Text $sourceText `
+                    -StartMarker 'Typed = Table.TransformColumnTypes(Checked' `
+                    -EndMarker 'otherwise' `
+                    -Replacement ($coworkUsageTypedBlock + "`n`t`t")
+            }
+            elseif ($tableName -eq 'Fact_Consumption') {
+                $sourceText = Replace-Literal `
+                    $sourceText `
+                    'RealTyped = Table.TransformColumnTypes(TryLoad, {{"Monthly credit limit", Int64.Type}, {"Monthly credits used", Int64.Type}, {"Session Count", Int64.Type}}),' `
+                    @'
+RealTyped = Table.TransformColumnTypes(TryLoad, {{"Monthly credit limit", Int64.Type}, {"Monthly credits used", Int64.Type}, {"Session Count", Int64.Type}}),
+										RealNormalized = Table.TransformColumns(RealTyped, {{"User Principal Name", each if _ = null then null else Text.Lower(Text.Trim(Text.From(_))), type nullable text}}),
+'@
+                $sourceText = Replace-Literal $sourceText 'MergeReal = Table.NestedJoin(RealUsers, {"UserPrincipalName"}, RealTyped, {"User Principal Name"}, "cred", JoinKind.LeftOuter),' 'MergeReal = Table.NestedJoin(RealUsers, {"UserPrincipalName"}, RealNormalized, {"User Principal Name"}, "cred", JoinKind.LeftOuter),'
+            }
+            elseif ($tableName -eq 'Dim_UserOrg') {
+                $sourceText = Replace-Literal `
+                    $sourceText `
+                    'Deduped = Table.Distinct(Checked, {"userPrincipalName"})' `
+                    @'
+NormalizedUpn = Table.TransformColumns(Checked, {{"userPrincipalName", each if _ = null then null else Text.Lower(Text.Trim(Text.From(_))), type nullable text}}),
+								Deduped = Table.Distinct(NormalizedUpn, {"userPrincipalName"})
+'@
+            }
             $partition.source.expression = ConvertTo-MLines $sourceText
 
             $query = $unapplied.queries | Where-Object { $_.name -eq $tableName } | Select-Object -First 1
@@ -483,6 +881,18 @@ try {
             Set-UnappliedFormula $query $sourceText
         }
 
+        $coworkDetailTable = $model.model.tables | Where-Object { $_.name -eq 'Fact_CoworkDetail' } | Select-Object -First 1
+        if ($null -eq $coworkDetailTable) {
+            throw 'Calculated table not found: Fact_CoworkDetail'
+        }
+        $coworkDetailPartition = $coworkDetailTable.partitions | Select-Object -First 1
+        $coworkDetailText = ConvertTo-MText $coworkDetailPartition.source.expression
+        $coworkDetailText = Replace-Literal `
+            $coworkDetailText `
+            "'Fact_CopilotAuditRaw'[AppHost] = `"cowork`"" `
+            "CONTAINSSTRING(LOWER(TRIM(COALESCE('Fact_CopilotAuditRaw'[AppHost], `"`"))), `"cowork`")"
+        $coworkDetailPartition.source.expression = ConvertTo-MLines $coworkDetailText
+
         $auditTable = $model.model.tables | Where-Object { $_.name -eq 'Fact_CopilotAuditRaw' } | Select-Object -First 1
         if ($null -ne $auditTable -and $auditTable.PSObject.Properties.Name -contains 'description') {
             $auditTable.description = @(
@@ -490,6 +900,11 @@ try {
                 'Raw Purview export CSVs are discovered recursively below SharePointFolderUrl.'
             )
         }
+        $coworkFilterHealthMeasure = $auditTable.measures | Where-Object { $_.name -eq 'Cowork Filter Health' } | Select-Object -First 1
+        if ($null -eq $coworkFilterHealthMeasure) {
+            throw 'Measure not found: Fact_CopilotAuditRaw[Cowork Filter Health]'
+        }
+        $coworkFilterHealthMeasure.expression = ConvertTo-MLines $coworkFilterHealth
 
         $queryOrderAnnotation = $model.model.annotations | Where-Object { $_.name -eq 'PBI_QueryOrder' } | Select-Object -First 1
         if ($null -eq $queryOrderAnnotation) {
@@ -506,6 +921,7 @@ try {
             'CreditCsvContent',
             'CoworkUsageCsvContent',
             'OrgCsvContent',
+            'PurviewAuditParsed',
             'Fact_CopilotAuditRaw_WithLists'
         )
         $keptQueryOrder = @($oldQueryOrder | Where-Object { $_ -notin $removedExpressionNames -and $_ -notin $newQueryNames })
@@ -535,23 +951,57 @@ try {
             (New-UnappliedQuery -Name 'CreditCsvContent' -LineageTag '42ce1bbf-ae41-46a0-80e7-a61843e91fe0' -Expression $creditCsvContent -ResultType 'Unknown')
             (New-UnappliedQuery -Name 'CoworkUsageCsvContent' -LineageTag 'b1436d3a-1657-4199-8e91-09673a96dc2c' -Expression $coworkUsageCsvContent -ResultType 'Unknown')
             (New-UnappliedQuery -Name 'OrgCsvContent' -LineageTag '8f6b1a2e-3c7d-4e5f-9a1b-2d4c6e8f0a1b' -Expression $orgCsvContent -ResultType 'Unknown')
+            (New-UnappliedQuery -Name 'PurviewAuditParsed' -LineageTag '0dce9a7d-d592-4c4b-b38a-67bf6151d67e' -Expression $purviewAuditParsed -ResultType 'Table' -Description 'Shared dual-format Purview parser used before user-key resolution.')
             $auditUnapplied
         )
         $keptUnappliedQueries = @($unapplied.queries | Where-Object { $_.name -notin $removedExpressionNames })
         $unapplied.queries = @($newUnappliedQueries + $keptUnappliedQueries)
+
+        $measuresTable = $model.model.tables | Where-Object { $_.name -eq '_Measures' } | Select-Object -First 1
+        if ($null -eq $measuresTable) {
+            throw 'Measures table not found.'
+        }
+        $usageGateMeasure = $measuresTable.measures | Where-Object { $_.name -eq 'Page Gate - Usage' } | Select-Object -First 1
+        if ($null -eq $usageGateMeasure) {
+            throw 'Page Gate - Usage measure not found.'
+        }
+        $usageGateMeasure.expression = ConvertTo-MLines $pageGateUsage
+        $readinessMeasure = [pscustomobject][ordered]@{
+            name = 'Template Data Readiness'
+            description = 'Plain-language source and matching status shown on Start Here after refresh.'
+            expression = ConvertTo-MLines $templateDataReadiness
+            lineageTag = '6e075337-4b0f-47cf-8867-f33479ebbb27'
+        }
+        $measuresTable.measures = @(
+            @($measuresTable.measures | Where-Object { $_.name -ne 'Template Data Readiness' })
+            $readinessMeasure
+        )
 
         $modelJson = ($model | ConvertTo-Json -Depth 100).Replace('DataFolderPath', 'SharePointFolderUrl')
         $unappliedJson = ($unapplied | ConvertTo-Json -Depth 100 -Compress).Replace('DataFolderPath', 'SharePointFolderUrl')
         Write-ZipText $archive 'DataModelSchema' $modelJson $utf16
         Write-ZipText $archive 'UnappliedChanges' $unappliedJson $utf16
 
+        $startHereTitleEntry = 'Report/definition/pages/00_start_here/visuals/sh_card4_title/visual.json'
+        $startHereTitle = Read-ZipText $archive $startHereTitleEntry $utf8
+        $startHereTitle = Replace-Literal $startHereTitle 'How do I connect customer data?' 'Data readiness and next action'
+        Write-ZipText $archive $startHereTitleEntry $startHereTitle $utf8
+
         $startHereEntry = 'Report/definition/pages/00_start_here/visuals/sh_card4_desc/visual.json'
-        $startHere = Read-ZipText $archive $startHereEntry $utf8
-        $startHere = Replace-Literal `
-            $startHere `
-            'Choose one DataFolderPath. Add Purview audit CSVs plus optional consumption, usage, identity, and organization exports; supported files are discovered automatically.' `
-            'Enter the SharePoint site URL and folder link. Add Purview audit CSVs plus optional consumption, usage, identity, and organization exports; supported files are discovered recursively.'
-        Write-ZipText $archive $startHereEntry $startHere $utf8
+        $startHereCurrent = (Read-ZipText $archive $startHereEntry $utf8) | ConvertFrom-Json -Depth 100
+        $readinessCard = (Read-ZipText $archive 'Report/definition/pages/97_value_tiers/visuals/vt_subtitle/visual.json' $utf8) | ConvertFrom-Json -Depth 100
+        $readinessCard.name = 'sh_card4_desc'
+        $readinessCard.position = Copy-JsonObject $startHereCurrent.position
+        $readinessCard.visual.query.queryState.Values.projections[0].field.Measure.Expression.SourceRef.Entity = '_Measures'
+        $readinessCard.visual.query.queryState.Values.projections[0].field.Measure.Property = 'Template Data Readiness'
+        $readinessCard.visual.query.queryState.Values.projections[0].queryRef = '_Measures.Template Data Readiness'
+        $readinessCard.visual.query.queryState.Values.projections[0].nativeQueryRef = 'Template Data Readiness'
+        $readinessCard.visual.objects.labels[0].properties.color.solid.color.expr.Literal.Value = "'#003087'"
+        $readinessCard.visual.objects.labels[0].properties.fontSize.expr.Literal.Value = '9D'
+        $readinessCard.visual.visualContainerObjects.background[0].properties.color.solid.color.expr.Literal.Value = "'#F3F7FC'"
+        $readinessCard.visual.visualContainerObjects.border[0].properties.color.solid.color.expr.Literal.Value = "'#B4C6E7'"
+        $readinessCard.visual.visualContainerObjects.general[0].properties.altText.expr.Literal.Value = "'Data readiness and next action based on recognized Purview, Cowork usage, and consumption inputs.'"
+        Write-ZipText $archive $startHereEntry ($readinessCard | ConvertTo-Json -Depth 100) $utf8
 
         $modelBreakdownEntry = 'Report/definition/pages/92g_model_breakdown/visuals/mb_narrative/visual.json'
         $modelBreakdown = Read-ZipText $archive $modelBreakdownEntry $utf8

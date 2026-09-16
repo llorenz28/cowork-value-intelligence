@@ -28,14 +28,16 @@ delegated work, modeled value, consumption, and right-sizing analysis.
 
 ## Choose the template
 
-The active release contains two local-folder templates plus a separate
-SharePoint-folder edition of the Value template.
+The active release contains two local-folder templates plus a separate,
+recommended V1.2 SharePoint-folder edition of the Value template. The previous
+V1 SharePoint artifact remains available for reproducibility.
 
 | Template | Best for | Pages and setup | Status |
 | --- | --- | --- | --- |
 | [`adoption/Cowork Adoption Intelligence v2 Testing.pbit`](adoption/Cowork%20Adoption%20Intelligence%20v2%20Testing.pbit) | Activation, sustained usage, potential champions, action patterns, and delegation maturity; core pages do not require consumption | Nine visible pages; one `DataFolderPath` parameter | `2.0.1-testing` |
 | [`value/Cowork Value V1 Testing.pbit`](value/Cowork%20Value%20V1%20Testing.pbit) | Modeled value, five billing modes, right-sizing, department views, and allocated consumption | 11 viewer-facing pages plus one hidden assumptions page; one `DataFolderPath` parameter | `1.1.0-testing` |
-| [`value/Cowork Value V1 SharePoint Testing.pbit`](value/Cowork%20Value%20V1%20SharePoint%20Testing.pbit) | The same Value analysis when approved exports are stored in one SharePoint folder | Same pages; `SharePointSiteUrl` plus `SharePointFolderUrl` | `1.1.0-sharepoint-testing` |
+| [`value/Cowork Value V1.2 SharePoint Testing.pbit`](value/Cowork%20Value%20V1.2%20SharePoint%20Testing.pbit) | The same Value analysis when approved exports are stored in one SharePoint folder; supports current and legacy Purview shapes | Same pages; `SharePointSiteUrl` plus `SharePointFolderUrl`; visible readiness diagnostic | `1.2.0-sharepoint-testing` |
+| [`value/Cowork Value V1 SharePoint Testing.pbit`](value/Cowork%20Value%20V1%20SharePoint%20Testing.pbit) | Previous SharePoint revision retained for reproducibility | Same pages and parameters; legacy Purview outer columns only | `1.1.0-sharepoint-testing` |
 
 Use the [shared data setup guide](DATA_SETUP_START_HERE.md) for the exact sample
 and production workflow for the template you choose.
@@ -45,7 +47,8 @@ and production workflow for the template you choose.
 | Resource | Open or download |
 | --- | --- |
 | Value testing template | [`value/Cowork Value V1 Testing.pbit`](value/Cowork%20Value%20V1%20Testing.pbit) |
-| Value SharePoint testing template | [`value/Cowork Value V1 SharePoint Testing.pbit`](value/Cowork%20Value%20V1%20SharePoint%20Testing.pbit) |
+| Recommended Value SharePoint testing template | [`value/Cowork Value V1.2 SharePoint Testing.pbit`](value/Cowork%20Value%20V1.2%20SharePoint%20Testing.pbit) |
+| Previous Value SharePoint testing template | [`value/Cowork Value V1 SharePoint Testing.pbit`](value/Cowork%20Value%20V1%20SharePoint%20Testing.pbit) |
 | Value setup | [`value/README.md`](value/README.md) |
 | Adoption testing template | [`adoption/Cowork Adoption Intelligence v2 Testing.pbit`](adoption/Cowork%20Adoption%20Intelligence%20v2%20Testing.pbit) |
 | Adoption setup | [`adoption/README.md`](adoption/README.md) |
@@ -230,6 +233,7 @@ tools/
 value/
   Cowork Value V1 Testing.pbit
   Cowork Value V1 SharePoint Testing.pbit
+  Cowork Value V1.2 SharePoint Testing.pbit
   README.md
   tools/
     New-CoworkValueSharePointTemplate.ps1

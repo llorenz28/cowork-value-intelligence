@@ -1,0 +1,165 @@
+{
+  "report": "Cowork Value Intelligence - SharePoint",
+  "version": "1.2.0-sharepoint-testing",
+  "verifiedAt": "2026-09-16T17:15:49.1587297-05:00",
+  "result": "pass",
+  "checks": {
+    "pbit": {
+      "filename": "Cowork Value V1.2 SharePoint Testing.pbit",
+      "bytes": 698526,
+      "sha256": "4f2e68acc96352a95d8e632f46e61b684d03871f1be3d7cc988277f0e730eb69",
+      "entries": 487,
+      "pages": 12,
+      "visuals": 426,
+      "bookmarks": 31,
+      "importedDataModel": false,
+      "securityBindings": false,
+      "securityBindingsContentTypeOverride": false,
+      "sensitivityState": "public-labeled-and-unprotected",
+      "sensitivityLabelId": "87867195-f2b8-4ac2-b0b6-6bb73cb33afc",
+      "embeddedLabelPropertyName": "Not Restricted"
+    },
+    "pbir": {
+      "result": "succeededWithWarnings",
+      "errors": 0,
+      "warnings": 3,
+      "warningScope": "remote JSON schemas unreachable; local structural validation completed"
+    },
+    "parameters": {
+      "requiredPrompts": 2,
+      "promptNames": [
+        "SharePointSiteUrl",
+        "SharePointFolderUrl"
+      ]
+    },
+    "featureWiring": {
+      "purviewParserQuery": "PurviewAuditParsed",
+      "supportedLegacyColumns": [
+        "Operation",
+        "UserId"
+      ],
+      "supportedCurrentColumns": [
+        "Operations",
+        "UserIds"
+      ],
+      "recordIdFallbackOrder": [
+        "outer RecordId",
+        "outer Id",
+        "AuditData RecordId",
+        "AuditData Id",
+        "source path plus source row"
+      ],
+      "usageBasedUserSeeding": true,
+      "normalizedUpnMatching": [
+        "Purview",
+        "Cowork usage",
+        "consumption",
+        "organization",
+        "identity"
+      ],
+      "normalizedCoworkRecognition": [
+        "user seeding",
+        "readiness",
+        "filter health diagnostic",
+        "calculated Cowork detail",
+        "tasks",
+        "threads",
+        "actions",
+        "plugins",
+        "resources",
+        "consumption",
+        "usage"
+      ],
+      "readinessMeasure": "Template Data Readiness",
+      "usagePageGateRevised": true,
+      "startHereReadinessCard": true
+    },
+    "liveDesktopQa": {
+      "status": "pass",
+      "testedCandidateSha256": "40dcf78a649b043e370c099391bcd42b73f77fb6b0bae0c91327ced6deb59af2",
+      "fullMixedFormat": {
+        "users": 3,
+        "auditRows": 3,
+        "usageRows": 2,
+        "unmatchedUsageUsers": 0,
+        "creditsUsed": 850,
+        "parsedRecordIds": [
+          "current-1",
+          "current-2",
+          "legacy-1"
+        ],
+        "readiness": "ALL CORE INPUTS READY"
+      },
+      "legacyOnly": {
+        "users": 1,
+        "auditRows": 1,
+        "recognizedUsageSourcePresent": false,
+        "recognizedConsumptionSourcePresent": false
+      },
+      "usageOnly": {
+        "users": 1,
+        "auditRows": 0,
+        "usageRows": 1,
+        "unmatchedUsageUsers": 0,
+        "normalizedUpn": "dave@example.com",
+        "displayName": "Dave Usage Only",
+        "readiness": "PARTIAL LOAD"
+      },
+      "correctedFinalArtifactQa": {
+        "source": "final repository PBIT with only the three SharePoint source expressions redirected to the fabricated full-QA folder",
+        "localSourceDerivativeSha256": "5f7658b507d720cb6237a9bd4c055b8c64ea24faa11a7a9add70dad2a274525f",
+        "users": 3,
+        "auditRows": 3,
+        "taskRows": 3,
+        "threadRows": 3,
+        "coworkDetailRows": 3,
+        "coworkTaskMeasure": 3,
+        "coworkActiveUsersMeasure": 3,
+        "actionRows": 3,
+        "pluginRows": 3,
+        "usageRows": 2,
+        "consumptionRows": 3,
+        "filterHealth": "OK - 3 Cowork records isolated.",
+        "variantAppHost": "m365-cowork",
+        "variantUser": "bob@example.com",
+        "variantUserCoworkDetailRows": 1,
+        "variantUserTaskRows": 1,
+        "variantUserCoworkTaskMeasure": 1,
+        "variantUserCoworkActiveUsersMeasure": 1,
+        "variantUserThreadRows": 1,
+        "variantUserPluginRows": 1,
+        "variantUserConsumptionRows": 1,
+        "readiness": "ALL CORE INPUTS READY"
+      },
+      "finalArtifactDelta": {
+        "archiveEntriesCompared": 487,
+        "byteIdenticalEntries": 485,
+        "changedEntries": [
+          "DataModelSchema",
+          "UnappliedChanges"
+        ],
+        "changesSinceLiveQaCandidate": [
+          "query formatting cleanup",
+          "normalized contains-based Cowork AppHost predicate applied consistently across downstream facts"
+        ],
+        "reportDefinitionDifferences": 0
+      }
+    },
+    "pendingQueryChangesInvestigation": {
+      "disposition": "not a release blocker",
+      "finding": "UnappliedChanges is present in the unchanged local V1.1 and SharePoint V1 source templates as well as V1.2; it carries the PBIT query and required parameter definitions."
+    },
+    "priorArtifacts": {
+      "localV1Sha256": "c7b1a722c672cbf65d9fb4a66bea4dfa7c17ca0e70c3df4ba04a8e49a35176b6",
+      "sharePointV1Sha256": "dd360633f9197db6149d43bec739ec6a7f902581448f260d8c46c043b0d8032b",
+      "unchanged": true
+    },
+    "privacy": {
+      "importedData": 0,
+      "machineBoundSecurityBindings": 0,
+      "securityBindingsContentTypeOverrides": 0,
+      "localProfilePaths": 0,
+      "nonExampleIdentities": 0
+    }
+  }
+}
