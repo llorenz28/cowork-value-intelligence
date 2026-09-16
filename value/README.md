@@ -14,6 +14,15 @@ reference: unused allowance for one user never offsets another user's overage,
 and overage is priced at the selected per-credit rate. The five-mode planning
 model and Cowork value/ROI measures are extensions in this template.
 
+## Microsoft chargeback reference preview
+
+[![Microsoft CreditUsage chargeback dashboard preview](https://raw.githubusercontent.com/microsoft/CreditUsage/main/images/dashboard-preview.gif)](https://github.com/microsoft/CreditUsage/blob/main/images/dashboard-preview.gif)
+
+*Official Microsoft `CreditUsage` reference dashboard preview, shown for
+provenance. It is not a screenshot of the extended Cowork Value report in this
+repository. Source: [Microsoft `CreditUsage`](https://github.com/microsoft/CreditUsage)
+(MIT).*
+
 ## Release kit
 
 | Resource | Open or download |

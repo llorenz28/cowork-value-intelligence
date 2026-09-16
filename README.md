@@ -73,6 +73,15 @@ unused allowance does not offset another user's overage. This release extends
 that foundation with five selectable planning modes and value/ROI analysis; it
 does not replace official billing records.
 
+## Microsoft chargeback reference preview
+
+[![Microsoft CreditUsage chargeback dashboard preview](https://raw.githubusercontent.com/microsoft/CreditUsage/main/images/dashboard-preview.gif)](https://github.com/microsoft/CreditUsage/blob/main/images/dashboard-preview.gif)
+
+*Official Microsoft `CreditUsage` reference dashboard preview, shown for
+provenance. It is not a screenshot of the extended Cowork Value report in this
+repository. Source: [Microsoft `CreditUsage`](https://github.com/microsoft/CreditUsage)
+(MIT).*
+
 The published PBITs contain no embedded customer or example data. They come to
 life with your approved organization exports. Repository screenshots demonstrate
 the report layout with de-identified example records.
