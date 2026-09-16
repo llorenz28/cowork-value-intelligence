@@ -2,8 +2,8 @@
 
 ## Cowork Value V1 1.1.0 - 2026-09-15
 
-- Added synchronized Billing Mode, Rate per 1K Credits, Prepaid Credits, Prepaid
-  Rate per 1K, and Monthly Committed Credits inputs to Value Calculator and
+- Added synchronized Billing Mode, Rate per Credit, Prepaid Credits, Prepaid
+  Rate per Credit, and Monthly Committed Credits inputs to Value Calculator and
   Value vs Cost.
 - Added Credit-Priced, License-Included, Prepaid, Hybrid, and Monthly Committed
   billing modes with explicit overage and allocation behavior.

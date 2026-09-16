@@ -1,9 +1,10 @@
 # Cowork Adoption Intelligence v2 Testing
 
 Cowork Adoption Intelligence tracks activation, sustained usage, potential
-enablement champions, action patterns, and delegation maturity without mixing
-those questions with cost and ROI. It uses one required `DataFolderPath`
-parameter.
+enablement champions, action patterns, and delegation maturity. Its core adoption
+experience does not require consumption data; optional modeled-value and cost
+fields stay unavailable until their required customer inputs are connected. It
+uses one required `DataFolderPath` parameter.
 
 ## Release kit
 
@@ -13,6 +14,7 @@ parameter.
 | Synthetic sample package | [`release/Cowork-Adoption-Intelligence-Sample-Data.zip`](release/Cowork-Adoption-Intelligence-Sample-Data.zip) |
 | Editable source | [`src/Cowork Adoption Intelligence.pbip`](src/Cowork%20Adoption%20Intelligence.pbip) |
 | Shared production guide | [`../DATA_SETUP_START_HERE.md`](../DATA_SETUP_START_HERE.md) |
+| Interpretation guide | [`../INTERPRETATION_GUIDE.md#adoption-template-page-guide`](../INTERPRETATION_GUIDE.md#adoption-template-page-guide) |
 | Least-privilege roles | [`../docs/SECURITY_ROLES.md`](../docs/SECURITY_ROLES.md) |
 | Security requirements | [`../SECURITY.md`](../SECURITY.md) |
 

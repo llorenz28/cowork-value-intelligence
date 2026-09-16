@@ -1,249 +1,475 @@
-# Cowork Value Intelligence: interpretation guide
+# Cowork Intelligence Templates: interpretation guide
 
-This guide explains the question each page answers, how to read it, what the
-signals may indicate, and what to verify before acting.
+This guide applies to the active testing templates:
 
-> The screenshots use fabricated sample data, `$75/hour` modeled labor value,
-> and QA-only contract assumptions. They are not customer findings or benchmarks.
+- **Cowork Adoption Intelligence v2 Testing** (`2.0.1-testing`): nine
+  viewer-facing pages focused on adoption, sustained use, delegation maturity,
+  potential champions, and action patterns.
+- **Cowork Value V1 Testing** (`1.1.0-testing`): 11 viewer-facing pages plus one
+  hidden assumptions page focused on modeled value, consumption, chargeback,
+  five billing scenarios, and right-sizing.
 
-## Five safeguards before interpretation
+The legacy 13-page combined-source report under `src` is not covered here.
 
-1. Confirm the reporting period and active filters.
-2. Check source availability in the report and the Glossary.
-3. Distinguish observed, derived, modeled, and allocated values.
-4. Corroborate unusual activity in the originating system.
-5. Protect exported user, resource, organization, and consumption data.
+> The repository sample is fabricated. Its results, `$75/hour` screenshot
+> assumption, and QA-only contract inputs are demonstrations, not customer
+> findings, benchmarks, or recommendations.
 
-## Metric confidence
+## Choose the correct template
+
+| Business question | Primary template | Start with |
+| --- | --- | --- |
+| Are people returning to Cowork and using it more deeply? | Adoption | Executive Summary, then Weekly Adoption & Usage |
+| Which users show repeatable enablement patterns? | Adoption | Cowork Champions |
+| What work and skills are being delegated? | Adoption | Actions by Category, then Usage Explorer |
+| How much modeled time or value could the observed work represent? | Value | Task Categories & Methodology, then Methodology & Value Calculator |
+| How do modeled value and customer-priced consumption compare? | Value | Value vs Cost |
+| Which users or departments are near or over allowance? | Value | Right-Sizing & Reclaim, then Value by Department |
+| What does the Microsoft-compatible per-user overage logic show? | Value | Value vs Cost and the [chargeback section](#microsoft-chargeback-foundation) below |
+
+## Read every result in this order
+
+1. Confirm the reporting period and all active filters.
+2. Check whether each required source is available and matched.
+3. Identify the metric grain: audit event, task thread, skill invocation, user,
+   or consumption record.
+4. Identify the evidence label: observed, derived, modeled, allocated estimate,
+   or unavailable.
+5. Corroborate unusual activity in the originating system before acting.
+6. Protect user, resource, organization, and consumption data in every export.
+
+## Evidence labels
 
 | Label | Meaning | Safe wording |
 | --- | --- | --- |
-| Observed | Directly counted from a connected source field | “The connected export contains…” |
-| Derived | Arithmetic over observed fields | “The report calculates…” |
-| Modeled | Observed activity plus an assumption or customer input | “Under the selected assumptions…” |
-| Allocated estimate | A total distributed across dimensions without source metering | “The modeled allocation suggests…” |
-| Unavailable | Required source or input is absent | “This cannot be calculated from the current inputs.” |
+| Observed | Directly counted from a connected source field | "The connected export contains..." |
+| Derived | Arithmetic over observed fields | "The report calculates..." |
+| Modeled | Observed activity combined with an assumption or customer input | "Under the selected assumptions..." |
+| Allocated estimate | A total distributed across dimensions without source metering at that grain | "The modeled allocation suggests..." |
+| Unavailable | A required source or input is absent | "This cannot be calculated from the current inputs." |
 
-## 1. Start Here
+Blank or unavailable is not zero.
 
-![Start Here](images/report-pages/01-start-here.png)
+## Shared metric and grain rules
 
-**Purpose:** Route a business question to the correct report page.
+| Concept | How the templates treat it |
+| --- | --- |
+| Audit event | One Purview record. Multiple events can belong to one task thread. |
+| Cowork task | One distinct task thread. Repeated events in the same thread do not create additional tasks. |
+| Distinct skills per task | Distinct plugin names in a thread. Repeated calls to the same plugin count once for skill-chaining depth. |
+| Skill invocation | An observed plugin event. Invocation totals can be higher than distinct skills or tasks. |
+| Reported task | A task total from the optional Cowork usage export. Use it to reconcile with Purview threads, not replace them. |
+| User | A normalized, case-insensitive, trimmed user principal name used to join activity, usage, consumption, and optional organization data. |
+| Credit | Observed only when a compatible Cost Management **Consumption > Users** export is loaded and matched. |
+| Model or LLM | Observed only when Purview emits `ModelTransparencyDetails`; otherwise model-specific results remain unavailable. |
 
-**How to read it:** Begin with the decision, not the metric. The six cards
-separate adoption, audience, cost, ROI, work mix, and next actions.
+Do not compare totals at different grains as if they should be identical. When
+Purview task threads and the admin-center reported task count differ, investigate
+date coverage, export freshness, retention, identity matching, and product
+definitions before drawing a conclusion.
 
-**What this may indicate:** Different questions require different evidence.
-Adoption can be available when billing or organization context is not.
+## Adoption template page guide
 
-**What to do next:** Select one route, then verify the page's data-status notes
-before quoting a number.
+The core Adoption experience does not require consumption data. Optional
+modeled-value and cost fields remain unavailable until their required customer
+inputs are connected.
 
-## 2. Executive Summary
+### 1. Start Here
 
-![Executive Summary](images/report-pages/02-executive-summary.png)
+**Question:** Which page answers the decision in front of me?
 
-**Purpose:** Answer whether Cowork is being used and whether the selected value
-and cost assumptions tell a favorable story.
+**Read first:** Choose a route based on the business question, not the most
+favorable metric.
 
-**How to read it:** Read active users, delegated tasks, and work mix first.
-Treat estimated value and ROI as scenario outputs. A synchronized labor rate
-changes every value page.
+**Do not conclude:** That every route has the same source requirements.
 
-**What this may indicate:** Growth plus a broad work mix can support further
-enablement. Concentrated activity or a low-value mix can indicate coaching or
-workflow-design opportunities.
+**Next check:** Open the recommended page and review its data-status notes before
+quoting a result.
 
-**What to do next:** Confirm task reconciliation, labor rate, billing model, and
-credit price with the appropriate owners before presenting the headline.
+### 2. Executive Summary
 
-## 3. Activity & Value
+**Question:** How broad, consistent, and deep is current Cowork adoption?
 
-![Activity and Value](images/report-pages/03-activity-value.png)
+**Read first:** Reach and task volume, then return behavior, intensity, action
+mix, and the adoption momentum direction.
 
-**Purpose:** Show which skills and departments contribute to modeled value.
+**Interpret carefully:** The momentum score combines multiple adoption signals.
+Use its direction across several periods; do not treat one score as a universal
+benchmark.
 
-**How to read it:** Skill invocations are observed. Estimated hours and dollars
-combine observed task categories with cited typical-time estimates and the
-selected labor rate.
+**Next check:** Move to Weekly Adoption & Usage to confirm whether the headline
+reflects a sustained pattern or a short-lived spike.
 
-**What this may indicate:** High-volume skills show where Cowork is embedded.
-High modeled value shows where the selected assumptions assign more time savings.
+### 3. Weekly Adoption & Usage
 
-**What to do next:** Validate the organization mapping, inspect the dominant
-skills, and test a low/mid/high labor-rate scenario.
+**Question:** Are users starting, returning, and deepening use over time?
 
-## 4. Actions
+**Read first:** Weekly active users and tasks, then new, retained, resurrected,
+and churned users. Use the view selector to compare reach, prompts per active
+user, active days, return rate, and momentum.
 
-![Actions](images/report-pages/04-actions.png)
+**Interpret carefully:** The latest week can be partial. A high-intensity week
+with low reach is different from broad adoption with moderate intensity.
+Department views require matching organization data.
 
-**Purpose:** Explain what Cowork did by skill, category, and value tier.
+**Next check:** Compare several complete weeks and explain any changes in export
+coverage, filters, rollout phases, or seasonality.
 
-**How to read it:** The category and skill views are different grains. Skill
-invocations are observed per plugin. Category value can repeat across multiple
-skills in the same category because the source does not meter value per skill.
+### 4. User Maturity
 
-**What this may indicate:** A mature deployment usually moves beyond basic
-assistance toward documented workflows, research, content, meetings, and
-specialized actions.
+**Question:** How far are users progressing from trial behavior toward repeatable
+delegation?
 
-**What to do next:** Review unmapped skills first, then use the category and
-value-tier views for defensible rollups.
+**Read first:** The rule-based delegation ladder:
 
-## 5. How Far They Delegate
+| Rung | Current rule |
+| --- | --- |
+| 0 - Not started | No observed Cowork task threads |
+| 1 - Trying | Has tasks but does not meet a higher rung |
+| 2 - Using | At least three average distinct skills per user |
+| 3 - Delegating | At least 30% of task threads use multiple distinct skills |
+| 4 - Automating | At least one reported scheduled task |
 
-![How Far They Delegate](images/report-pages/05-how-far-they-delegate.png)
+**Interpret carefully:** These are behavior stages created by the report, not
+product certifications or measures of employee ability. Rung 4 depends on the
+optional Cowork usage export; without it, scheduled work cannot be identified.
 
-**Purpose:** Describe the depth and complexity of delegated work.
+**Next check:** Inspect the underlying task, skill, and scheduled-use evidence
+before recommending coaching or workflow expansion.
 
-**How to read it:** Task duration is elapsed time from the first to last audit
-record in a thread. Steps and skills are observed audit/plugin events. Long
-duration does not prove unattended execution.
+### 5. Cowork Champions
 
-**What this may indicate:** More steps, longer threads, and skill chaining can
-signal more complex delegation. They can also reflect retries or process friction.
+**Question:** Which users have enough sustained, category-specific evidence to
+consider for enablement outreach?
 
-**What to do next:** Sample the underlying thread and confirm business purpose
-before describing a task as autonomous.
+**Read first:** A user is eligible only with at least three tasks across at least
+two active weeks in the selected category and filter context. The evidence score
+is:
 
-## 6. Value vs Cost
+- 40% category activity percentile
+- 35% active-week consistency percentile
+- 25% delegation-stage score
 
-![Value vs Cost](images/report-pages/06-value-vs-cost.png)
+The Top 5%, Top 10%, or Top 20% selector admits that share of eligible users,
+rounded up to at least one candidate.
 
-**Purpose:** Compare modeled value with connected and customer-priced consumption.
+**Interpret carefully:** A candidate is a relative engagement signal, not an
+employee-performance rating or automatic nomination. Small cohorts make
+percentile ranks unstable. Missing organization data prevents department
+coverage analysis.
 
-**How to read it:** Value is modeled. Credits used are observed from the
-consumption export. Contracted cost and ROI depend on the selected rate and
-billing model.
+**Next check:** Confirm role fit, willingness, manager support, and a repeatable
+workflow before inviting a candidate to a champion program.
 
-**What this may indicate:** Users above the diagonal in the scatter produce more
-modeled value than allocated cost under the chosen assumptions.
+### 6. Actions by Category
 
-**What to do next:** Re-run with Finance-approved inputs and review outliers at
-the user-detail grain.
+**Question:** What types of work are represented in observed Cowork task threads?
 
-## 7. Methodology & Value Calculator
+**Read first:** Category task counts and shares, then the category mapping and
+any unmapped activity.
 
-![Methodology](images/report-pages/07-methodology-value-calculator.png)
+**Interpret carefully:** Categories are deterministic classifications of
+available task signals. They describe the report's mapping, not the business
+outcome, quality, or intent of the work.
 
-**Purpose:** Make every value assumption visible and adjustable.
+**Next check:** Review material unmapped activity and sample source records
+before changing the category mapping.
 
-**How to read it:** Baseline value equals observed category tasks multiplied by
-the category's typical minutes saved, divided by 60, multiplied by labor rate.
-Reinvestment, quality, and skill adjustments are optional scenarios.
+### 7. Activity & Value
 
-**What this may indicate:** The range demonstrates assumption sensitivity, not
-statistical confidence.
+**Question:** Which skills and categories drive activity, modeled hours, and
+optional modeled value?
 
-**What to do next:** Document the selected labor rate, estimate basis, billing
-model, credit rate, and adjustment rationale with the exported result.
+**Read first:** Skill invocations are observed. Assisted hours apply the selected
+cited time-saved basis to observed category tasks. Dollar value multiplies those
+hours by the selected loaded labor rate.
 
-## 8. Consumption & Forecast
+**Interpret carefully:** Hours and dollars are modeled, not stopwatch-measured
+savings. Value by department requires matching organization data. Cost and ROI
+require compatible consumption data and customer-approved billing inputs.
 
-![Consumption and Forecast](images/report-pages/08-consumption-forecast.png)
+**Next check:** Test low, mid, and high time assumptions and a Finance-approved
+labor rate before presenting modeled value.
 
-**Purpose:** Estimate where credit consumption is heading by month-end.
+### 8. Usage Explorer
 
-**How to read it:** Daily run rate and projected month-end credits use a
-straight-line projection from elapsed days. Effective committed cost uses
-customer commitment and price inputs.
+**Question:** Which skills and users explain the aggregate patterns?
 
-**What this may indicate:** A positive commitment gap suggests projected overage;
-a negative gap suggests under-utilization.
+**Read first:** In Action Explorer, use observed invocations, users, mapping
+status, and parent category. In User Detail, use task count, duration, distinct
+skills, recency, and any available reported usage or consumption.
 
-**What to do next:** Check data freshness and expected seasonality before
-changing a commitment.
+**Interpret carefully:** Skill-sliced assisted hours and value repeat the parent
+category total across skills in that category because the source does not meter
+task value per skill. Do not sum those repeated skill rows.
 
-## 9. BU Showback
+**Next check:** Use this page to investigate aggregate findings, not to create an
+employee ranking or automatic action list.
 
-![BU Showback](images/report-pages/09-bu-showback.png)
+### 9. Adoption Metric Guide
 
-**Purpose:** Attribute consumption and modeled value to business units.
+**Question:** What does a metric mean and what source supports it?
 
-**How to read it:** Organization fields come from the customer export. Cost
-allocation follows the selected allocation rule and is not invoice metering.
+**Read first:** Definition, evidence type, source requirement, and known
+limitation.
 
-**What this may indicate:** A unit can have high consumption, high value, both,
-or neither. Read credits and value together.
+**Interpret carefully:** "Unavailable" means a dependency is absent. It does not
+mean no activity occurred.
 
-**What to do next:** Confirm cost-center ownership and allocation policy with
-Finance before circulating showback figures.
+**Next check:** Include the metric definition, reporting period, filters, and
+evidence label whenever a result leaves the report.
 
-## 10. Value by User Tier
+## Value template page guide
 
-![Value by User Tier](images/report-pages/10-value-by-user-tier.png)
+### 1. Start Here
 
-**Purpose:** Show how concentrated tasks and modeled value are across users.
+**Question:** Which value, cost, or right-sizing page should I use?
 
-**How to read it:** Percentile tiers require at least 20 users. The current
-sample supports the full tier calculation.
+**Read first:** Choose the route that matches the decision and confirm that its
+required sources and customer inputs are available.
 
-**What this may indicate:** High concentration can identify champions or
-single-point dependency. Broad distribution can indicate scaled adoption.
+**Do not conclude:** That modeled value, observed credits, chargeback, and
+allocated cost are interchangeable.
 
-**What to do next:** Pair tier results with business-unit and work-category
-context before targeting enablement.
+**Next check:** Use the Glossary and this guide before presenting the result.
 
-## 11. Right-Sizing & Reclaim
+### 2. Executive Summary
 
-![Right-Sizing](images/report-pages/11-right-sizing-reclaim.png)
+**Question:** What is the overall relationship between observed work, modeled
+value, and customer-priced platform cost?
 
-**Purpose:** Identify utilization, recency, and budget exceptions.
+**Read first:** Task threads and active users, then modeled hours and value, then
+consumption and billing-aware cost.
 
-**How to read it:** Near-limit and over-limit counts use observed consumption
-against allowance. Reclaimable license dollars remain unavailable until a
-license assignment and customer seat price are connected.
+**Interpret carefully:** A favorable ROI is conditional on the selected time,
+labor, billing, and price assumptions. It does not establish causality or realized
+cash savings.
 
-**What this may indicate:** Over-limit users can need a higher allowance or a
-workflow review. Low-use or inactive users can warrant follow-up, not automatic
-license removal.
+**Next check:** Reconcile task totals and confirm every selected customer input
+with its owner.
 
-**What to do next:** Confirm role, leave status, workload seasonality, and license
-terms before changing access.
+### 3. Task Categories & Methodology
 
-## 12. Model & LLM Breakdown
+**Question:** Which work categories generate the modeled hours and value?
 
-![Model Breakdown](images/report-pages/12-model-llm-breakdown.png)
+**Read first:** Observed task volume by category, mapping coverage, and the
+selected low, mid, or high minutes-saved benchmark.
 
-**Purpose:** Show model-attributed activity and modeled cost/efficiency by work
-category when Purview emits model attribution.
+**Interpret carefully:** A category benchmark is an assumption applied to each
+task in that category. It is not measured duration or proof that the full amount
+was saved.
 
-**How to read it:** Model names are observed from `ModelTransparencyDetails`.
-Current credits and cost are allocated estimates based on task/value shares;
-they are not model-specific billing meters. The synthetic sample model names are
-deliberately labeled as synthetic.
+**Next check:** Review the research source and the hidden Action Assumptions page
+before changing any of the 44 minute benchmarks.
 
-**What this may indicate:** Differences can guide a measurement plan, but the
-current allocation cannot prove that one model consumes fewer credits.
+### 4. Methodology & Value Calculator
 
-**What to do next:** Add source-backed per-model metering before recommending a
-model on cost. Use observed thread duration only after a reliable thread-to-model
-mapping exists.
+**Question:** How sensitive is modeled value to the selected assumptions?
 
-## 13. Glossary
+**Current calculation:**
 
-![Glossary](images/report-pages/13-glossary.png)
+```text
+Assisted hours =
+  sum(category task threads x selected category minutes saved) / 60
 
-**Purpose:** Define every metric and disclose its data status.
+Estimated value =
+  assisted hours x loaded labor rate
+```
 
-**How to read it:** Filter by page, metric, or data status. Use the
-definition and status together.
+Additional reinvestment, quality, and skill adjustments are customer-controlled
+scenarios. Billing inputs on this page stay synchronized with Value vs Cost.
 
-**What this may indicate:** “Unavailable” describes a missing dependency, not
-zero activity. “Modeled” requires the selected assumptions to travel with the
-number.
+**Interpret carefully:** Low, mid, and high results are assumption scenarios,
+not statistical confidence intervals.
 
-**What to do next:** Copy the metric definition, period, filters, and confidence
-label into any presentation or decision record.
+**Next check:** Record the estimate basis, labor rate, adjustments, billing mode,
+and price inputs with every exported value result.
+
+### 5. Value vs Cost
+
+**Question:** Under the selected scenario, how does modeled value compare with
+platform cost?
+
+**Read first:** Confirm the billing mode and its required inputs. Then read
+adjusted modeled value, effective platform cost, net value, and billing-aware ROI.
+
+**Interpret carefully:** Department cost is allocated in proportion to observed
+department credits. It is not invoice metering. The scatter shows scenario
+positioning, not causal productivity.
+
+**Next check:** Use the [billing-mode table](#five-billing-modes) and verify
+Finance-approved inputs before sharing any cost or ROI result.
+
+### 6. Value by Department
+
+**Question:** How are observed tasks, credits, modeled value, and allocated cost
+distributed across departments?
+
+**Read first:** Confirm organization-match coverage, then compare task volume,
+modeled value, observed credits, and allocated cost separately.
+
+**Interpret carefully:** Department attributes come from the optional
+organization export. Unmatched users can make department comparisons incomplete.
+Allocated cost follows credit share and is not a ledger charge.
+
+**Next check:** Reconcile department ownership and identity coverage with the
+authorized organization-data owner.
+
+### 7. Value by User Tier
+
+**Question:** How concentrated are task activity and modeled value across users?
+
+**Read first:** Tier population, task share, modeled value share, and the
+underlying user context.
+
+**Interpret carefully:** The percentile split requires at least 20 active users.
+Tiers are relative to the filtered population and are not performance ratings.
+
+**Next check:** Pair a tier with role, department, seasonality, and work-category
+context before recommending enablement.
+
+### 8. Right-Sizing & Reclaim
+
+**Question:** Which users are near allowance, over allowance, inactive, or
+under-utilizing allocated credits?
+
+**Read first:** Observed credits and allowance, activity recency, and budget
+segment. Treat the current filter period and snapshot date as part of the result.
+
+**Interpret carefully:** Near-limit begins at 85% of allowance. An over-limit or
+low-use flag is a review prompt, not an automatic license or access decision.
+Reclaimable license dollars remain unavailable without source-backed assignment
+and customer seat-price data.
+
+**Next check:** Confirm role, leave status, workload seasonality, license terms,
+and manager context before changing access or allowance.
+
+### 9. Skills & Allocated Consumption
+
+**Question:** Which observed skills are associated with task volume and an
+allocated share of credits or cost?
+
+**Read first:** Observed invocation count and users, then mapping coverage.
+Treat allocated credits and cost as estimates based on the documented allocation
+rule.
+
+**Interpret carefully:** The source does not meter credits or value per skill.
+Repeated parent-category values must not be summed across skills.
+
+**Next check:** Use observed skill volume for enablement planning; use allocated
+consumption only as a directional planning view.
+
+### 10. Model & LLM Breakdown
+
+**Question:** Does the source provide model-attributed activity, and what
+directional allocation follows from it?
+
+**Read first:** Confirm whether model names are present in Purview. If the report
+shows `(Model data not available)`, stop; do not infer a model.
+
+**Interpret carefully:** Credits, cost, and efficiency by model are allocated
+estimates based on task share. They are not model-specific billing meters and
+cannot prove that one model is cheaper or more efficient.
+
+**Next check:** Obtain source-backed per-model metering before making model
+selection or cost recommendations.
+
+### 11. Glossary
+
+**Question:** What does each Value metric mean, and is it available?
+
+**Read first:** Metric definition, evidence label, source dependency, and
+limitation.
+
+**Interpret carefully:** A modeled or allocated result must always travel with
+its assumptions and allocation basis.
+
+**Next check:** Copy the definition, period, filters, evidence label, and selected
+inputs into any presentation or decision record.
+
+### Hidden page: Action Assumptions
+
+This internal page supports navigation and editing of category minute
+assumptions. It is hidden from standard page tabs. Changes affect modeled hours,
+value, net value, and ROI; document and approve them before using the results.
+
+## Microsoft chargeback foundation
+
+[![Microsoft CreditUsage chargeback dashboard preview](https://raw.githubusercontent.com/microsoft/CreditUsage/main/images/dashboard-preview.gif)](https://github.com/microsoft/CreditUsage/blob/main/images/dashboard-preview.gif)
+
+*Official Microsoft `CreditUsage` reference dashboard preview. It is not a
+screenshot of the extended Cowork Value report in this repository. Source:
+[Microsoft `CreditUsage`](https://github.com/microsoft/CreditUsage) (MIT).*
+
+The Value template follows the Microsoft `CreditUsage` per-user allowance and
+overage rule:
+
+```text
+Over-limit credits =
+  sum for each user(max(user credits used - user credit limit, 0))
+
+Chargeback =
+  over-limit credits x customer-selected rate per credit
+
+Covered credits =
+  total credits used - over-limit credits
+```
+
+Unused allowance from one user never offsets another user's overage. Calculate
+the overage at user grain first, then sum it. A tenant-level subtraction of total
+credits from total allowance is not equivalent and can hide chargeback.
+
+`Chargeback $` prices only the per-user over-limit credits. It is different from
+`Effective Platform Cost $`, which prices the selected whole-platform billing
+scenario.
+
+## Five billing modes
+
+All price fields are **rates per credit**, not rates per 1,000 credits.
+
+| Billing mode | Required customer inputs | Current calculation | Safe interpretation |
+| --- | --- | --- | --- |
+| Credit-Priced | Observed credits and PAYG Rate per Credit | Credits used x PAYG rate | Period consumption priced at the selected per-credit rate |
+| License-Included | None for incremental credit cost | Effective platform cost = $0 | Scenario with no incremental credit charge; modeled value remains available and ROI is intentionally blank |
+| Prepaid | Prepaid Credits Purchased and Prepaid Rate per Credit | Purchased pool x prepaid rate | Full cost of the purchased pool; unused capacity is not prorated away |
+| Hybrid | Prepaid Credits Purchased, Prepaid Rate per Credit, PAYG Rate per Credit, and observed credits | Prepaid pool cost + actual credits above the pool x PAYG rate | Current-period prepaid pool plus actual PAYG overage |
+| Monthly Committed | Monthly Committed Credits, Prepaid Rate per Credit, PAYG Rate per Credit, and enough observed data for the month-end forecast | Commitment cost + projected month-end credits above commitment x PAYG rate | Forward-looking monthly commitment scenario; overage uses the straight-line month-end projection |
+
+Missing required inputs return blank or an input-required message. Do not replace
+missing contract data with an assumed price in a customer result.
+
+## Keep these cost concepts separate
+
+| Metric | Basis | It does not mean |
+| --- | --- | --- |
+| Chargeback $ | Sum of per-user over-limit credits x Rate per Credit | Total platform cost |
+| Effective Platform Cost $ | Cost under the selected billing mode | Official invoice or ledger amount |
+| Department allocated cost | Effective platform cost distributed by observed department credit share | Department-level metered billing |
+| Skill/model allocated credits or cost | Total distributed by the documented task-share rule | Source-metered skill or model consumption |
+| Net Value (Billing) $ | Adjusted modeled value minus effective platform cost | Realized cash savings |
+| ROI (Billing) | Adjusted modeled value divided by effective platform cost | Audited financial return or causal impact |
+
+## Before exporting or presenting a result
+
+1. Name the template and page.
+2. Record the reporting period, snapshot date, and active filters.
+3. Confirm source availability, freshness, and identity-match coverage.
+4. State the metric grain.
+5. Include the evidence label.
+6. Record the time-saved basis and loaded labor rate for modeled value.
+7. Record every adjustment applied to modeled value.
+8. Record the billing mode and every price, pool, or commitment input.
+9. State the allocation basis for department, skill, or model estimates.
+10. Have the appropriate data, Finance, and business owners review the result.
 
 ## Usage and compliance disclaimer
 
 Coverage depends on licensing, audit settings, retention, product behavior,
-permissions, export completeness, and identity matching. The report can contain
-false positives, false negatives, incomplete model attribution, and estimates.
-It does not inspect prompt content, prove intent, establish causality, replace
-official billing, or authorize personnel action.
+permissions, export completeness, and identity matching. The templates can
+contain false positives, false negatives, incomplete model attribution, and
+estimates. They do not inspect prompt content, prove intent, establish causality,
+replace official billing, or authorize personnel action.
 
 Customers control collection, storage, sensitivity labels, access, retention,
-publication, and lawful use of their data. The repository's sample package is
-fabricated and sends no customer data to GitHub.
+publication, and lawful use of their data. The repository sample is fabricated
+and sends no customer data to GitHub.

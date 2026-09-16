@@ -31,6 +31,7 @@ repository. Source: [Microsoft `CreditUsage`](https://github.com/microsoft/Credi
 | Editable source | [`src/Cowork Value Intelligence - Value LL.pbip`](src/Cowork%20Value%20Intelligence%20-%20Value%20LL.pbip) |
 | Synthetic sample package | [`../release/Cowork-Value-Intelligence-Sample-Data.zip`](../release/Cowork-Value-Intelligence-Sample-Data.zip) |
 | Shared production guide | [`../DATA_SETUP_START_HERE.md`](../DATA_SETUP_START_HERE.md) |
+| Interpretation guide | [`../INTERPRETATION_GUIDE.md#value-template-page-guide`](../INTERPRETATION_GUIDE.md#value-template-page-guide) |
 | Least-privilege roles | [`../docs/SECURITY_ROLES.md`](../docs/SECURITY_ROLES.md) |
 | Security requirements | [`../SECURITY.md`](../SECURITY.md) |
 
@@ -102,7 +103,7 @@ page tabs.
 - Department visuals populate only when organization UPNs match detected Cowork
   users.
 - Cost and ROI populate only after Finance-approved report inputs are selected.
-- Billing Mode, Rate per 1K Credits, Prepaid Credits, Prepaid Rate per 1K, and
+- Billing Mode, Rate per Credit, Prepaid Credits, Prepaid Rate per Credit, and
   Monthly Committed Credits stay synchronized between both cost-analysis pages.
 - `(Model data not available)` is an expected source limitation when Cowork audit
   records do not emit model-specific names; do not infer model usage.

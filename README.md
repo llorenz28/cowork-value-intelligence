@@ -33,7 +33,7 @@ setup.
 
 | Template | Best for | Pages and setup | Status |
 | --- | --- | --- | --- |
-| [`adoption/Cowork Adoption Intelligence v2 Testing.pbit`](adoption/Cowork%20Adoption%20Intelligence%20v2%20Testing.pbit) | Activation, sustained usage, potential champions, action patterns, and delegation maturity without cost/ROI | Nine visible pages; one `DataFolderPath` parameter | `2.0.1-testing` |
+| [`adoption/Cowork Adoption Intelligence v2 Testing.pbit`](adoption/Cowork%20Adoption%20Intelligence%20v2%20Testing.pbit) | Activation, sustained usage, potential champions, action patterns, and delegation maturity; core pages do not require consumption | Nine visible pages; one `DataFolderPath` parameter | `2.0.1-testing` |
 | [`value/Cowork Value V1 Testing.pbit`](value/Cowork%20Value%20V1%20Testing.pbit) | Modeled value, five billing modes, right-sizing, department views, and allocated consumption | 11 viewer-facing pages plus one hidden assumptions page; one `DataFolderPath` parameter | `1.1.0-testing` |
 
 Use the [shared data setup guide](DATA_SETUP_START_HERE.md) for the exact sample
