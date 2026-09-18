@@ -13,7 +13,8 @@ Curated names still win, while future names such as
 `Send Email With Attachments (Outlook)`. Categories, mapping status, task counts,
 time estimates, value calculations, report pages, visuals, filters, and
 bookmarks are unchanged. The original V1 local and V1.2 SharePoint templates
-remain unchanged.
+remain unchanged in
+[`backups/2026-09-18-pre-v1.3-friendly-skills/`](backups/2026-09-18-pre-v1.3-friendly-skills/).
 
 The SharePoint lineage retains V1.2's current Purview export support,
 usage-based user seeding, normalized UPN matching, and visible load diagnostics.
@@ -42,8 +43,8 @@ repository. Source: [Microsoft `CreditUsage`](https://github.com/microsoft/Credi
 | --- | --- |
 | Recommended local-folder template | [`Cowork Value V1.3 Friendly Skills Testing.pbit`](Cowork%20Value%20V1.3%20Friendly%20Skills%20Testing.pbit) |
 | Recommended SharePoint-folder template | [`Cowork Value V1.3 SharePoint Friendly Skills Testing.pbit`](Cowork%20Value%20V1.3%20SharePoint%20Friendly%20Skills%20Testing.pbit) |
-| Original local-folder template | [`Cowork Value V1 Testing.pbit`](Cowork%20Value%20V1%20Testing.pbit) |
-| Previous SharePoint-folder template | [`Cowork Value V1.2 SharePoint Testing.pbit`](Cowork%20Value%20V1.2%20SharePoint%20Testing.pbit) |
+| Backed-up local-folder template | [`backups/2026-09-18-pre-v1.3-friendly-skills/Cowork Value V1 Testing.pbit`](backups/2026-09-18-pre-v1.3-friendly-skills/Cowork%20Value%20V1%20Testing.pbit) |
+| Backed-up SharePoint-folder template | [`backups/2026-09-18-pre-v1.3-friendly-skills/Cowork Value V1.2 SharePoint Testing.pbit`](backups/2026-09-18-pre-v1.3-friendly-skills/Cowork%20Value%20V1.2%20SharePoint%20Testing.pbit) |
 | Legacy SharePoint-folder template | [`Cowork Value V1 SharePoint Testing.pbit`](Cowork%20Value%20V1%20SharePoint%20Testing.pbit) |
 | Editable source | [`src/Cowork Value Intelligence - Value LL.pbip`](src/Cowork%20Value%20Intelligence%20-%20Value%20LL.pbip) |
 | Friendly-name derivative builder | [`tools/New-CoworkValueFriendlyNamesTemplate.ps1`](tools/New-CoworkValueFriendlyNamesTemplate.ps1) |

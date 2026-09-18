@@ -31,16 +31,17 @@ delegated work, modeled value, consumption, and right-sizing analysis.
 The recommended Value release is V1.3 Friendly Skills in local-folder and
 SharePoint-folder editions. Both preserve the original 12-page layout and value
 logic while rendering unmapped technical tool identifiers as readable labels.
-The original V1 and V1.2 artifacts remain unchanged for rollback and
-reproducibility.
+The replaced V1 local and V1.2 SharePoint artifacts are preserved unchanged in
+the [pre-V1.3 backup folder](value/backups/2026-09-18-pre-v1.3-friendly-skills/)
+for rollback and reproducibility.
 
 | Template | Best for | Pages and setup | Status |
 | --- | --- | --- | --- |
 | [`adoption/Cowork Adoption Intelligence v2 Testing.pbit`](adoption/Cowork%20Adoption%20Intelligence%20v2%20Testing.pbit) | Activation, sustained usage, potential champions, action patterns, and delegation maturity; core pages do not require consumption | Nine visible pages; one `DataFolderPath` parameter | `2.0.1-testing` |
 | [`value/Cowork Value V1.3 Friendly Skills Testing.pbit`](value/Cowork%20Value%20V1.3%20Friendly%20Skills%20Testing.pbit) | Recommended local Value template with readable skill/tool names | 11 viewer-facing pages plus one hidden assumptions page; one `DataFolderPath` parameter | `1.3.0-friendly-skills-testing` |
 | [`value/Cowork Value V1.3 SharePoint Friendly Skills Testing.pbit`](value/Cowork%20Value%20V1.3%20SharePoint%20Friendly%20Skills%20Testing.pbit) | Recommended SharePoint Value template with readable skill/tool names and current/legacy Purview support | Same pages; `SharePointSiteUrl` plus `SharePointFolderUrl`; visible readiness diagnostic | `1.3.0-sharepoint-friendly-skills-testing` |
-| [`value/Cowork Value V1 Testing.pbit`](value/Cowork%20Value%20V1%20Testing.pbit) | Original local Value template retained unchanged | Same pages; one `DataFolderPath` parameter | `1.1.0-testing` |
-| [`value/Cowork Value V1.2 SharePoint Testing.pbit`](value/Cowork%20Value%20V1.2%20SharePoint%20Testing.pbit) | Previous SharePoint baseline retained unchanged | Same pages; `SharePointSiteUrl` plus `SharePointFolderUrl` | `1.2.0-sharepoint-testing` |
+| [`value/backups/2026-09-18-pre-v1.3-friendly-skills/Cowork Value V1 Testing.pbit`](value/backups/2026-09-18-pre-v1.3-friendly-skills/Cowork%20Value%20V1%20Testing.pbit) | Backed-up local Value baseline | Same pages; one `DataFolderPath` parameter | `1.1.0-testing` |
+| [`value/backups/2026-09-18-pre-v1.3-friendly-skills/Cowork Value V1.2 SharePoint Testing.pbit`](value/backups/2026-09-18-pre-v1.3-friendly-skills/Cowork%20Value%20V1.2%20SharePoint%20Testing.pbit) | Backed-up SharePoint baseline | Same pages; `SharePointSiteUrl` plus `SharePointFolderUrl` | `1.2.0-sharepoint-testing` |
 | [`value/Cowork Value V1 SharePoint Testing.pbit`](value/Cowork%20Value%20V1%20SharePoint%20Testing.pbit) | Previous SharePoint revision retained for reproducibility | Same pages and parameters; legacy Purview outer columns only | `1.1.0-sharepoint-testing` |
 
 Use the [shared data setup guide](DATA_SETUP_START_HERE.md) for the exact sample
@@ -52,8 +53,8 @@ and production workflow for the template you choose.
 | --- | --- |
 | Recommended Value testing template | [`value/Cowork Value V1.3 Friendly Skills Testing.pbit`](value/Cowork%20Value%20V1.3%20Friendly%20Skills%20Testing.pbit) |
 | Recommended Value SharePoint testing template | [`value/Cowork Value V1.3 SharePoint Friendly Skills Testing.pbit`](value/Cowork%20Value%20V1.3%20SharePoint%20Friendly%20Skills%20Testing.pbit) |
-| Original Value testing template | [`value/Cowork Value V1 Testing.pbit`](value/Cowork%20Value%20V1%20Testing.pbit) |
-| Previous Value SharePoint testing template | [`value/Cowork Value V1.2 SharePoint Testing.pbit`](value/Cowork%20Value%20V1.2%20SharePoint%20Testing.pbit) |
+| Backed-up Value testing template | [`value/backups/2026-09-18-pre-v1.3-friendly-skills/Cowork Value V1 Testing.pbit`](value/backups/2026-09-18-pre-v1.3-friendly-skills/Cowork%20Value%20V1%20Testing.pbit) |
+| Backed-up Value SharePoint testing template | [`value/backups/2026-09-18-pre-v1.3-friendly-skills/Cowork Value V1.2 SharePoint Testing.pbit`](value/backups/2026-09-18-pre-v1.3-friendly-skills/Cowork%20Value%20V1.2%20SharePoint%20Testing.pbit) |
 | Legacy Value SharePoint testing template | [`value/Cowork Value V1 SharePoint Testing.pbit`](value/Cowork%20Value%20V1%20SharePoint%20Testing.pbit) |
 | Value setup | [`value/README.md`](value/README.md) |
 | Adoption testing template | [`adoption/Cowork Adoption Intelligence v2 Testing.pbit`](adoption/Cowork%20Adoption%20Intelligence%20v2%20Testing.pbit) |
@@ -240,10 +241,12 @@ tools/
 value/
   Cowork Value V1.3 Friendly Skills Testing.pbit
   Cowork Value V1.3 SharePoint Friendly Skills Testing.pbit
-  Cowork Value V1 Testing.pbit
   Cowork Value V1 SharePoint Testing.pbit
-  Cowork Value V1.2 SharePoint Testing.pbit
   README.md
+  backups/
+    2026-09-18-pre-v1.3-friendly-skills/
+      Cowork Value V1 Testing.pbit
+      Cowork Value V1.2 SharePoint Testing.pbit
   tools/
     New-CoworkValueFriendlyNamesTemplate.ps1
     New-CoworkValueSharePointTemplate.ps1

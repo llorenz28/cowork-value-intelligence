@@ -1,5 +1,13 @@
 # Changelog
 
+## Cowork Value V1.3 repository promotion - 2026-09-18
+
+- Promoted the validated V1.3 local-folder and SharePoint-folder templates as
+  the current Cowork Value downloads.
+- Moved the previously published V1 local and V1.2 SharePoint PBITs to
+  `value/backups/2026-09-18-pre-v1.3-friendly-skills/` with their original
+  SHA-256 hashes preserved.
+
 ## Cowork Value V1.3 Friendly Skills - 2026-09-17
 
 - Added separately named local-folder and SharePoint-folder Value templates with
@@ -9,8 +17,8 @@
   their mapping status.
 - Preserved all 12 pages, 426 visuals, 31 target-only bookmarks, categories,
   task counts, time estimates, billing logic, and value calculations.
-- Kept the original V1 local and V1.2 SharePoint PBIT files unchanged and added
-  a deterministic friendly-name derivative builder.
+- Preserved the original V1 local and V1.2 SharePoint PBIT files in the dated
+  rollback folder and added a deterministic friendly-name derivative builder.
 
 ## Cowork Value V1 SharePoint edition - 2026-09-16
 

@@ -1,0 +1,20 @@
+{
+  "backupCreated": "2026-09-18",
+  "reason": "Preserve the previously published Cowork Value templates before promoting V1.3 Friendly Skills.",
+  "files": [
+    {
+      "role": "local-folder",
+      "version": "1.1.0-testing",
+      "originalPath": "value/Cowork Value V1 Testing.pbit",
+      "backupPath": "value/backups/2026-09-18-pre-v1.3-friendly-skills/Cowork Value V1 Testing.pbit",
+      "sha256": "c7b1a722c672cbf65d9fb4a66bea4dfa7c17ca0e70c3df4ba04a8e49a35176b6"
+    },
+    {
+      "role": "sharepoint-folder",
+      "version": "1.2.0-sharepoint-testing",
+      "originalPath": "value/Cowork Value V1.2 SharePoint Testing.pbit",
+      "backupPath": "value/backups/2026-09-18-pre-v1.3-friendly-skills/Cowork Value V1.2 SharePoint Testing.pbit",
+      "sha256": "4f2e68acc96352a95d8e632f46e61b684d03871f1be3d7cc988277f0e730eb69"
+    }
+  ]
+}

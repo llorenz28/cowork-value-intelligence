@@ -14,8 +14,8 @@ collection from report operation so no single person needs every tenant role.
 | `adoption\Cowork Adoption Intelligence v2 Testing.pbit` | You want focused adoption, champions, and delegation analysis without cost/ROI | One required `DataFolderPath` |
 | `value\Cowork Value V1.3 Friendly Skills Testing.pbit` | You want focused value, cost, department, and right-sizing analysis with readable skill/tool labels | One required `DataFolderPath` |
 | `value\Cowork Value V1.3 SharePoint Friendly Skills Testing.pbit` | You want the same Value analysis and readable skill/tool labels, the approved CSVs are stored together in SharePoint, and current or legacy Purview exports must load | Required `SharePointSiteUrl` and `SharePointFolderUrl` |
-| `value\Cowork Value V1 Testing.pbit` | You need the original local Value baseline for rollback or comparison | One required `DataFolderPath` |
-| `value\Cowork Value V1.2 SharePoint Testing.pbit` | You need the previous SharePoint baseline for rollback or comparison | Required `SharePointSiteUrl` and `SharePointFolderUrl` |
+| `value\backups\2026-09-18-pre-v1.3-friendly-skills\Cowork Value V1 Testing.pbit` | You need the backed-up local Value baseline for rollback or comparison | One required `DataFolderPath` |
+| `value\backups\2026-09-18-pre-v1.3-friendly-skills\Cowork Value V1.2 SharePoint Testing.pbit` | You need the backed-up SharePoint baseline for rollback or comparison | Required `SharePointSiteUrl` and `SharePointFolderUrl` |
 | `value\Cowork Value V1 SharePoint Testing.pbit` | You need the previous SharePoint revision for reproducibility | Required `SharePointSiteUrl` and `SharePointFolderUrl`; legacy Purview outer columns only |
 
 Every template searches one folder and all its subfolders.

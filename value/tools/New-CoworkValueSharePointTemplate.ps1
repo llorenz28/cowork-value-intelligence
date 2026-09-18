@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$SourceTemplate = (Join-Path (Split-Path $PSScriptRoot -Parent) 'Cowork Value V1 Testing.pbit'),
+    [string]$SourceTemplate = (Join-Path (Split-Path $PSScriptRoot -Parent) 'backups\2026-09-18-pre-v1.3-friendly-skills\Cowork Value V1 Testing.pbit'),
     [string]$OutputTemplate = (Join-Path (Split-Path $PSScriptRoot -Parent) 'Cowork Value V1.2 SharePoint Testing.pbit')
 )
 
