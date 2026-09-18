@@ -1,5 +1,17 @@
 # Changelog
 
+## Cowork Value V1.3 Friendly Skills - 2026-09-17
+
+- Added separately named local-folder and SharePoint-folder Value templates with
+  readable fallback labels for previously unseen technical skill/tool IDs.
+- Preserved curated friendly names as the first choice and converted raw MCP,
+  snake_case, kebab-case, and camelCase fallback identifiers without changing
+  their mapping status.
+- Preserved all 12 pages, 426 visuals, 31 target-only bookmarks, categories,
+  task counts, time estimates, billing logic, and value calculations.
+- Kept the original V1 local and V1.2 SharePoint PBIT files unchanged and added
+  a deterministic friendly-name derivative builder.
+
 ## Cowork Value V1 SharePoint edition - 2026-09-16
 
 - Added `Cowork Value V1 SharePoint Testing.pbit` as a separate template; the

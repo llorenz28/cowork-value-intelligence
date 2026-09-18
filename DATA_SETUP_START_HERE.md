@@ -12,8 +12,10 @@ collection from report operation so no single person needs every tenant role.
 | Template | Use it when | Parameter screen |
 | --- | --- | --- |
 | `adoption\Cowork Adoption Intelligence v2 Testing.pbit` | You want focused adoption, champions, and delegation analysis without cost/ROI | One required `DataFolderPath` |
-| `value\Cowork Value V1 Testing.pbit` | You want focused value, cost, department, and right-sizing analysis | One required `DataFolderPath` |
-| `value\Cowork Value V1.2 SharePoint Testing.pbit` | You want the same Value analysis, the approved CSVs are stored together in SharePoint, and current or legacy Purview exports must load | Required `SharePointSiteUrl` and `SharePointFolderUrl` |
+| `value\Cowork Value V1.3 Friendly Skills Testing.pbit` | You want focused value, cost, department, and right-sizing analysis with readable skill/tool labels | One required `DataFolderPath` |
+| `value\Cowork Value V1.3 SharePoint Friendly Skills Testing.pbit` | You want the same Value analysis and readable skill/tool labels, the approved CSVs are stored together in SharePoint, and current or legacy Purview exports must load | Required `SharePointSiteUrl` and `SharePointFolderUrl` |
+| `value\Cowork Value V1 Testing.pbit` | You need the original local Value baseline for rollback or comparison | One required `DataFolderPath` |
+| `value\Cowork Value V1.2 SharePoint Testing.pbit` | You need the previous SharePoint baseline for rollback or comparison | Required `SharePointSiteUrl` and `SharePointFolderUrl` |
 | `value\Cowork Value V1 SharePoint Testing.pbit` | You need the previous SharePoint revision for reproducibility | Required `SharePointSiteUrl` and `SharePointFolderUrl`; legacy Purview outer columns only |
 
 Every template searches one folder and all its subfolders.
@@ -29,9 +31,10 @@ Every template searches one folder and all its subfolders.
 | `cowork_users.csv` | Optional | Optional | Existing approved Identity access |
 
 Purview is the hard dependency for core activity, task, skill, and value
-analysis. The V1.2 SharePoint template can still load reported usage users and
-metrics without Purview, but marks that state as a partial load. Missing optional
-files load as unavailable; the model never invents customer data.
+analysis. The V1.3 SharePoint template inherits V1.2's ability to load reported
+usage users and metrics without Purview, but marks that state as a partial load.
+Missing optional files load as unavailable; the model never invents customer
+data.
 
 Read [Security roles and access](docs/SECURITY_ROLES.md) before requesting access.
 This CSV-fed release does not need an app registration, client secret, Microsoft
@@ -58,7 +61,7 @@ tenant data is included.
 ### Value template
 
 1. Extract `release\Cowork-Value-Intelligence-Sample-Data.zip`.
-2. Open `value\Cowork Value V1 Testing.pbit`.
+2. Open `value\Cowork Value V1.3 Friendly Skills Testing.pbit`.
 3. Set `DataFolderPath` to the nested `sample_data` folder created by the ZIP,
    not to its parent folder.
 4. Select **Load**, approve the appropriate privacy level, and refresh.
@@ -67,7 +70,7 @@ tenant data is included.
 
 1. Extract `release\Cowork-Value-Intelligence-Sample-Data.zip`.
 2. Upload the nested `sample_data` folder to a protected SharePoint site.
-3. Open `value\Cowork Value V1.2 SharePoint Testing.pbit`.
+3. Open `value\Cowork Value V1.3 SharePoint Friendly Skills Testing.pbit`.
 4. Set `SharePointSiteUrl` to the site root, such as
    `https://contoso.sharepoint.com/sites/CoworkAnalytics`.
 5. Set `SharePointFolderUrl` to the uploaded `sample_data` folder link.

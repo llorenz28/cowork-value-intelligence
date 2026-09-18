@@ -1,13 +1,21 @@
-# Cowork Value V1 Testing
+# Cowork Value V1.3 Friendly Skills Testing
 
 Cowork Value V1 focuses on modeled value, cost, right-sizing, department views,
-skill allocation, and model-attribution readiness. The local template uses one
-required `DataFolderPath` parameter. The recommended SharePoint revision is
-`Cowork Value V1.2 SharePoint Testing.pbit`; it uses `SharePointSiteUrl` and
-`SharePointFolderUrl`.
+skill allocation, and model-attribution readiness. The recommended local release
+is `Cowork Value V1.3 Friendly Skills Testing.pbit`; it uses one required
+`DataFolderPath` parameter. The recommended SharePoint release is
+`Cowork Value V1.3 SharePoint Friendly Skills Testing.pbit`; it uses
+`SharePointSiteUrl` and `SharePointFolderUrl`.
 
-The local testing release remains `1.1.0-testing`. The separate SharePoint
-revision is `1.2.0-sharepoint-testing` and adds current Purview export support,
+V1.3 changes only the fallback used to display unmapped skill/tool identifiers.
+Curated names still win, while future names such as
+`mcp__outlook__SendEmailWithAttachments` render as
+`Send Email With Attachments (Outlook)`. Categories, mapping status, task counts,
+time estimates, value calculations, report pages, visuals, filters, and
+bookmarks are unchanged. The original V1 local and V1.2 SharePoint templates
+remain unchanged.
+
+The SharePoint lineage retains V1.2's current Purview export support,
 usage-based user seeding, normalized UPN matching, and visible load diagnostics.
 Its Value Calculator and Value vs Cost pages keep five cost inputs synchronized
 across Credit-Priced, License-Included, Prepaid, Hybrid, and Monthly Committed
@@ -32,11 +40,15 @@ repository. Source: [Microsoft `CreditUsage`](https://github.com/microsoft/Credi
 
 | Resource | Open or download |
 | --- | --- |
-| Power BI template | [`Cowork Value V1 Testing.pbit`](Cowork%20Value%20V1%20Testing.pbit) |
-| Recommended SharePoint-folder template | [`Cowork Value V1.2 SharePoint Testing.pbit`](Cowork%20Value%20V1.2%20SharePoint%20Testing.pbit) |
-| Previous SharePoint-folder template | [`Cowork Value V1 SharePoint Testing.pbit`](Cowork%20Value%20V1%20SharePoint%20Testing.pbit) |
+| Recommended local-folder template | [`Cowork Value V1.3 Friendly Skills Testing.pbit`](Cowork%20Value%20V1.3%20Friendly%20Skills%20Testing.pbit) |
+| Recommended SharePoint-folder template | [`Cowork Value V1.3 SharePoint Friendly Skills Testing.pbit`](Cowork%20Value%20V1.3%20SharePoint%20Friendly%20Skills%20Testing.pbit) |
+| Original local-folder template | [`Cowork Value V1 Testing.pbit`](Cowork%20Value%20V1%20Testing.pbit) |
+| Previous SharePoint-folder template | [`Cowork Value V1.2 SharePoint Testing.pbit`](Cowork%20Value%20V1.2%20SharePoint%20Testing.pbit) |
+| Legacy SharePoint-folder template | [`Cowork Value V1 SharePoint Testing.pbit`](Cowork%20Value%20V1%20SharePoint%20Testing.pbit) |
 | Editable source | [`src/Cowork Value Intelligence - Value LL.pbip`](src/Cowork%20Value%20Intelligence%20-%20Value%20LL.pbip) |
+| Friendly-name derivative builder | [`tools/New-CoworkValueFriendlyNamesTemplate.ps1`](tools/New-CoworkValueFriendlyNamesTemplate.ps1) |
 | SharePoint template builder | [`tools/New-CoworkValueSharePointTemplate.ps1`](tools/New-CoworkValueSharePointTemplate.ps1) |
+| V1.3 verification record | [`docs/FRIENDLY_SKILLS_V1_3_RELEASE_VERIFICATION.json`](docs/FRIENDLY_SKILLS_V1_3_RELEASE_VERIFICATION.json) |
 | Synthetic sample package | [`../release/Cowork-Value-Intelligence-Sample-Data.zip`](../release/Cowork-Value-Intelligence-Sample-Data.zip) |
 | Shared production guide | [`../DATA_SETUP_START_HERE.md`](../DATA_SETUP_START_HERE.md) |
 | Interpretation guide | [`../INTERPRETATION_GUIDE.md#value-template-page-guide`](../INTERPRETATION_GUIDE.md#value-template-page-guide) |
@@ -46,7 +58,7 @@ repository. Source: [Microsoft `CreditUsage`](https://github.com/microsoft/Credi
 ## Test with fabricated data
 
 1. Extract `..\release\Cowork-Value-Intelligence-Sample-Data.zip`.
-2. Open `Cowork Value V1 Testing.pbit`.
+2. Open `Cowork Value V1.3 Friendly Skills Testing.pbit`.
 3. Set `DataFolderPath` to the nested `sample_data` folder created by the ZIP,
    not its parent.
 4. Select the local-file privacy level approved by your organization.
@@ -89,9 +101,9 @@ only one current schema-valid working file for each optional source.
 
 ## Connect a SharePoint folder
 
-Use `Cowork Value V1.2 SharePoint Testing.pbit` when the approved CSV exports
-are stored together in SharePoint. The previous V1 SharePoint file remains
-available for reproducibility but does not recognize the newer
+Use `Cowork Value V1.3 SharePoint Friendly Skills Testing.pbit` when the approved
+CSV exports are stored together in SharePoint. The previous V1 SharePoint file
+remains available for reproducibility but does not recognize the newer
 `Operations`/`UserIds` Purview outer-column shape.
 
 1. Put the Purview Audit Search CSVs and optional consumption, usage,
@@ -115,7 +127,8 @@ The site root remains a separate parameter intentionally. `SharePoint.Files`
 uses that static root so Power BI Service can identify the data source; the
 folder link is used only to filter the returned files.
 
-V1.2 accepts both supported Purview Audit Search shapes:
+The V1.3 SharePoint template inherits V1.2 support for both Purview Audit Search
+shapes:
 
 ```csv
 RecordId,CreationDate,Operation,UserId,AuditData
@@ -148,6 +161,9 @@ page tabs.
 
 - Start Here shows **Data readiness and next action** after refresh.
 - Users, tasks, dates, skills, and categories populate from Purview.
+- Skill names are readable; no displayed name contains a raw `mcp__` prefix or
+  identifier underscore. A readable fallback does not make an unmapped skill
+  mapped or change its category/value treatment.
 - A valid Cowork usage export can populate users and usage metrics even when
   Purview is absent; Start Here labels this as a partial load.
 - Credits and utilization populate from the compatible Cost Management export.
@@ -197,3 +213,11 @@ contains the same 12 pages and 31 target-only bookmarks,
 and adds dual-format Purview parsing, usage-based user seeding, normalized UPN
 matching, and the Start Here readiness card without imported data or
 machine-bound security binding.
+
+The exact V1.3 local friendly-skills PBIT has SHA-256
+`a9bb0003062633a5af1851d7dd7c68a4d1a29ed5276fb4b36fe118490f645152`.
+The exact V1.3 SharePoint friendly-skills PBIT has SHA-256
+`17906bc69f26f32bb0289386937dad3555a9003af18d19ff8fad7b9d7c7c9489`.
+Both contain the same 12 pages and 426 visuals as their source templates. Only
+`DataModelSchema` and `UnappliedChanges` differ, adding the readable fallback;
+all other 485 package entries are byte-identical to their respective sources.

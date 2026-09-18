@@ -1,0 +1,114 @@
+{
+  "report": "Cowork Value Intelligence",
+  "version": "1.3.0-friendly-skills-testing",
+  "verifiedAt": "2026-09-17T23:43:40.5760459-05:00",
+  "result": "pass",
+  "scope": {
+    "type": "display-only",
+    "changedBehavior": "Unmapped technical skill/tool identifiers receive readable fallback labels.",
+    "preservedBehavior": [
+      "12 report pages",
+      "426 visuals",
+      "31 target-only bookmarks",
+      "skill mapping status",
+      "task and category assignment",
+      "low, mid, and high time estimates",
+      "value and cost calculations",
+      "filters and navigation",
+      "local-folder and SharePoint-folder input contracts"
+    ]
+  },
+  "sourceTemplates": {
+    "local": {
+      "filename": "Cowork Value V1 Testing.pbit",
+      "sha256": "c7b1a722c672cbf65d9fb4a66bea4dfa7c17ca0e70c3df4ba04a8e49a35176b6",
+      "backupHashMatched": true
+    },
+    "sharePoint": {
+      "filename": "Cowork Value V1.2 SharePoint Testing.pbit",
+      "sha256": "4f2e68acc96352a95d8e632f46e61b684d03871f1be3d7cc988277f0e730eb69",
+      "backupHashMatched": true
+    }
+  },
+  "outputs": {
+    "local": {
+      "filename": "Cowork Value V1.3 Friendly Skills Testing.pbit",
+      "bytes": 695248,
+      "sha256": "a9bb0003062633a5af1851d7dd7c68a4d1a29ed5276fb4b36fe118490f645152",
+      "requiredParameters": [
+        "DataFolderPath"
+      ],
+      "desktopReopen": "pass",
+      "refresh": "pass",
+      "sensitivityLabel": "Public"
+    },
+    "sharePoint": {
+      "filename": "Cowork Value V1.3 SharePoint Friendly Skills Testing.pbit",
+      "bytes": 700459,
+      "sha256": "17906bc69f26f32bb0289386937dad3555a9003af18d19ff8fad7b9d7c7c9489",
+      "requiredParameters": [
+        "SharePointSiteUrl",
+        "SharePointFolderUrl"
+      ],
+      "desktopReopen": "pass"
+    }
+  },
+  "packageQa": {
+    "entries": 487,
+    "changedEntries": [
+      "DataModelSchema",
+      "UnappliedChanges"
+    ],
+    "unchangedEntries": 485,
+    "allReportEntriesByteIdentical": true,
+    "importedDataModel": false,
+    "securityBindings": false,
+    "dataMashup": false,
+    "friendlyExpressionCount": 1,
+    "modelFallbackUpdated": true,
+    "unappliedFallbackUpdated": true,
+    "unappliedLastLoadedFormulaUpdated": true,
+    "deterministicBuild": true
+  },
+  "liveQa": {
+    "testSet": "How2Demos Cowork full set",
+    "users": 21,
+    "auditRows": 2536,
+    "taskThreads": 227,
+    "taskRows": 90,
+    "totalTasks": 227,
+    "assistedHours": 30.1833333333333,
+    "estimatedValue": 2173.2,
+    "observedSkills": 100,
+    "mappedSkills": 6,
+    "mappingCoverage": 0.199526066350711,
+    "rawMcpIdentifiers": 76,
+    "changedDisplayNames": 95,
+    "friendlyMcpPrefixLeaks": 0,
+    "friendlyUnderscoreLeaks": 0,
+    "blankFriendlyNames": 0,
+    "numericMetricsIdenticalToOriginal": true,
+    "categoryResultsIdenticalToOriginal": true,
+    "skillInvocationResultsIdenticalToOriginal": true,
+    "categoryResultSha256": "a7789b8485eb087aa454fd8139aac815976ec2f8e0f99ed02cd2f5e1225649ff",
+    "skillInvocationResultSha256": "57a55898fc3cf3de04d2dd025ea55204e48b112f328d62a6f8c15a27a9daceb9"
+  },
+  "examples": [
+    {
+      "raw": "tool_search_tool",
+      "display": "Tool Search Tool"
+    },
+    {
+      "raw": "TaskCreate",
+      "display": "Task Create"
+    },
+    {
+      "raw": "mcp__outlook_calendar__ListCalendarView",
+      "display": "List Calendar View (Calendar)"
+    },
+    {
+      "raw": "mcp__sharepoint_onedrive__ReadFileContent",
+      "display": "Read File Content (SharePoint and OneDrive)"
+    }
+  ]
+}

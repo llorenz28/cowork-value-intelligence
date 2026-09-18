@@ -353,6 +353,10 @@ allocated share of credits or cost?
 Treat allocated credits and cost as estimates based on the documented allocation
 rule.
 
+V1.3 shows a curated friendly name when one exists and otherwise formats the
+technical identifier into a readable fallback. This display cleanup does not
+change whether the skill is mapped, its work category, or its value treatment.
+
 **Interpret carefully:** The source does not meter credits or value per skill.
 Repeated parent-category values must not be summed across skills.
 
