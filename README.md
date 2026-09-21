@@ -18,7 +18,7 @@ delegated work, modeled value, consumption, and right-sizing analysis.
 > inputs. Cost and ROI require matching customer consumption and contract inputs.
 
 <div align="center">
-<img src="images/report-preview.gif" alt="Animated preview of the 11 viewer-facing Cowork Value Intelligence pages using fabricated sample data" width="900">
+<img src="images/report-preview.gif" alt="Animated Cowork Value Intelligence report preview using fabricated sample data" width="900">
 </div>
 
 > 🎬 **Cowork Value Intelligence Walkthrough (video):** an executive tour of

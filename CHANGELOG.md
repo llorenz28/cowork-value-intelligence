@@ -6,9 +6,9 @@
   viewer-facing pages plus the hidden Action Assumptions page.
 - Added a version-neutral 24-slide interpretation guide aligned to the current
   value, cost, allocation, right-sizing, skill, model, and glossary contract.
-- Rebuilt the animated report carousel and narrated walkthrough from the current
-  Friendly Skills report, including synchronized subtitles, transcript, and
-  timeline.
+- Retained the established Value carousel as the repository preview.
+- Rebuilt the narrated walkthrough with synchronized subtitles, transcript,
+  and timeline.
 
 ## Cowork Value V1.3 repository promotion - 2026-09-18
 

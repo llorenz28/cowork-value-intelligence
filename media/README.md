@@ -31,14 +31,12 @@ Requirements:
 Run from the repository root:
 
 ```powershell
-python .\media\build_preview_gif.py
 node .\media\build_storyboard.js
 .\media\build_walkthrough.ps1
 ```
 
-The preview build creates `images\report-preview.gif` from the 11
-viewer-facing report captures. The storyboard build writes the version-neutral
-24-slide `Cowork Value Intelligence - Interpretation Guide.pptx`.
+The storyboard build writes the version-neutral 24-slide
+`Cowork Value Intelligence - Interpretation Guide.pptx`.
 
 The walkthrough build reads `walkthrough_segments.json`, creates temporary
 1920x1080 story frames, synthesizes one continuous neural narration per beat,
