@@ -186,7 +186,7 @@ try {
         -f concat -safe 0 -i 'concat.txt' -c copy `
         -movflags +faststart `
         -metadata title='Cowork Value Intelligence Walkthrough' `
-        -metadata comment='Adoption and value storytelling walkthrough for approved customer Cowork exports.' `
+        -metadata comment='Value storytelling walkthrough for approved customer Cowork exports.' `
         $output
     if ($LASTEXITCODE -ne 0) {
         throw 'FFmpeg failed while concatenating walkthrough segments.'

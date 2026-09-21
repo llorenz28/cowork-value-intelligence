@@ -18,13 +18,14 @@ delegated work, modeled value, consumption, and right-sizing analysis.
 > inputs. Cost and ROI require matching customer consumption and contract inputs.
 
 <div align="center">
-<img src="images/report-preview.gif" alt="Animated preview of all 13 Cowork Value Intelligence pages using fabricated sample data" width="900">
+<img src="images/report-preview.gif" alt="Animated preview of the 11 viewer-facing Cowork Value Intelligence pages using fabricated sample data" width="900">
 </div>
 
 > 🎬 **Cowork Value Intelligence Walkthrough (video):** an executive tour of
-> adoption, delegated work, workflow maturity, champions, and transparent value.
+> observed work, transparent assumptions, modeled value, consumption, allocation,
+> and evidence-aware action.
 >
-> https://github.com/user-attachments/assets/d821a3dd-7646-4529-aec5-5a36211060de
+> [Watch or download the current walkthrough](media/Cowork-Value-Intelligence-Walkthrough.mp4)
 
 ## Choose the template
 
@@ -63,7 +64,7 @@ and production workflow for the template you choose.
 | Data setup | [`DATA_SETUP_START_HERE.md`](DATA_SETUP_START_HERE.md) |
 | Security roles | [`docs/SECURITY_ROLES.md`](docs/SECURITY_ROLES.md) |
 | Interpretation guide | [`INTERPRETATION_GUIDE.md`](INTERPRETATION_GUIDE.md) |
-| Interpretation storyboard | [`PPTX`](Cowork%20Value%20Intelligence%20V1.0%20In%20Testing%20-%20Interpretation%20Storyboard.pptx) |
+| Interpretation guide deck | [`PPTX`](Cowork%20Value%20Intelligence%20-%20Interpretation%20Guide.pptx) |
 | Narrated walkthrough | [`MP4`](media/Cowork-Value-Intelligence-Walkthrough.mp4) · [`Transcript`](media/Cowork-Value-Intelligence-Walkthrough-transcript.md) · [`Subtitles`](media/Cowork-Value-Intelligence-Walkthrough.srt) · [`Build notes`](media/README.md) |
 | Editable source | [`src/`](src/) · [`Model blueprint`](docs/MODEL_BLUEPRINT.md) |
 
@@ -228,6 +229,7 @@ adoption/
 build_sample_data.py
 DATA_SETUP_START_HERE.md
 INTERPRETATION_GUIDE.md
+Cowork Value Intelligence - Interpretation Guide.pptx
 README.md
 SECURITY.md
 docs/

@@ -1,5 +1,15 @@
 # Changelog
 
+## Cowork Value media and interpretation refresh - 2026-09-21
+
+- Replaced the obsolete 13-page media captures with the current 11
+  viewer-facing pages plus the hidden Action Assumptions page.
+- Added a version-neutral 24-slide interpretation guide aligned to the current
+  value, cost, allocation, right-sizing, skill, model, and glossary contract.
+- Rebuilt the animated report carousel and narrated walkthrough from the current
+  Friendly Skills report, including synchronized subtitles, transcript, and
+  timeline.
+
 ## Cowork Value V1.3 repository promotion - 2026-09-18
 
 - Promoted the validated V1.3 local-folder and SharePoint-folder templates as

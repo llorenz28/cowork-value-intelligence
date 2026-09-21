@@ -5,13 +5,18 @@ This guide applies to the active testing templates:
 - **Cowork Adoption Intelligence v2 Testing** (`2.0.1-testing`): nine
   viewer-facing pages focused on adoption, sustained use, delegation maturity,
   potential champions, and action patterns.
-- **Cowork Value V1 Testing** (`1.1.0-testing`): 11 viewer-facing pages plus one
-  hidden assumptions page focused on modeled value, consumption, chargeback,
-  five billing scenarios, and right-sizing.
+- **Cowork Value Friendly Skills Testing** (`1.3.0-friendly-skills-testing`) and
+  its SharePoint-folder edition: 11 viewer-facing pages plus one hidden
+  assumptions page focused on modeled value, consumption, allocation, five
+  billing scenarios, and right-sizing.
 
 The legacy 13-page combined-source report under `src` is not covered here.
 
-> The repository sample is fabricated. Its results, `$75/hour` screenshot
+The companion
+[`Cowork Value Intelligence - Interpretation Guide.pptx`](Cowork%20Value%20Intelligence%20-%20Interpretation%20Guide.pptx)
+provides the same current Value contract as a 24-slide presentation.
+
+> The repository sample is fabricated. Its results, `$72/hour` screenshot
 > assumption, and QA-only contract inputs are demonstrations, not customer
 > findings, benchmarks, or recommendations.
 

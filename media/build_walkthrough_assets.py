@@ -161,8 +161,16 @@ def build_dashboard(segment: dict) -> Image.Image:
     draw = ImageDraw.Draw(image)
     draw.rectangle((0, 0, WIDTH, 5), fill=TEAL)
     draw.text((92, 32), segment["eyebrow"], font=load_font(20, True), fill=TEAL_DARK)
-    draw.text((92, 68), segment["title"], font=load_font(44, True), fill=INK)
-    draw.text((650, 84), segment["subtitle"], font=load_font(25), fill=MUTED)
+    title_font = load_font(44, True)
+    subtitle_font = load_font(25)
+    draw.text((92, 68), segment["title"], font=title_font, fill=INK)
+    title_width = draw.textlength(segment["title"], font=title_font)
+    subtitle_width = draw.textlength(segment["subtitle"], font=subtitle_font)
+    subtitle_x = WIDTH - 92 - subtitle_width
+    if subtitle_x >= 92 + title_width + 40:
+        draw.text((subtitle_x, 84), segment["subtitle"], font=subtitle_font, fill=MUTED)
+    else:
+        draw.text((92, 122), segment["subtitle"], font=load_font(22), fill=MUTED)
 
     paste_dashboard(image, ROOT / segment["source"].replace("/", "\\"))
 

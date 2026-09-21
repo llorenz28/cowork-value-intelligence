@@ -1,140 +1,164 @@
 1
-00:00:00,100 --> 00:00:11,969
-Meet Cowork Value Intelligence: one Power BI report that turns Cowork activity into a clear story about adoption, the work people delegate, how deeply they delegate it, and the value those workflows may create.
+00:00:00,100 --> 00:00:02,750
+Meet Cowork Value Intelligence.
 
 2
-00:00:11,970 --> 00:00:17,120
-The template is data-free by design and comes to life with your approved organization exports.
+00:00:02,751 --> 00:00:11,819
+This data-free Power BI template connects observed Cowork activity with transparent value assumptions, customer-priced consumption, and evidence-aware recommendations.
 
 3
-00:00:17,121 --> 00:00:20,223
-Here is a quick tour of the decisions it supports.
+00:00:11,820 --> 00:00:15,122
+It comes to life with your approved customer exports.
 
 4
-00:00:20,980 --> 00:00:23,262
-Start Here is home base.
+00:00:15,123 --> 00:00:20,468
+Here is a guided tour of the decisions it supports and the boundaries that keep those decisions defensible.
 
 5
-00:00:23,263 --> 00:00:27,130
-It routes leaders to the questions that matter: Is adoption growing?
+00:00:21,233 --> 00:00:24,017
+Start Here is the report's decision map.
 
 6
-00:00:27,131 --> 00:00:29,071
-Who is using Cowork?
+00:00:24,018 --> 00:00:30,920
+It routes leaders to value, cost, methodology, data connection, business-unit, and user-tier questions.
 
 7
-00:00:29,072 --> 00:00:31,248
-What work is being delegated?
+00:00:30,921 --> 00:00:37,673
+Begin with the decision you need to make, then confirm that the page's required source files and customer inputs are available.
 
 8
-00:00:31,249 --> 00:00:33,413
-Where is value concentrating?
+00:00:38,441 --> 00:00:47,799
+The Executive Summary starts with observed active users and task volume, then adds modeled value, effective platform cost, and return under the selected assumptions.
 
 9
-00:00:33,414 --> 00:00:35,723
-Which workflows need enablement?
+00:00:47,800 --> 00:00:51,544
+Reconciliation and completeness indicators remain visible.
 
 10
-00:00:35,724 --> 00:00:37,598
-What should happen next?
+00:00:51,545 --> 00:00:58,586
+Treat the result as scenario-based decision support, not causality, audited savings, or realized cash return.
 
 11
-00:00:37,599 --> 00:00:41,505
-The report begins with the decision and guides you to the right evidence.
+00:00:59,345 --> 00:01:05,042
+Task Categories and Methodology explains what people delegate and how that work becomes modeled value.
 
 12
-00:00:42,280 --> 00:00:52,698
-Activity and Value shows where Cowork is becoming part of everyday work: which skills are used most, which categories contribute the most estimated hours, and which departments are building momentum.
+00:01:05,043 --> 00:01:10,774
+Task volume, scheduled share, and mapping coverage are observed or derived from source records.
 
 13
-00:00:52,699 --> 00:00:56,499
-This turns generic training into targeted workflow enablement.
+00:01:10,775 --> 00:01:15,997
+Minutes saved are published assumptions applied to each category, not measured task duration.
 
 14
-00:00:57,256 --> 00:01:00,453
-Actions explains what people ask Cowork to do.
+00:01:16,745 --> 00:01:21,248
+The Methodology and Value Calculator keeps every major assumption visible.
 
 15
-00:01:00,454 --> 00:01:08,071
-Move from skill volume to work categories and value tiers, spot unmapped tools, and identify repeatable actions worth scaling.
+00:01:21,249 --> 00:01:30,763
+Compare baseline and adjusted value, inspect category sensitivity, and record the selected labor rate, estimate basis, billing mode, and price inputs.
 
 16
-00:01:08,072 --> 00:01:10,414
-The goal is not more prompts.
+00:01:30,764 --> 00:01:36,332
+The hidden assumptions page contains the underlying action catalog and research-backed minute ranges.
 
 17
-00:01:10,415 --> 00:01:12,970
-It is better, higher-value work.
+00:01:37,112 --> 00:01:43,300
+Value versus Cost compares modeled value with customer-priced observed consumption under the selected billing mode.
 
 18
-00:01:13,723 --> 00:01:16,786
-How Far They Delegate goes beyond activity.
+00:01:43,301 --> 00:01:47,558
+Read credit bands and value bands separately before using the ratio.
 
 19
-00:01:16,787 --> 00:01:23,756
-It shows task duration, steps, skill chaining, and movement from trying to using, delegating, and automating.
+00:01:47,559 --> 00:01:54,578
+Re-run the page with Finance-approved terms and test whether the conclusion survives changes in both cost and value assumptions.
 
 20
-00:01:23,757 --> 00:01:29,962
-These signals show workflow depth—not unattended work—and where users are ready for advanced patterns.
+00:01:55,328 --> 00:02:02,978
+Value by Department shows how observed tasks, credits, modeled value, and allocated cost distribute across business units.
 
 21
-00:01:30,723 --> 00:01:35,159
-Value by User Tier reveals whether adoption is broad or concentrated.
+00:02:02,979 --> 00:02:06,388
+Check identity-match coverage before comparing teams.
 
 22
-00:01:35,160 --> 00:01:41,582
-Find champions who can teach proven patterns, teams that depend on a few experts, and users who may need coaching.
+00:02:06,389 --> 00:02:15,015
+Differences may reflect population, work mix, consumption, or missing organization data, so pair the page with business context before acting.
 
 23
-00:01:41,583 --> 00:01:44,998
-Pair each tier with business context before acting.
+00:02:15,776 --> 00:02:22,612
+Value by User Tier reveals whether activity and modeled value are broadly distributed or concentrated among a smaller group.
 
 24
-00:01:45,756 --> 00:01:49,344
-The methodology page keeps the value story defensible.
+00:02:22,613 --> 00:02:28,086
+The percentile split requires at least twenty active users and changes with the filter context.
 
 25
-00:01:49,345 --> 00:01:57,341
-Every output traces to observed task volume, published time-saved assumptions, a selected labor rate, and optional quality adjustments.
+00:02:28,087 --> 00:02:34,571
+Use it to identify enablement patterns, champions, or dependencies, not to rate employee performance.
 
 26
-00:01:57,342 --> 00:02:00,354
-Change the assumptions and the result changes.
+00:02:35,343 --> 00:02:41,866
+Right-Sizing and Reclaim combines observed credits, allowance, activity recency, and budget segments.
 
 27
-00:02:00,355 --> 00:02:03,847
-This is scenario planning, not audited savings.
+00:02:41,867 --> 00:02:46,816
+Near-limit, over-limit, inactive, and low-use flags are review prompts.
 
 28
-00:02:04,596 --> 00:02:09,356
-Together, these views answer the questions leaders have: Is adoption growing?
+00:02:46,817 --> 00:02:55,042
+Confirm role, leave, seasonality, manager context, and contract terms before changing access, allowance, or assignment.
 
 29
-00:02:09,357 --> 00:02:11,482
-What work is being delegated?
+00:02:55,791 --> 00:03:02,504
+Skills and Allocated Consumption uses friendly labels for known skills and readable fallbacks for technical identifiers.
 
 30
-00:02:11,483 --> 00:02:14,172
-Are people moving into deeper workflows?
+00:03:02,505 --> 00:03:05,266
+Invocations and users are observed.
 
 31
-00:02:14,173 --> 00:02:15,946
-Where are the champions?
+00:03:05,267 --> 00:03:11,728
+Credits, cost, and classified value are directional allocations because the source does not meter them per skill.
 
 32
-00:02:15,947 --> 00:02:18,379
-Which patterns should we scale next?
+00:03:11,729 --> 00:03:16,137
+Use volume for enablement and allocation only as planning context.
 
 33
-00:02:18,380 --> 00:02:23,804
-Consumption and cost are available when needed, but they support the story—they do not define it.
+00:03:16,891 --> 00:03:21,852
+Model and LLM Breakdown appears only when Purview supplies model attribution.
 
 34
-00:02:24,564 --> 00:02:30,853
-That is Cowork Value Intelligence: one report from activity to a defensible value and enablement story.
+00:03:21,853 --> 00:03:28,911
+The page can distribute modeled value, cost, and credits by task share, but those fields are not model-specific meters.
 
 35
-00:02:30,854 --> 00:02:37,934
-Download the template, connect your approved exports, and turn your organization's Cowork activity into an actionable value story.
+00:03:28,912 --> 00:03:31,947
+If model data is unavailable, stop.
+
+36
+00:03:31,948 --> 00:03:36,668
+Obtain source-backed metering before recommending a model on cost or efficiency.
+
+37
+00:03:37,435 --> 00:03:40,476
+The Metric Glossary is the final quality gate.
+
+38
+00:03:40,477 --> 00:03:46,788
+It defines each metric, its calculation, evidence condition, source dependency, and limitation.
+
+39
+00:03:46,789 --> 00:03:56,051
+When a result leaves the report, carry its definition, reporting period, filters, evidence label, selected assumptions, and owner into the decision record.
+
+40
+00:03:56,803 --> 00:04:05,480
+That is Cowork Value Intelligence: one report that connects observed work with transparent assumptions, customer-priced consumption, and evidence-aware action.
+
+41
+00:04:05,481 --> 00:04:13,533
+Download the template, connect your approved exports, challenge the inputs, and end each analysis with a clear owner and next validation step.
 

@@ -1,74 +1,106 @@
 [
-  {
-    "id": "introduction",
-    "title": "Cowork Value Intelligence",
-    "startSeconds": 0.0,
-    "endSeconds": 20.88,
-    "narrationSeconds": 20.28,
-    "gapSeconds": 0.6
-  },
-  {
-    "id": "start-here",
-    "title": "Start Here",
-    "startSeconds": 20.88,
-    "endSeconds": 42.18,
-    "narrationSeconds": 20.688,
-    "gapSeconds": 0.6
-  },
-  {
-    "id": "activity-value",
-    "title": "Activity & Value",
-    "startSeconds": 42.18,
-    "endSeconds": 57.156,
-    "narrationSeconds": 14.376,
-    "gapSeconds": 0.6
-  },
-  {
-    "id": "actions",
-    "title": "Actions",
-    "startSeconds": 57.156,
-    "endSeconds": 73.623,
-    "narrationSeconds": 15.864,
-    "gapSeconds": 0.6
-  },
-  {
-    "id": "delegation-depth",
-    "title": "How Far They Delegate",
-    "startSeconds": 73.623,
-    "endSeconds": 90.623,
-    "narrationSeconds": 16.392,
-    "gapSeconds": 0.6
-  },
-  {
-    "id": "value-tiers",
-    "title": "Value by User Tier",
-    "startSeconds": 90.623,
-    "endSeconds": 105.656,
-    "narrationSeconds": 14.424,
-    "gapSeconds": 0.6
-  },
-  {
-    "id": "methodology",
-    "title": "Transparent Value Methodology",
-    "startSeconds": 105.656,
-    "endSeconds": 124.496,
-    "narrationSeconds": 18.24,
-    "gapSeconds": 0.6
-  },
-  {
-    "id": "leadership-payoff",
-    "title": "From usage data to an enablement strategy",
-    "startSeconds": 124.496,
-    "endSeconds": 144.464,
-    "narrationSeconds": 19.368,
-    "gapSeconds": 0.6
-  },
-  {
-    "id": "closing",
-    "title": "One report. A clearer Cowork value story.",
-    "startSeconds": 144.464,
-    "endSeconds": 158.6,
-    "narrationSeconds": 13.536,
-    "gapSeconds": 0.6
-  }
+    {
+        "id":  "introduction",
+        "title":  "Cowork Value Intelligence",
+        "startSeconds":  0,
+        "endSeconds":  21.133,
+        "narrationSeconds":  20.52,
+        "gapSeconds":  0.6
+    },
+    {
+        "id":  "start-here",
+        "title":  "Start Here",
+        "startSeconds":  21.133,
+        "endSeconds":  38.341,
+        "narrationSeconds":  16.608,
+        "gapSeconds":  0.6
+    },
+    {
+        "id":  "executive-summary",
+        "title":  "Executive Summary",
+        "startSeconds":  38.341,
+        "endSeconds":  59.245,
+        "narrationSeconds":  20.304,
+        "gapSeconds":  0.6
+    },
+    {
+        "id":  "task-categories",
+        "title":  "Task Categories \u0026 Methodology",
+        "startSeconds":  59.245,
+        "endSeconds":  76.645,
+        "narrationSeconds":  16.8,
+        "gapSeconds":  0.6
+    },
+    {
+        "id":  "methodology",
+        "title":  "Methodology \u0026 Value Calculator",
+        "startSeconds":  76.645,
+        "endSeconds":  97.012,
+        "narrationSeconds":  19.752,
+        "gapSeconds":  0.6
+    },
+    {
+        "id":  "value-vs-cost",
+        "title":  "Value vs Cost",
+        "startSeconds":  97.012,
+        "endSeconds":  115.228,
+        "narrationSeconds":  17.616,
+        "gapSeconds":  0.6
+    },
+    {
+        "id":  "value-by-department",
+        "title":  "Value by Department",
+        "startSeconds":  115.228,
+        "endSeconds":  135.676,
+        "narrationSeconds":  19.848,
+        "gapSeconds":  0.6
+    },
+    {
+        "id":  "value-by-user-tier",
+        "title":  "Value by User Tier",
+        "startSeconds":  135.676,
+        "endSeconds":  155.243,
+        "narrationSeconds":  18.96,
+        "gapSeconds":  0.6
+    },
+    {
+        "id":  "right-sizing",
+        "title":  "Right-Sizing \u0026 Reclaim",
+        "startSeconds":  155.243,
+        "endSeconds":  175.691,
+        "narrationSeconds":  19.848,
+        "gapSeconds":  0.6
+    },
+    {
+        "id":  "skills-consumption",
+        "title":  "Skills \u0026 Allocated Consumption",
+        "startSeconds":  175.691,
+        "endSeconds":  196.791,
+        "narrationSeconds":  20.496,
+        "gapSeconds":  0.6
+    },
+    {
+        "id":  "model-breakdown",
+        "title":  "Model \u0026 LLM Breakdown",
+        "startSeconds":  196.791,
+        "endSeconds":  217.335,
+        "narrationSeconds":  19.944,
+        "gapSeconds":  0.6
+    },
+    {
+        "id":  "glossary",
+        "title":  "Metric Glossary",
+        "startSeconds":  217.335,
+        "endSeconds":  236.703,
+        "narrationSeconds":  18.768,
+        "gapSeconds":  0.6
+    },
+    {
+        "id":  "closing",
+        "title":  "Turn Cowork activity into an actionable value story.",
+        "startSeconds":  236.703,
+        "endSeconds":  254.203,
+        "narrationSeconds":  16.896,
+        "gapSeconds":  0.6
+    }
 ]
